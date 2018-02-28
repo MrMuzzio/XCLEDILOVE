@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="base">#F7A9B1</color>
+
+    <color name="lightgray">#D3D3D3</color><!--亮灰色 -->
+    <color name="txt_red">#FE1515</color>
+    <color name="black">#000000</color>
+    <color name="transparent">#00000000</color>
+    <color name="dividingline_color">#aeaeae</color>
+
+    <color name="title_color">#aaaaaa</color>
+
+    <color name="txt_bg">#0064c4f6</color>
+   <!--1红2黄3绿4青5兰6紫7白-->
+    <color name="red">#ff0000</color>
+    <color name="yellow">#FFFF00</color>
+    <color name="green">#3CB371</color>
+    <color name="cyan">#00FFFF</color>
+    <color name="blue">#0000ff</color>
+    <color name="purple">#800080</color>
+    <color name="white">#FFFFFF</color><!--白色 -->
+
+
+    <color name="pull_to_refresh_bg_color">#f6f6f6</color>
+    <color name="timeline_home_bg_color">#f6f6f6</color>
+    <color name="pull_to_refresh_tips_color">#101010</color>
+    <color name="pull_to_refresh_time_color">#706F6F</color>
+    <color name="loading_bar_text_color">#737373</color>
+
+    <color name="list_title_color">#141414</color>
+
+    <color name="title_bar_bg">#22292c</color>
+    <color name="title_bar_text">#ffffff</color>
+
+    <color name="dialog_title_text_color">#13b791</color>
+
+    <color name="list_state_offline">#ff0000</color>
+    <color name="list_state_online">#6ccdb3</color>
+
+    <color name="list_state_text_color">#999999</color>
+    <color name="article_edit_title_bg">#888888</color>
+    <color name="article_edit_title_text">#000000</color>
+
+    <color name="edit_border_color">#cccccc</color>
+
+    <color name="device_detail_service">#cccccc</color>
+    <color name="device_detail_character">#ffffff</color>
+</resources>

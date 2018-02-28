@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="wordSize">
+        <item>12</item>
+        <item>16</item>
+    </string-array>
+
+    <string-array name="wordType">
+        <item>正体</item>
+        <item>斜体</item>
+        <item>粗体</item>
+    </string-array>
+
+    <string-array name="speed">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+    <string-array name="effect">
+        <item>无</item>
+        <item>下划线</item>
+        <item>粗体</item>
+        <item>斜体</item>
+    </string-array>
+
+    <string-array name="languageType">
+        <item>韩文</item>
+        <item>中文</item>
+        <item>日文</item>
+        <item>英文</item>
+    </string-array>
+
+    <string-array name="bright">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+    </string-array>
+
+    <string-array name="model">
+        <item>左移</item>
+        <item>右移</item>
+        <item>固定</item>
+        <item>雪花</item>
+        <item>上移</item>
+        <item>下移</item>
+        <item>闪烁</item>
+        <item>跑马灯</item>
+    </string-array>
+</resources>

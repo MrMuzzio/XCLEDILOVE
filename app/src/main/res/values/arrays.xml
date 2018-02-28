@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="wordSize">
+        <item>12</item>
+        <item>16</item>
+    </string-array>
+
+    <string-array name="wordType">
+        <item>Normall</item>
+        <item>Italic</item>
+        <item>Bold</item>
+    </string-array>
+
+    <string-array name="speed">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+    <string-array name="effect">
+        <item>无</item>
+        <item>下划线</item>
+        <item>粗体</item>
+        <item>斜体</item>
+    </string-array>
+
+    <string-array name="languageType">
+        <item>韩文</item>
+        <item>中文</item>
+        <item>日文</item>
+        <item>英文</item>
+    </string-array>
+
+    <string-array name="bright">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+    </string-array>
+
+    <string-array name="model">
+        <item>@string/left</item>
+        <item>@string/right</item>
+        <item>@string/hold</item>
+        <item>@string/snow</item>
+        <item>@string/up</item>
+        <item>@string/down</item>
+        <item>@string/flash</item>
+        <item>@string/marquee</item>
+    </string-array>
+</resources>

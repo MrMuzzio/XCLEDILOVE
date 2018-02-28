@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_content"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#F7A9B1"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:gravity="center|left"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvIndex"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:textColor="#FFFFFF"
+            android:gravity="center"
+            android:background="@drawable/translucent_bg"
+            android:text="1" />
+
+        <TextView
+            android:id="@+id/tvContent"
+            android:layout_marginLeft="6dp"
+            android:layout_width="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="23sp"
+            android:gravity="center|left"
+            android:layout_height="wrap_content"
+            android:text="实际是爱死爱德华" />
+
+    </LinearLayout>
+
+   <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+       android:layout_marginLeft="10dp"
+       android:layout_marginRight="10dp"
+        android:background="#FFFFFF" />
+
+</LinearLayout>

@@ -1,0 +1,67 @@
+<resources>
+    <string name="app_name">LEDILove</string>
+    <string name="set">Setting</string>
+    <string name="size">size</string>
+    <string name="font">Font</string>
+    <string name="bytes">Char</string>
+    <string name="pageEffectAndModeSetting">Page Effect And Mode Setting</string>
+    <string name="left">Left</string>
+    <string name="right">Right</string>
+    <string name="hold">Hold</string>
+    <string name="snow">Snow</string>
+    <string name="up">Up</string>
+    <string name="down">Down</string>
+    <string name="flash">Flash</string>
+    <string name="marquee">Marquee</string>
+    <string name="comfirmAndSend">Comfirm and Send</string>
+    <string name="speed">Speed</string>
+    <string name="sendSpeed">Send Speed</string>
+    <string name="sendBrightness">Send Brightness</string>
+    <string name="brightness">Brightness</string>
+    <string name="sendlist">Send List</string>
+    <string name="send">Send</string>
+    <string name="connectstate">Unconnected</string>
+
+
+
+
+    <!--hint-->
+    <string name="ok">ok</string>
+    <string name="cancel">cancel</string>
+    <string name="successfulOperation">Successful operation!</string>
+    <string name="successfulFailed">Successful failed!</string>
+    <string name="hint">hint</string>
+    <string name="connecttingSuccessful">Connection successful</string>
+    <string name="sendsuccess">send success</string>
+    <string name="sendfailed">send failed</string>
+    <string name="bteOntTurnOn">Bluetooth not turned on</string>
+    <string name="connectionTimedOut">connection timed out</string>
+    <string name="failed2Obtainservice">Failed to obtain service</string>
+    <string name="Notificationfailed2open">Notification failed to open</string>
+    <string name="connectionCasBeenDisconnected">The connection has been disconnected</string>
+    <string name="sendOperationTimeout">Send operation timeout</string>
+    <string name="pleaseEnterText">Please enter the text</string>
+    <string name="dialog_reset">To reset the connection, please confirm.</string>
+    <string name="dialog_positive">reset</string>
+    <string name="dialog_negative">cancel</string>
+
+
+    <!-- 下拉刷新listView -->
+    <string name="pull_to_refresh_pull_label">Pull to refresh</string>
+    <string name="string_update_time">Last update：%s</string>
+    <string name="string_refreshing">Scanning bluetooth…</string>
+    <string name="scan_over">End of scan</string>
+    <string name="release_to_refresh_pull_label">Loosen the refresh</string>
+    <string name="loading_error">Click on the load</string>
+    <string name="loading_wait">Getting more…</string>
+    <string name="click_for_loading_more">Click load more</string>
+    <string name="all_has_show">All content has been shown</string>
+
+    <string name="list_click">Click on the screen to reload</string>
+    <string name="list_empty">have nothing data</string>
+
+    <string name="devices">Device List</string>
+    <string name="failedOperation">Operation failure!</string>
+    <string name="connecting">connecting</string>
+    <string name="refreshheadupdate">Last updated on:just</string>
+</resources>
