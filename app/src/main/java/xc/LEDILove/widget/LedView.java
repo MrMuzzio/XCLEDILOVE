@@ -105,10 +105,10 @@ public class LedView extends AppCompatTextView {
      * @param pix 12 16 48
      * @param zlcs  正 斜 粗
      */
-    public void setMatrixText( String txt,  int pix,  String zlcs) {
-//        Runnable runnable = new Runnable() {
-//            @Override
-//            public void run() {
+    public void setMatrixText( final String txt,  final int pix,  final String zlcs) {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
         dots = pix;
         text = txt;
         if (null == utils) {
@@ -119,9 +119,9 @@ public class LedView extends AppCompatTextView {
         }
         matrix = utils.getWordsInfo(txt);
         postInvalidate();
-//            }
-//        };
-//        poolExecutor.execute(runnable);
+            }
+        };
+        poolExecutor.execute(runnable);
     }
 
     /***
