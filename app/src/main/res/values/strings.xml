@@ -41,6 +41,7 @@
     <string name="connectionCasBeenDisconnected">The connection has been disconnected</string>
     <string name="sendOperationTimeout">Send operation timeout</string>
     <string name="pleaseEnterText">Please enter the text</string>
+    <string name="pleasepoweron">Please send the boot command first</string>
     <string name="dialog_reset">To reset the connection, please confirm.</string>
     <string name="dialog_positive">reset</string>
     <string name="dialog_negative">cancel</string>

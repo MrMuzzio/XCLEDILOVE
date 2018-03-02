@@ -7,6 +7,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Handler;
 
 import xc.LEDILove.utils.ArabicUtils;
 import xc.LEDILove.utils.Helpful;
@@ -63,8 +64,10 @@ public class FontUtils {
     private int realLEDWidget = 0;
     private int lineTotalByte = 0;
     private boolean isReadBC =false;
+    private Thread word_stork;
     public FontUtils(Context context, String zlcs, int pix) {
         this.context = context;
+//        word_stork = new Thread(new)
         if (zlcs!=null){
 
             this.zlx = zlcs;
@@ -74,7 +77,7 @@ public class FontUtils {
     /**
      * 获取字库信息
      */
-    public boolean[][] getWordsInfo(String str) {
+    public synchronized boolean[][] getWordsInfo(String str) {
         //由于个别字符显示问题 在读字库前先做处理
 //        String inversod = inverso(str);//字符反序
         String inversod = str;

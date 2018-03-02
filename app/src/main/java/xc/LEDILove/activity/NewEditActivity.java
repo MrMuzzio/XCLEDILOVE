@@ -290,6 +290,8 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
     }
     private boolean only_connect = true;
     private boolean select_return_first = false;
+    private boolean switch_state_iscontrolauto = false;//是否自动操作
+    private boolean switch_state = false;//开关状态  flase 为 关
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -298,6 +300,7 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
             tv_device_name.setText(getTenChar(data.getExtras().getString("name")));
         }else {
             select_return_first = true;
+//            switch_state_iscontrolauto = true;
             aSwitch.setChecked(false);
         }
     }
@@ -320,9 +323,13 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
                     showYCDialog(getString(R.string.pleaseEnterText));
                     return;
                 }
+
                 if (!mConnected) {
                     Intent intent = new Intent(NewEditActivity.this, NewScanActivity.class);
                     startActivityForResult(intent, 1004);
+                    return;
+                }else if (!switch_state){
+                    showYCDialog(getString(R.string.pleasepoweron));
                     return;
                 }
                 edit_byte = ledView.getTextByte();
@@ -511,7 +518,8 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
                 pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialogInterface) {
-                        MyApplication.getInstance().mClient.disconnect(mac);
+//                        MyApplication.getInstance().mClient.disconnect(mac);
+                        senddatas.clear();
                         CommonUtils.toast("Cancel");
                     }
                 });
@@ -617,6 +625,7 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
         numberRecyclerAdapter = new BrightAndModelRecyclerAdapter(this, new BrightAndModelRecyclerAdapter.MyCollectionRecordListener() {
             @Override
             public void onclick(String keyName) {
+
                 selectedParams.switchValue = keyName;
                 //响应点击序号事件，点击哪一个显示哪一个的历史数据，没有就不显示
                 UmsResultBean umsResultBean = umsResultHelper.getUmsReulsByIndex(Integer.parseInt(keyName));
@@ -691,6 +700,8 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
                         }
                     });
                     builder.show();
+                }else {
+                    CommonUtils.toast("No connecting device");
                 }
 
             }
@@ -716,6 +727,12 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
         aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.e("isChecked",isChecked+"");
+                switch_state = isChecked;
+                if (switch_state_iscontrolauto){
+                    switch_state_iscontrolauto = false;
+                    return;
+                }
                 if (isChecked) {
                     turnOnOrOffCmd = CmdConts.ON_LED;
                 } else {
@@ -1000,7 +1017,13 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
 //            ledView.setMatrixTextWithColor(selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color);
 //            //  }
             //延迟400ms，如果不再输入字符，则执行该线程的run方法
-            handler.postDelayed(delayRun, 400);
+            if (s.toString().length()<50){
+                handler.postDelayed(delayRun, 100);
+            }else if(s.toString().length()>50&&s.toString().length()<200){
+                handler.postDelayed(delayRun, 300);
+            }else {
+                handler.postDelayed(delayRun, 400);
+            }
         }
 
         @Override
@@ -1066,9 +1089,11 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
             }
             if (status == STATUS_CONNECTED) {
                 mConnected = true;
+                switch_state_iscontrolauto = true;
                 aSwitch.setChecked(mConnected);
             } else {
                 mConnected = false;
+                switch_state_iscontrolauto = true;
                 aSwitch.setChecked(mConnected);
                 tv_device_name.setText(getString(R.string.connectstate));
 //                CommonUtils.toast("disconnected");
@@ -1184,6 +1209,7 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
                 //打开通知成功
                 CommonUtils.toast("open notify success ");
                 mConnected = true;
+                switch_state_iscontrolauto = true;
                 aSwitch.setChecked(mConnected);
                 //连接成功
                 if (requestCode == 1001) {
@@ -1208,6 +1234,7 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
                 CommonUtils.toast("open notify failed ");
 
                 mConnected = false;
+                switch_state_iscontrolauto = true;
                 aSwitch.setChecked(mConnected);
             }
         }

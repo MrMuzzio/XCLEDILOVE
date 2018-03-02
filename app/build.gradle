@@ -10,8 +10,8 @@ android {
         applicationId "xc.LEDILove"
         minSdkVersion 18
         targetSdkVersion 22
-        versionCode 3
-        versionName "1.2.1"
+        versionCode 4
+        versionName "1.2.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
     }

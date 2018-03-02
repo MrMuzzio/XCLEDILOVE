@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Message;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -12,6 +13,7 @@ import android.util.Log;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
 
 import xc.LEDILove.R;
 import xc.LEDILove.font.FontUtils;
@@ -40,10 +42,19 @@ public class LedView extends AppCompatTextView {
     private Paint normalPaint;
     private Paint selectPaint;
     private FontUtils utils;
+    private  android.os.Handler handler = new android.os.Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if (msg.what==1){
+                postInvalidate();
+            }
+        }
+    };
 
-    public String getContent() {
-        return text;
-    }
+        public String getContent() {
+            return text;
+        }
 
     private String text;
     /*
@@ -86,7 +97,6 @@ public class LedView extends AppCompatTextView {
         normalPaint.setStyle(Paint.Style.FILL);
         normalPaint.setColor(normallPaintColor);
         this.context = context;
-
         // utilsTest = new TestFontUtils(context);
     }
 
@@ -109,18 +119,24 @@ public class LedView extends AppCompatTextView {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-        dots = pix;
-        text = txt;
-        if (null == utils) {
-            utils = new FontUtils(context, zlcs, pix);
-        } else {
-            utils.zlx = zlcs;
-            utils.setPix(pix);
-        }
-        matrix = utils.getWordsInfo(txt);
-        postInvalidate();
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+                dots = pix;
+                text = txt;
+                if (null == utils) {
+                    utils = new FontUtils(context, zlcs, pix);
+                } else {
+                    utils.zlx = zlcs;
+                    utils.setPix(pix);
+                }
+                matrix = utils.getWordsInfo(txt);
+                handler.sendEmptyMessage(1);
+
+       postInvalidate();
             }
-        };
+       };
         poolExecutor.execute(runnable);
     }
 
@@ -131,10 +147,11 @@ public class LedView extends AppCompatTextView {
      * @param zlcs  正 斜 粗
      * @param colorValue 选中颜色
      */
-    public void setMatrixTextWithColor(  String txt,   int pix,   String zlcs,  int colorValue) {
-//        Runnable runnable = new Runnable() {
-//            @Override
-//            public void run() {
+    public void setMatrixTextWithColor(  final String txt,   final int pix,   final String zlcs,  final int colorValue) {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+//                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
                 dots = pix;
                 text = txt;
                 if (null == utils) {
@@ -149,9 +166,10 @@ public class LedView extends AppCompatTextView {
                     selectPaint.setColor(selectorPaintColor);
                 }
                 postInvalidate();
-//            }
-//        };
-//        poolExecutor.execute(runnable);
+            }
+        };
+
+        poolExecutor.execute(runnable);
     }
 
     public byte[] getTextByte() {
