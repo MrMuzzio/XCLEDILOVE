@@ -10,6 +10,10 @@ import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.util.Log;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -107,8 +111,43 @@ public class LedView extends AppCompatTextView {
     public LedView(Context context) {
         this(context, null, 0);
     }
+    private Callable callable = new Callable() {
+        @Override
+        public Object call() throws Exception {
+            completeCallback.onComplete(false);
+            dots = pix;
+            text = txt;
+            if (null == utils) {
+                utils = new FontUtils(context, zlcs, pix);
+            } else {
+                utils.zlx = zlcs;
+                utils.setPix(pix);
+            }
+            matrix = utils.getWordsInfo(txt);
+            completeCallback.onComplete(true);
+            if(colorVaules != 0) {
+                    selectorPaintColor = colorVaules;
+                    selectPaint.setColor(selectorPaintColor);
+                }
+            handler.sendEmptyMessage(1);
 
-
+//            postInvalidate();
+            return null;
+        }
+    };
+    private completeCallback completeCallback;
+    private  FutureTask<boolean[][]> task ;
+    private Future<?> future ;
+    private String txt;
+    private int pix;
+    private String zlcs;
+    private int colorVaules;
+    public interface completeCallback{
+          void onComplete(boolean isComplete);
+    };
+    public void setCompleteCallback(completeCallback callback){
+        completeCallback = callback;
+    }
     /***
      *
      * @param txt 文本
@@ -116,30 +155,54 @@ public class LedView extends AppCompatTextView {
      * @param zlcs  正 斜 粗
      */
     public void setMatrixText( final String txt,  final int pix,  final String zlcs) {
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-//        new Thread(new Runnable() {
+        this.txt = txt;
+        this.pix = pix;
+        this.zlcs = zlcs;
+        this.colorVaules = 0;
+        task = new FutureTask<boolean[][]>(callable);
+        if (future==null){
+            future = poolExecutor.submit(task);
+        }else {
+            future.cancel(true);
+            future = poolExecutor.submit(task);
+        }
+//        Runnable runnable = new Runnable() {
 //            @Override
 //            public void run() {
-                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-                dots = pix;
-                text = txt;
-                if (null == utils) {
-                    utils = new FontUtils(context, zlcs, pix);
-                } else {
-                    utils.zlx = zlcs;
-                    utils.setPix(pix);
-                }
-                matrix = utils.getWordsInfo(txt);
-                handler.sendEmptyMessage(1);
-
-       postInvalidate();
-            }
-       };
-        poolExecutor.execute(runnable);
+////        new Thread(new Runnable() {
+////            @Override
+////            public void run() {
+//                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+//                dots = pix;
+//                text = txt;
+//                if (null == utils) {
+//                    utils = new FontUtils(context, zlcs, pix);
+//                } else {
+//                    utils.zlx = zlcs;
+//                    utils.setPix(pix);
+//                }
+//                matrix = utils.getWordsInfo(txt);
+//                handler.sendEmptyMessage(1);
+//
+//       postInvalidate();
+//            }
+//       };
+//        poolExecutor.submit(task);
+//        poolExecutor.execute(runnable);
     }
 
+    /**
+     * 2018/3/5
+     * 颜色发生选择时，matrix 值不变 不需要重新获取，只需要改变画笔颜色重新绘制
+     * @param colorValue  颜色值
+     */
+    public void setTextColorChange(int colorValue){
+        if(colorValue != 0) {
+            selectorPaintColor = colorValue;
+            selectPaint.setColor(selectorPaintColor);
+        }
+        postInvalidate();
+    }
     /***
      *
      * @param txt 文本
@@ -148,28 +211,40 @@ public class LedView extends AppCompatTextView {
      * @param colorValue 选中颜色
      */
     public void setMatrixTextWithColor(  final String txt,   final int pix,   final String zlcs,  final int colorValue) {
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-//                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-                dots = pix;
-                text = txt;
-                if (null == utils) {
-                    utils = new FontUtils(context, zlcs, pix);
-                } else {
-                    utils.zlx = zlcs;
-                    utils.setPix(pix);
-                }
-                matrix = utils.getWordsInfo(txt);
-                if(colorValue != 0) {
-                    selectorPaintColor = colorValue;
-                    selectPaint.setColor(selectorPaintColor);
-                }
-                postInvalidate();
-            }
-        };
-
-        poolExecutor.execute(runnable);
+        this.txt = txt;
+        this.pix = pix;
+        this.zlcs = zlcs;
+        this.colorVaules = colorValue;
+        task = new FutureTask<boolean[][]>(callable);
+        if (future==null){
+            future = poolExecutor.submit(task);
+        }else {
+            future.cancel(true);
+            future = poolExecutor.submit(task);
+        }
+//        task.runAndReset();
+//        Runnable runnable = new Runnable() {
+//            @Override
+//            public void run() {
+////                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+//                dots = pix;
+//                text = txt;
+//                if (null == utils) {
+//                    utils = new FontUtils(context, zlcs, pix);
+//                } else {
+//                    utils.zlx = zlcs;
+//                    utils.setPix(pix);
+//                }
+//                matrix = utils.getWordsInfo(txt);
+//                if(colorValue != 0) {
+//                    selectorPaintColor = colorValue;
+//                    selectPaint.setColor(selectorPaintColor);
+//                }
+//                postInvalidate();
+//            }
+//        };
+//
+//        poolExecutor.execute(runnable);
     }
 
     public byte[] getTextByte() {

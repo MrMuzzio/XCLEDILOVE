@@ -81,9 +81,6 @@ public class FontUtils {
         //由于个别字符显示问题 在读字库前先做处理
 //        String inversod = inverso(str);//字符反序
         String inversod = str;
-//        for (int i=0;i<inversod.length();i++){
-//            Log.e("befor",gbEncoding(inversod.substring(i,i+1)));
-//        }
         inversod = ArabicUtils.getArbicResult(inversod);//阿拉伯文重排
         //针对阿拉伯文和希伯来文 需要反序处理
         if (ArabicUtils.isArbic(inversod)||ArabicUtils.isHebrew(inversod)){
@@ -149,49 +146,10 @@ public class FontUtils {
                 stringBuffer.append(sub);
             }
         }
-//            stringBuffer.append(laststrs.toString());
-//            stringBuffer.append(inverso(arabicstrs.toString()));
-//
-//            isEndOfSpecial = false;
-//            StringBuffer stringBuffer = new StringBuffer();
-//            StringBuffer arabicchar = new StringBuffer();
-//            StringBuffer commonchar = new StringBuffer();
-//            for (int i=0;i<str.length();i++){
-//                String sub = str.substring(i,i+1);
-//                String follow = "";
-//                if (i<str.length()-1){
-//                    follow = str.substring(i+1,i+2);
-//                }
-//                if (ArabicUtils.isArbic(sub)){
-//                    arabicchar.append(sub);
-//                    if ((follow.equals(""))||((!follow.equals(""))&&!ArabicUtils.isArbic(follow))){
-////                    stringBuffer.append(inverso(arabicchar.toString()));
-////                    StringBuffer changge = new StringBuffer();
-////                    changge.append(stringBuffer.toString());
-////                    changge.append(inverso(arabicchar.toString()));
-//                        stringBuffer.append(inverso(arabicchar.toString()));
-////                    changge = null;
-////                    arabicchar.delete(0,arabicchar.length());
-//                    }
-//                }else {
-//                    commonchar.append(sub);
-//                    if ((follow.equals(""))||((!follow.equals(""))&&ArabicUtils.isArbic(follow))){
-////                    StringBuffer changge = new StringBuffer();
-////                    changge.append(commonchar.toString());
-////                    changge.append(stringBuffer.toString());
-//                        stringBuffer.append(commonchar.toString());
-////                    changge = null;
-//                    }
-//                }
-//            }
         if (isEndOfSpecial){
             stringBuffer.delete(0,1);
         }
-//            if (isendofspace){
-//            stringBuffer.append(" ");
-//              }
         result =   stringBuffer.toString();
-//        }
         return  result;
     }
     //字符串反序

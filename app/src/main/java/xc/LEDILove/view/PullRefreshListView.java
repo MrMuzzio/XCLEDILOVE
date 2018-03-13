@@ -197,7 +197,7 @@ public class PullRefreshListView extends ListView implements OnScrollListener, P
 		mState = state;
 	}
 
-	private void update() {
+	public void update() {
 		if (mListHeaderView.isUpdateNeeded()) {
 	          mListHeaderView.startUpdate();
 	            mState = STATE_UPDATING;

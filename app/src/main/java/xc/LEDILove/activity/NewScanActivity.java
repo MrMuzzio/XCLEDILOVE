@@ -156,6 +156,7 @@ public class NewScanActivity extends Activity {
     protected void onResume() {
         super.onResume();
         searchDevice();
+        mListView.update();
     }
 
     private BleConnectOptions options = new BleConnectOptions.Builder()

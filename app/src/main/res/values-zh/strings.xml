@@ -31,6 +31,7 @@
     <string name="hint">提示</string>
     <string name="pleaseEnterText">请输入需要发送的信息</string>
     <string name="pleasepoweron">请先发送开机命令</string>
+    <string name="please_wait">任务繁忙,请稍等……</string>
     <string name="connecttingSuccessful">连接成功!</string>
     <string name="sendsuccess">发送成功</string>
     <string name="sendfailed">发送失败</string>

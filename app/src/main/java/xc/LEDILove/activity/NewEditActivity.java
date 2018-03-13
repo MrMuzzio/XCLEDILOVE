@@ -2,6 +2,9 @@ package xc.LEDILove.activity;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -39,6 +42,7 @@ import com.inuker.bluetooth.library.connect.response.BleUnnotifyResponse;
 import com.inuker.bluetooth.library.connect.response.BleWriteResponse;
 import com.warkiz.widget.IndicatorSeekBar;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -192,6 +196,7 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
         tvSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+//                sendCmd("+++".getBytes());
                 refresh();
                 llContent.setVisibility(View.VISIBLE);
                 scrollView.setVisibility(View.GONE);
@@ -301,7 +306,7 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
         }else {
             select_return_first = true;
 //            switch_state_iscontrolauto = true;
-            aSwitch.setChecked(false);
+//            aSwitch.setChecked(false);
         }
     }
     private String getTenChar(String str){
@@ -319,17 +324,25 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
              */
             case R.id.btnOk:
                 this.requestCode = 1004;
+                //如果输入为空 返回
                 if (TextUtils.isEmpty(clearEditText.getText().toString())) {
                     showYCDialog(getString(R.string.pleaseEnterText));
                     return;
                 }
-
+                //如果无连接 进入扫描页面
                 if (!mConnected) {
                     Intent intent = new Intent(NewEditActivity.this, NewScanActivity.class);
                     startActivityForResult(intent, 1004);
                     return;
+                    //有连接 但出于关机状态
                 }else if (!switch_state){
                     showYCDialog(getString(R.string.pleasepoweron));
+                    return;
+                }
+                //数据未处理完成
+                if (!isComplete){
+
+                    showYCDialog(getString(R.string.please_wait));
                     return;
                 }
                 edit_byte = ledView.getTextByte();
@@ -535,6 +548,7 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private boolean isInterrupt = false;
+    private boolean isComplete = false;
     /***
      * 初始化
      */
@@ -552,7 +566,8 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onClick(View v) {
                 selectedParams.color = getResources().getColor(R.color.red);
-                ledView.setMatrixTextWithColor(selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color);
+//                ledView.setMatrixTextWithColor(selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color);
+                ledView.setTextColorChange( selectedParams.color);
                 clearEditText.setTextColor(getResources().getColor(R.color.red));
             }
         });
@@ -560,7 +575,8 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onClick(View v) {
                 selectedParams.color = getResources().getColor(R.color.yellow);
-                ledView.setMatrixTextWithColor(selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color);
+//                ledView.setMatrixTextWithColor(selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color);
+                ledView.setTextColorChange( selectedParams.color);
                 clearEditText.setTextColor(getResources().getColor(R.color.yellow));
             }
         });
@@ -568,7 +584,8 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onClick(View v) {
                 selectedParams.color = getResources().getColor(R.color.green);
-                ledView.setMatrixTextWithColor(selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color);
+//                ledView.setMatrixTextWithColor(selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color);
+                ledView.setTextColorChange( selectedParams.color);
                 clearEditText.setTextColor(getResources().getColor(R.color.green));
             }
         });
@@ -576,7 +593,8 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onClick(View v) {
                 selectedParams.color = getResources().getColor(R.color.cyan);
-                ledView.setMatrixTextWithColor(selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color);
+//                ledView.setMatrixTextWithColor(selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color);
+                ledView.setTextColorChange( selectedParams.color);
                 clearEditText.setTextColor(getResources().getColor(R.color.cyan));
             }
         });
@@ -584,7 +602,8 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onClick(View v) {
                 selectedParams.color = getResources().getColor(R.color.blue);
-                ledView.setMatrixTextWithColor(selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color);
+//                ledView.setMatrixTextWithColor(selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color);
+                ledView.setTextColorChange( selectedParams.color);
                 clearEditText.setTextColor(getResources().getColor(R.color.blue));
             }
         });
@@ -592,7 +611,8 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onClick(View v) {
                 selectedParams.color = getResources().getColor(R.color.purple);
-                ledView.setMatrixTextWithColor(selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color);
+//                ledView.setMatrixTextWithColor(selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color);
+                ledView.setTextColorChange( selectedParams.color);
                 clearEditText.setTextColor(getResources().getColor(R.color.purple));
             }
         });
@@ -600,7 +620,8 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onClick(View v) {
                 selectedParams.color = getResources().getColor(R.color.white);
-                ledView.setMatrixTextWithColor(selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color);
+//                ledView.setMatrixTextWithColor(selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color);
+                ledView.setTextColorChange( selectedParams.color);
                 clearEditText.setTextColor(getResources().getColor(R.color.white));
             }
         });
@@ -678,32 +699,37 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
 //                MyApplication.getInstance().mClient.unregisterConnectStatusListener(mac, mConnectStatusListener);
 //                Intent intent = new Intent(NewEditActivity.this, NewScanActivity.class);
 //                startActivityForResult(intent, 1004);
-                if (mConnected) {
-                    android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(NewEditActivity.this);
-                    builder.setMessage(getApplicationContext().getResources().getString(R.string.dialog_reset));
-                    builder.setNegativeButton(getApplicationContext().getResources().getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
+//                if (mConnected) {
+//                    android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(NewEditActivity.this);
+//                    builder.setMessage(getApplicationContext().getResources().getString(R.string.dialog_reset));
+//                    builder.setNegativeButton(getApplicationContext().getResources().getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialogInterface, int i) {
+//
+//                        }
+//                    });
+//
+//                    builder.setPositiveButton(getApplicationContext().getResources().getString(R.string.dialog_positive), new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialogInterface, int i) {
+//
+//                            Intent reset = getBaseContext().getPackageManager()
+//                                    .getLaunchIntentForPackage(getBaseContext().getPackageName());
+//                            reset.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                            startActivity(reset);
+////                            overridePendingTransition(R.anim.activity_top_to_bottom, 0);
+//                        }
+//                    });
+//                    builder.show();
+//                }else {
+//                    CommonUtils.toast("No connecting device");
+//                }
+                clearBlueData();
+//                if (mac)
 
-                        }
-                    });
-
-                    builder.setPositiveButton(getApplicationContext().getResources().getString(R.string.dialog_positive), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-
-                            Intent reset = getBaseContext().getPackageManager()
-                                    .getLaunchIntentForPackage(getBaseContext().getPackageName());
-                            reset.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            startActivity(reset);
-//                            overridePendingTransition(R.anim.activity_top_to_bottom, 0);
-                        }
-                    });
-                    builder.show();
-                }else {
-                    CommonUtils.toast("No connecting device");
-                }
-
+//                MyApplication.getInstance().mClient.closeBluetooth();
+                Intent intent = new Intent(NewEditActivity.this, NewScanActivity.class);
+                startActivityForResult(intent, 1004);
             }
         });
         tv_device_name = (TextView) findViewById(R.id.tv_device_name);
@@ -756,7 +782,12 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
         ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         ledView.setLayoutParams(params);
         frameLayout.addView(ledView);
-
+        ledView.setCompleteCallback(new LedView.completeCallback() {
+            @Override
+            public void onComplete(boolean result) {
+                isComplete = result;
+            }
+        });
         selectedParams.wordSize = 12;
         //字体大小
         spinnerWordSize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -949,6 +980,27 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
 
     }
 
+    private void clearBlueData() {
+        MyApplication.getInstance().mClient.disconnect(mac);
+        MyApplication.getInstance().mClient.refreshCache(mac);
+
+//        MyApplication.getInstance().mClient.unindicate();
+//        if(null != gatt){
+//            try {
+//                BluetoothGatt localBluetoothGatt = gatt;
+//                Method localMethod = localBluetoothGatt.getClass().getMethod( "refresh", new Class[0]);
+//                if (localMethod != null) {
+//                    boolean bool = ((Boolean) localMethod.invoke(
+//                            localBluetoothGatt, new Object[0])).booleanValue();
+//                    return bool;
+//                }
+//            } catch (Exception localException) {
+//                localException.printStackTrace();
+//            }
+//        }
+//        return false;
+    }
+
     /**
      * 刷新列表
      */
@@ -1089,8 +1141,9 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
             }
             if (status == STATUS_CONNECTED) {
                 mConnected = true;
-                switch_state_iscontrolauto = true;
-                aSwitch.setChecked(mConnected);
+                Log.e("iscontrolauto",switch_state_iscontrolauto+"");
+//                switch_state_iscontrolauto = false;
+//                aSwitch.setChecked(mConnected);
             } else {
                 mConnected = false;
                 switch_state_iscontrolauto = true;
@@ -1115,7 +1168,6 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
 
             //接收指定服务
             if (service.equals(UUID.fromString(DATA_SERVICE_UUID)) && character.equals(UUID.fromString(RXD_CHARACT_UUID))) {
-
                 isGettingResponse = true;
 
                 if (mConnected) {
@@ -1209,9 +1261,11 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
                 //打开通知成功
                 CommonUtils.toast("open notify success ");
                 mConnected = true;
-                switch_state_iscontrolauto = true;
+//                switch_state_iscontrolauto = true;
+                //设置打开开关,发送开机命令
                 aSwitch.setChecked(mConnected);
                 //连接成功
+                Log.e("requestCode",requestCode+"");
                 if (requestCode == 1001) {
                     //速度
                     sendCmd((CmdConts.WRITE_SPEED + tvSpeedNum.getText() + "<E>").getBytes());
@@ -1230,12 +1284,19 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
                     //发送开关
                     sendCmd(turnOnOrOffCmd.getBytes());
                 }
+                //发送数据
+                requestCode = 1004;
+                edit_byte = ledView.getTextByte();
+                hasSendData = 0;
+                pd.show();
+                sendTxtData();
             } else {
                 CommonUtils.toast("open notify failed ");
-
+                clearBlueData();
                 mConnected = false;
                 switch_state_iscontrolauto = true;
                 aSwitch.setChecked(mConnected);
+                tv_device_name.setText(getString(R.string.connectstate));
             }
         }
     };
@@ -1247,6 +1308,7 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
         @Override
         public void onResponse(int code) {
             Log.e("xxx", "BleWriteResponse code=" + code);
+
         }
     };
 
