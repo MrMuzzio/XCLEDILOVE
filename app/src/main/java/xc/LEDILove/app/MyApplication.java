@@ -22,6 +22,6 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         myApplication = this;
-        mClient = new BluetoothClient(myApplication);
+//        mClient = new BluetoothClient(myApplication);
     }
 }

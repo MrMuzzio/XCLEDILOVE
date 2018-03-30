@@ -23,12 +23,11 @@
     <string name="connectstate">Unconnected</string>
 
 
-
-
     <!--hint-->
     <string name="ok">ok</string>
     <string name="cancel">cancel</string>
     <string name="successfulOperation">Successful operation!</string>
+    <string name="cancelOperation">Operation cancelled</string>
     <string name="successfulFailed">Successful failed!</string>
     <string name="hint">hint</string>
     <string name="connecttingSuccessful">Connection successful</string>
@@ -37,6 +36,7 @@
     <string name="bteOntTurnOn">Bluetooth not turned on</string>
     <string name="connectionTimedOut">connection timed out</string>
     <string name="failed2Obtainservice">Failed to obtain service</string>
+    <string name="connectedfail">connection fail</string>
     <string name="Notificationfailed2open">Notification failed to open</string>
     <string name="connectionCasBeenDisconnected">The connection has been disconnected</string>
     <string name="sendOperationTimeout">Send operation timeout</string>
@@ -46,6 +46,8 @@
     <string name="dialog_reset">To reset the connection, please confirm.</string>
     <string name="dialog_positive">reset</string>
     <string name="dialog_negative">cancel</string>
+    <string name="dialog_sending">be sending</string>
+    <string name="out_of_max">out of maximum length, has been automatically intercepted!</string>
 
 
     <!-- 下拉刷新listView -->
@@ -66,4 +68,38 @@
     <string name="failedOperation">Operation failure!</string>
     <string name="connecting">connecting</string>
     <string name="refreshheadupdate">Last updated on:just</string>
+
+    <!--帮助-->
+    <string name="help">Help</string>
+    <string name="about">About APP</string>
+    <string name="other">Other</string>
+    <string name="back">Back</string>
+    <string name="helpMessage">
+        Problem: \n
+        bluetooth connection timeout/send operation timeout/send failure\n
+        solution：\n
+1. Please confirm whether the connected device is matched with this APP (refer to the instruction manual)\n
+2. Please ensure that the operation device is online (Can communication)\n
+3. Open space within 10 steps (RSSI value is greater than -90)\n
+Try to avoid obstacles.\n
+If none of the above problems, please restart the device and mobile phone bluetooth retry!</string>
+
+    <string name="ver_head">current version：V</string>
+    <string name="aboutMessage">LED display control software,
+        an LED display product control terminal based on low-power bluetooth 4.0 technology,
+With product communication, you can edit and add custom information,
+Support information left, right, shift, down, snowflake,
+        running horse lamp and other animation modes, support text movement speed,
+        brightness, switch Settings. Support Chinese, English and other languages.</string>
+    <string name="shar_app">Share APP, qr code download.</string>
+
+    <string name="app_download">http://www.xn--led-f00fr20c.com/download/index</string>
+    <string name="app_update">Discover the new version and update it.</string>
+    <string name="app_new">It\'s the latest version.</string>
+
+    <string name="refresh_tip">Drop-down refresh device list</string>
+
+    <!--Network-->
+    <string name="netWorkTimeOout">Get the information timeout, check the network!</string>
+    <string name="netWorkConntect">Getting version information...</string>
 </resources>

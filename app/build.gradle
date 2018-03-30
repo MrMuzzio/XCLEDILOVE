@@ -10,8 +10,8 @@ android {
         applicationId "xc.LEDILove"
         minSdkVersion 18
         targetSdkVersion 22
-        versionCode 6
-        versionName "1.2.4"
+        versionCode 9
+        versionName "2.0.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
     }
@@ -44,4 +44,8 @@ dependencies {
     compile files('libs/bcprov-jdk16-1.46.jar')
     compile 'com.github.warkiz.widget:indicatorseekbar:1.1.2'
     compile 'com.inuker.bluetooth:library:1.4.0'
+    compile 'com.jcodecraeer:xrecyclerview:1.5.2'
+    compile 'com.jakewharton:butterknife:8.4.0'
+    compile 'com.squareup.okhttp3:okhttp:3.2.0'
+    compile 'com.squareup.okio:okio:1.7.0'
 }

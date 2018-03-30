@@ -538,22 +538,60 @@ public class FontUtils {
             boolean isSpace = indexstr.equals(" ");
             boolean isArabic = (!followstr.equals(""))&&ArabicUtils.isArbic(followstr)&&ArabicUtils.isArbic(indexstr);
             boolean isHindi = (!followstr.equals(""))&&ArabicUtils.isHindi(followstr)&&ArabicUtils.isHindi(indexstr);
-            Log.e("indexstr>>>>",indexstr+"");
-            for (int j=0;j<16;j++){//无论是12还是16字体 横排都是两个字节 16位
-                position=position+1;
-                matrix_index+=1;
-                boolean[] indx = getstrbycolumn(matrix,matrix_index);//取一竖排
-                if (isArabic){
-                    ArabicIndexs.add(position);
+            if (i==0&&str.length()>1){
+                for (int K=0;K<17;K++){//无论是12还是16字体 横排都是两个字节 16位
+                    position=position+1;
+                    matrix_index+=1;
+                    boolean[] indx = getstrbycolumn(matrix,matrix_index);//取一竖排
+                    if (isArabic){
+                        ArabicIndexs.add(position);
+                    }
+                    if (isSpace){
+                        spaceIndexs.add(position);
+                    }
+                    if (isHindi){
+                        HindiIndexs.add(position);
+                    }
+                    tem.add(position,indx);
+                    indx =null;
                 }
-                if (isSpace){
-                    spaceIndexs.add(position);
+            }else if (i==str.length()-1&&str.length()>1){
+//                matrix_index-=1;
+                for (int K=0;K<15;K++){//无论是12还是16字体 横排都是两个字节 16位
+                    position=position+1;
+                    matrix_index+=1;
+                    boolean[] indx = getstrbycolumn(matrix,matrix_index);//取一竖排
+                    if (isArabic){
+                        ArabicIndexs.add(position);
+                    }
+                    if (isSpace){
+                        spaceIndexs.add(position);
+                    }
+                    if (isHindi){
+                        HindiIndexs.add(position);
+                    }
+                    tem.add(position,indx);
+                    indx =null;
                 }
-                if (isHindi){
-                    HindiIndexs.add(position);
+//                tem.add(position+1,getstrbycolumn(matrix,matrix[0].length));
+            }else {
+                Log.e("indexstr>>>>",indexstr+"");
+                for (int j=0;j<16;j++){//无论是12还是16字体 横排都是两个字节 16位
+                    position=position+1;
+                    matrix_index+=1;
+                    boolean[] indx = getstrbycolumn(matrix,matrix_index);//取一竖排
+                    if (isArabic){
+                        ArabicIndexs.add(position);
+                    }
+                    if (isSpace){
+                        spaceIndexs.add(position);
+                    }
+                    if (isHindi){
+                        HindiIndexs.add(position);
+                    }
+                    tem.add(position,indx);
+                    indx =null;
                 }
-                tem.add(position,indx);
-                indx =null;
             }
 
 //            连续的两个阿拉伯字符之间不需要插入空格
@@ -562,30 +600,11 @@ public class FontUtils {
             }else if ((!followstr.equals(""))&&ArabicUtils.isHindi(followstr)&&ArabicUtils.isHindi(indexstr)) {
 
             }else {
-                Log.e("insert","1");
+                Log.e("insert",position+"");
                 tem.add(position,empty_data);
                 position+=1;
             }
         }
-//        if (matrix[0].length>=16){//两个字符以上才需要增加
-//
-//            for (int i=0;i<matrix[0].length;i++){
-//                boolean[] indx = getstrbycolumn(matrix,i);//取一竖排
-//                tem.add(indx);
-//
-//                if (LangUtils.isChinese(subjectStr)){
-//                    if ((i+1)%12==0){
-//                        Log.e("添加空格>>>>","+1");
-//                        tem.add(empty_data);
-//                    }
-//                }else {
-//                    if ((i+1)%8==0){
-//                        Log.e("添加空格>>>>","+1");
-//                        tem.add(empty_data);
-//                    }
-//                }
-//                indx=null;
-//            }
 
         boolean[][] temps1 = new boolean[matrix.length][tem.size()];//12*n
         for (int i = 0;i<tem.size();i++){
@@ -986,7 +1005,7 @@ public class FontUtils {
                 position+=1;
                 if (position==8){//放满了 添加到集合中
 //                    Log.e("bite",(bite&0xff)+"");
-                    Log.e("bite",(bite)+"");
+//                    Log.e("bite",(bite)+"");
 //                    results.add((byte) (bite&0xff));
                     results.add((byte) (bite));
                     bite=0x00;
@@ -999,7 +1018,7 @@ public class FontUtils {
                     }else {
 
                         bite = (byte) (bite<<(8-position));
-                        Log.e("bite_end>>>>"+m,bite+"");
+//                        Log.e("bite_end>>>>"+m,bite+"");
                         m+=1;
                         results.add(bite);
 //                    results.add((byte) (bite&0xff));

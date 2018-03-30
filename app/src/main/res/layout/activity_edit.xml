@@ -270,29 +270,11 @@
         android:visibility="gone"
         >
 
-        <RelativeLayout
+        <include
+            layout="@layout/head_back"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="#64c4f6"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp">
-
-            <ImageView
-                android:id="@+id/iv_back"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="5dp"
-                android:background="@mipmap/ic_navigation_back" />
-
-            <TextView
-                android:id="@+id/scancount_txt"
-                style="@style/action_view_text_style"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="@string/set" />
-        </RelativeLayout>
+            android:layout_height="wrap_content"
+            />
 
 
         <LinearLayout

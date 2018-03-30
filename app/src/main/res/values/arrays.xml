@@ -55,4 +55,20 @@
         <item>@string/flash</item>
         <item>@string/marquee</item>
     </string-array>
+
+    <string-array name="popup_message">
+        <item>Setting</item>
+        <item>Other</item>
+    </string-array>
+
+    <string-array name="other_message">
+        <!--<item>Get the power of the device</item>-->
+        <item>Check for updates</item>
+        <item>About APP</item>
+        <item>Help</item>
+    </string-array>
+    <!--<string-array name="popup_image_id">-->
+        <!--<item>@</item>-->
+        <!--<item>About</item>-->
+    <!--</string-array>-->
 </resources>

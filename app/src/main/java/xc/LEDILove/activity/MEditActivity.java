@@ -1,14 +1,18 @@
 package xc.LEDILove.activity;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -19,6 +23,8 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -29,37 +35,53 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupMenu;
+import android.widget.PopupWindow;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.handmark.pulltorefresh.library.internal.Utils;
 import com.inuker.bluetooth.library.connect.listener.BleConnectStatusListener;
 import com.inuker.bluetooth.library.connect.response.BleNotifyResponse;
-import com.inuker.bluetooth.library.connect.response.BleUnnotifyResponse;
 import com.inuker.bluetooth.library.connect.response.BleWriteResponse;
 import com.warkiz.widget.IndicatorSeekBar;
 
-import java.lang.reflect.Method;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.Inflater;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import xc.LEDILove.Bean.Params;
+import xc.LEDILove.Bean.PopupItem;
 import xc.LEDILove.R;
 import xc.LEDILove.adapter.BrightAndModelRecyclerAdapter;
 import xc.LEDILove.adapter.ListitemAdapter;
+import xc.LEDILove.adapter.PopupwindowAdapter;
 import xc.LEDILove.app.MyApplication;
+import xc.LEDILove.bluetooth.CommandHelper;
+import xc.LEDILove.bluetooth.MTBLEManager;
+import xc.LEDILove.bluetooth.SMSGBLEMBLE;
 import xc.LEDILove.db.UmsResultBean;
 import xc.LEDILove.db.UmsResultHelper;
 import xc.LEDILove.font.CmdConts;
+import xc.LEDILove.utils.AppVersionUpdate;
 import xc.LEDILove.utils.CommonUtils;
 import xc.LEDILove.utils.Helpful;
 import xc.LEDILove.utils.RxCountDown;
@@ -73,7 +95,7 @@ import static com.inuker.bluetooth.library.Constants.STATUS_CONNECTED;
 /***
  * LED编辑界面
  */
-public class NewEditActivity extends AppCompatActivity implements View.OnClickListener {
+public class MEditActivity extends AppCompatActivity implements View.OnClickListener {
 
     //指定服务
     private static final String DATA_SERVICE_UUID = "0000fff0-0000-1000-8000-00805f9b34fb";
@@ -81,7 +103,8 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
     private static final String TXD_CHARACT_UUID = "0000fff1-0000-1000-8000-00805f9b34fb";
     //指定服务下的 可读
     private static final String RXD_CHARACT_UUID = "0000fff2-0000-1000-8000-00805f9b34fb";
-
+    //APP版本信息获取地址
+    private final String service_url = "http://www.xn--led-f00fr20c.com/appVersion/getNewAppVersion?appName=LEDILOVE";
     //region 编辑界面view
     //字体大小
     private Spinner spinnerWordSize;
@@ -168,31 +191,43 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
     private Boolean isGettingResponse = false;
     //endregion
 
-    private class Params {
-        //文本
-        public String str;
-        //字体大小
-        public int wordSize;
-        //速度
-        public String wordSpeed;
-
-        public String wordType;
-        public String wordEffect;
-        public String languageType;
-        public String bright = "1";
-        //类型 上移 下移。。。
-        public String model = "1";
-        //序号
-        public String switchValue = "1";
-        //颜色
-        public int color;
-    }
+    private  Button btn_progressbar;
+    private TextView tv_head_left;
+    private ImageView iv_more;
     private boolean isInMain = true;
+    private AppVersionUpdate versionUpdate;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
         tvSetting = (TextView) findViewById(R.id.tv_set);
+        btn_progressbar = (Button) findViewById(R.id.btn_progressbar);
+        iv_more = (ImageView) findViewById(R.id.iv_more);
+        tv_head_left = (TextView) findViewById(R.id.tv_head_left);
+        iv_more.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showPopupWindow(iv_more);
+//                //创建弹出式菜单对象（最低版本11）
+//                     PopupMenu popup = new PopupMenu(MEditActivity.this, iv_more);//第二个参数是绑定的那个view
+//                      //获取菜单填充器
+//                     MenuInflater inflater = popup.getMenuInflater();
+//                     //填充菜单
+//                      inflater.inflate(R.menu.menu_mian, popup.getMenu());
+//                     //绑定菜单项的点击事件
+//                     popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+//                         @Override
+//                         public boolean onMenuItemClick(MenuItem menuItem) {
+//
+//                             return false;
+//                         }
+//                     });
+//                      popup.show(); //这一行代码不要忘记了
+            }
+        });
+        initBle();
+        poolExecutor = new ThreadPoolExecutor(3, 5,
+                10, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>(128));
         tvSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -204,67 +239,140 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
                 isInMain = false;
             }
         });
+        intial();
+        versionUpdate = new AppVersionUpdate();
+        //检测版本更新
+        checkVersionToUpData();
+        mac = getIntent().getStringExtra("mac");
+    }
 
-        //每隔50毫秒进行数据发送
-        subscribe_auto = Observable.interval(50, TimeUnit.MILLISECONDS)
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<Long>() {
+    private void checkVersionToUpData() {
+        getServiceVersionCode(service_url);
+    }
+    Call mcall;
+    private void getServiceVersionCode(String url) {
+        //发送网络请求
+        OkHttpClient client = new OkHttpClient();
+
+        Request.Builder builder = new Request.Builder().url(url);
+        builder.method("GET",null);
+        Request request = builder.build();
+        mcall = client.newCall(request);
+        mcall.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(new Runnable() {
                     @Override
-                    public void call(Long aLong) {
-                        if (0 == senddatas.size()) {
-                            return;
-                        }
-                        Log.e("xxx", Helpful.MYBytearrayToString(senddatas.get(0)));
-                        MyApplication.getInstance().mClient.write(mac, UUID.fromString(DATA_SERVICE_UUID), UUID.fromString(TXD_CHARACT_UUID),
-                                senddatas.get(0), mWriteRsp);
-                        senddatas.remove(0);
-
-
-                        //命令发送完毕，开始计时，5s无回馈即视为失败
-                        if (0 == senddatas.size()) {
-                            if (subscriptionRxResponseStutas != null) {
-                                subscriptionRxResponseStutas.unsubscribe();
-                            }
-                            subscriptionRxResponseStutas = RxCountDown.countdown(5)
-                                    .subscribeOn(AndroidSchedulers.mainThread())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(new Action1<Integer>() {
-                                        @Override
-                                        public void call(Integer integer) {
-                                            if (integer == 0) {
-                                                runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        if (!isGettingResponse) {
-                                                            pd.dismiss();
-                                                            Log.e("超时>>>>","超时");
-                                                            showYCDialog(getString(R.string.sendOperationTimeout));
-                                                        }
-                                                    }
-                                                });
-                                            }
-                                        }
-                                    });
-                        }
-                        //TODO 测试代码
-//                        if (0 == senddatas.size()) {
-//                            if (mNotifyRsp != null ) {
-//                                mNotifyRsp.onNotify(UUID.fromString(DATA_SERVICE_UUID), UUID.fromString(RXD_CHARACT_UUID), "S".getBytes());
-//                            }
-//                            return;
-//                        }
-
+                    public void run() {
+                        Toast.makeText(getApplicationContext(),"fail",Toast.LENGTH_SHORT);
                     }
                 });
-        intial();
-        mac = getIntent().getStringExtra("mac");
+                Log.i("onFailure", e.getMessage().toString());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (null != response.cacheResponse()) {
+                    String str = response.cacheResponse().toString();
+                    Log.i("onResponse", "cache---" + str);
+                } else {
+                    String jsonData = response.body().string();
+                    int code =  versionUpdate.parseJson(jsonData);
+                    if (code==-1){
+                        return;
+                    }
+                    String str = response.networkResponse().toString();
+                    Log.i("onResponse", "network---" + str);
+                    //服务器版本大于已安装版本
+                    if (code>versionUpdate.getVersionCode(getApplicationContext())){
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                showResultDialog(getString(R.string.app_update),true);
+                            }
+                        });
+                    }else {
+
+                    }
+                }
+            }
+        });
+    }
+    private void showResultDialog(String message, final boolean isUpdate) {
+        final android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(MEditActivity.this);
+        builder.setMessage(message);
+        builder.setTitle(getString(R.string.hint));
+        if (isUpdate){
+            builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    if (isUpdate){
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.app_download)));
+                        startActivity(intent);
+                        Log.e("result","更新");
+                    }else {
+                        Log.e("result","最新了");
+                    }
+                }
+            });
+        }
+        builder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        builder.create();
+        builder.show();
+    }
+    private void showPopupWindow(View view) {
+        final View popupwindow = View.inflate(MEditActivity.this,R.layout.popupwindow,null);
+        ListView lv_popupitem =(ListView) popupwindow.findViewById(R.id.lv_popupitem);
+        String[] popup_messages = getResources().getStringArray(R.array.popup_message);
+        int[] popup_image_id = {R.mipmap.ic_seting_1,R.mipmap.ic_about_3};
+        List<PopupItem> popupItems = new ArrayList<>();
+        for (int i=0;i<popup_messages.length;i++){
+            PopupItem item = new PopupItem();
+            item.setMessage(popup_messages[i]);
+            item.setImageId(popup_image_id[i]);
+            popupItems.add(item);
+            item=null;
+        }
+        PopupwindowAdapter popupwindowAdapter = new PopupwindowAdapter(MEditActivity.this,popupItems);
+        lv_popupitem.setAdapter(popupwindowAdapter);
+        //参数一，view对象；参数二 宽度；参数三 高度；参数四是否获取焦点
+        final PopupWindow window = new PopupWindow(popupwindow,350,180,true);
+        window.setBackgroundDrawable(new ColorDrawable(Color.rgb(100,196,246)));
+        window.setOutsideTouchable(true);
+        window.setTouchable(true);
+        window.showAsDropDown(view,100,2);
+        lv_popupitem.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.e("onItemClick",i+"");
+                window.dismiss();
+                switch (i){
+                    case 0:
+                        refresh();
+                        llContent.setVisibility(View.VISIBLE);
+                        scrollView.setVisibility(View.GONE);
+                        include.setVisibility(View.GONE);
+                        isInMain = false;
+                        break;
+                    case 1:
+                        Intent mintent = new Intent();
+                        mintent.setClass(MEditActivity.this,OtherMessageActivity.class);
+                        startActivity(mintent);
+                        break;
+                }
+            }
+        });
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        MyApplication.getInstance().mClient.registerConnectStatusListener(mac, mConnectStatusListener);
     }
 
     @Override
@@ -280,16 +388,10 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
             include.setVisibility(View.VISIBLE);
             isInMain = true;
         }
-//        super.onBackPressed();
     }
 
     @Override
     protected void onDestroy() {
-        if (null != subscribe_auto) {
-            subscribe_auto.unsubscribe();
-        }
-        MyApplication.getInstance().mClient.disconnect(mac);
-        MyApplication.getInstance().mClient.unregisterConnectStatusListener(mac, mConnectStatusListener);
         super.onDestroy();
 
     }
@@ -300,13 +402,19 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            connect(data, requestCode);
-            tv_device_name.setText(getTenChar(data.getExtras().getString("name")));
+        sendCmdType = CommandHelper.dataType_data;
+        if (requestCode ==1004&&resultCode == RESULT_OK) {
+            if (data.getExtras().getString("MAC").equals("")){
+
+            }else {
+                connected_MAC = data.getExtras().getString("MAC");
+                connected_name = data.getExtras().getString("NAME");
+
+                messgeHandler.sendEmptyMessageDelayed(CMD_CONNTCTING,0);
+
+            }
         }else {
             select_return_first = true;
-//            switch_state_iscontrolauto = true;
-//            aSwitch.setChecked(false);
         }
     }
     private String getTenChar(String str){
@@ -323,7 +431,9 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
              * 发送数据
              */
             case R.id.btnOk:
-                this.requestCode = 1004;
+//                this.requestCode = 1004;
+                isNeedSendData = true;
+                sendCmdType = CommandHelper.dataType_data;
                 //如果输入为空 返回
                 if (TextUtils.isEmpty(clearEditText.getText().toString())) {
                     showYCDialog(getString(R.string.pleaseEnterText));
@@ -331,14 +441,16 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
                 }
                 //如果无连接 进入扫描页面
                 if (!mConnected) {
-                    Intent intent = new Intent(NewEditActivity.this, NewScanActivity.class);
+                    Intent intent = new Intent(MEditActivity.this, SelectDeviceActivity.class);
                     startActivityForResult(intent, 1004);
                     return;
-                    //有连接 但出于关机状态
-                }else if (!switch_state){
+                    //有连接 但处于关机状态
+                }
+                else if (!switch_state){
                     showYCDialog(getString(R.string.pleasepoweron));
                     return;
                 }
+
                 //数据未处理完成
                 if (!isComplete){
 
@@ -347,8 +459,8 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
                 }
                 edit_byte = ledView.getTextByte();
                 hasSendData = 0;
-                pd.show();
-                sendTxtData();
+//                pd.show();
+                messgeHandler.sendEmptyMessage(CMD_SENDING);
 //            case R.id.ll_connect_state:
 //                    Intent intent = new Intent(NewEditActivity.this, NewScanActivity.class);
 //                    startActivityForResult(intent, 1004);
@@ -422,28 +534,28 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
         Helpful.catByte(cmdHeaderbyte, 0, sendcmd, 0);
         Helpful.catByte(sendData, 0, sendcmd, cmdHeaderbyte.length);
 
-        sendCmd(sendcmd);
+//        sendCmd(sendcmd);
     }
 
 
     private List<byte[]> senddatas = new ArrayList<byte[]>();
 
-    private void sendCmd(byte[] sendcmd) {
-        Log.e("sendData->", Helpful.MYBytearrayToString(sendcmd) + " SIZE=" + sendcmd.length);
-        pd.show();
-        //把数据以20byte分隔
-        int pre_index = 0;
-        while (true) {
-            if ((sendcmd.length - pre_index) > 20) {
-                senddatas.add(Helpful.subByte(sendcmd, pre_index, 20));
-                pre_index += 20;
-            } else {
-                senddatas.add(Helpful.subByte(sendcmd, pre_index, sendcmd.length
-                        - pre_index));
-                break;
-            }
-        }
-    }
+//    private void sendCmd(byte[] sendcmd) {
+//        Log.e("sendData->", Helpful.MYBytearrayToString(sendcmd) + " SIZE=" + sendcmd.length);
+//        pd.show();
+//        //把数据以20byte分隔
+//        int pre_index = 0;
+//        while (true) {
+//            if ((sendcmd.length - pre_index) > 20) {
+//                senddatas.add(Helpful.subByte(sendcmd, pre_index, 20));
+//                pre_index += 20;
+//            } else {
+//                senddatas.add(Helpful.subByte(sendcmd, pre_index, sendcmd.length
+//                        - pre_index));
+//                break;
+//            }
+//        }
+//    }
 
     /***
      * 颜色值转换为命令
@@ -485,21 +597,24 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    new AlertDialog.Builder(NewEditActivity.this)
+                    new AlertDialog.Builder(MEditActivity.this)
                             .setTitle(getString(R.string.hint))
                             .setMessage(erroMsg)
-//                            .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-//                                @Override
-//                                public void onClick(DialogInterface dialog, int which) {
-//
-//                                }
-//                            })
                             .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
 
                                 }
                             })
+                            //提示按钮
+//                            .setNegativeButton(getResources().getString(R.string.help), new DialogInterface.OnClickListener() {
+//                                @Override
+//                                public void onClick(DialogInterface dialogInterface, int i) {
+//                                    Intent mIntent = new Intent();
+//                                    mIntent.setClass(MEditActivity.this,HelpActivity.class);
+//                                    startActivity(mIntent);
+//                                }
+//                            })
                             .create().show();
                 }
             });
@@ -508,44 +623,6 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private int requestCode = -1;
-
-    /***
-     * 开启链接蓝牙
-     * @param data
-     */
-    private void connect(Intent data, final int requestCode) {
-
-        this.requestCode = requestCode;
-        if (data != null) {
-            if (TextUtils.isEmpty(mac)) {
-                mac = data.getStringExtra("mac");
-                if (TextUtils.isEmpty(mac)) {
-                    CommonUtils.toast(" mac is empty !");
-                    return;
-                }
-            }
-            if (pd == null) {
-                pd = ProgressDialog.show(NewEditActivity.this, "", "Please Waiting...",
-                        true, false);
-                pd.setCancelable(true);
-                pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialogInterface) {
-//                        MyApplication.getInstance().mClient.disconnect(mac);
-                        senddatas.clear();
-                        CommonUtils.toast("Cancel");
-                    }
-                });
-            } else {
-                pd.show();
-            }
-            //打开通知
-            MyApplication.getInstance().mClient.notify(mac, UUID.fromString(DATA_SERVICE_UUID), UUID.fromString(RXD_CHARACT_UUID), mNotifyRsp);
-            isInterrupt=false;
-        } else {
-            CommonUtils.toast(" mac is empty! ");
-        }
-    }
 
     private boolean isInterrupt = false;
     private boolean isComplete = false;
@@ -575,7 +652,6 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onClick(View v) {
                 selectedParams.color = getResources().getColor(R.color.yellow);
-//                ledView.setMatrixTextWithColor(selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color);
                 ledView.setTextColorChange( selectedParams.color);
                 clearEditText.setTextColor(getResources().getColor(R.color.yellow));
             }
@@ -584,7 +660,6 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onClick(View v) {
                 selectedParams.color = getResources().getColor(R.color.green);
-//                ledView.setMatrixTextWithColor(selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color);
                 ledView.setTextColorChange( selectedParams.color);
                 clearEditText.setTextColor(getResources().getColor(R.color.green));
             }
@@ -593,7 +668,6 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onClick(View v) {
                 selectedParams.color = getResources().getColor(R.color.cyan);
-//                ledView.setMatrixTextWithColor(selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color);
                 ledView.setTextColorChange( selectedParams.color);
                 clearEditText.setTextColor(getResources().getColor(R.color.cyan));
             }
@@ -602,7 +676,6 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onClick(View v) {
                 selectedParams.color = getResources().getColor(R.color.blue);
-//                ledView.setMatrixTextWithColor(selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color);
                 ledView.setTextColorChange( selectedParams.color);
                 clearEditText.setTextColor(getResources().getColor(R.color.blue));
             }
@@ -611,7 +684,6 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onClick(View v) {
                 selectedParams.color = getResources().getColor(R.color.purple);
-//                ledView.setMatrixTextWithColor(selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color);
                 ledView.setTextColorChange( selectedParams.color);
                 clearEditText.setTextColor(getResources().getColor(R.color.purple));
             }
@@ -620,7 +692,6 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onClick(View v) {
                 selectedParams.color = getResources().getColor(R.color.white);
-//                ledView.setMatrixTextWithColor(selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color);
                 ledView.setTextColorChange( selectedParams.color);
                 clearEditText.setTextColor(getResources().getColor(R.color.white));
             }
@@ -683,15 +754,27 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
         ll_connect_state.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                clearBlueData();
-                Intent intent = new Intent(NewEditActivity.this, SelectDeviceActivity.class);
+                isNeedSendData = false;
+                if (mConnected){
+                    Runnable runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            if ((mConnected)){//未连接
+                                ble_admin.disConnect();
+                            }
+                        }
+                    };
+                    poolExecutor.execute(runnable);
+
+                }
+                Intent intent = new Intent(MEditActivity.this, SelectDeviceActivity.class);
                 startActivityForResult(intent, 1004);
             }
         });
         tv_device_name = (TextView) findViewById(R.id.tv_device_name);
         tvTxtNumber = (TextView) findViewById(R.id.tvTxtNumber);
         clearEditText = (ClearEditText) findViewById(R.id.clearEditText);
-        clearEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(250)});//250字符限制
+        clearEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(MAX_COUNT)});//250字符限制
         clearEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -699,13 +782,8 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
             }
         });
         aSwitch = (Switch) findViewById(R.id.switchTrack);
+        aSwitch.setVisibility(View.GONE);
         //开关
-//        aSwitch.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Toast.makeText(getApplicationContext(),"onclick",Toast.LENGTH_LONG).show();
-//            }
-//        });
         aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -720,15 +798,13 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
                 } else {
                     turnOnOrOffCmd = CmdConts.OFF_LED;
                 }
-                requestCode = 1005;
+                sendCmdType = CommandHelper.dataType_power;
                 if (mConnected) {
-                    sendCmd(turnOnOrOffCmd.getBytes());
+                    messgeHandler.sendEmptyMessage(CMD_SENDING);
                 } else {
-//                    if (!select_return_first){
-                        Intent intent = new Intent(NewEditActivity.this, NewScanActivity.class);
-                        startActivityForResult(intent, 1005);
+                        Intent intent = new Intent(MEditActivity.this, SelectDeviceActivity.class);
+                        startActivityForResult(intent, 1004);
                         select_return_first = false;
-//                    }
                 }
             }
         });
@@ -751,6 +827,8 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 selectedParams.wordSize = Integer.parseInt(wordSize[position]);
                 if (!TextUtils.isEmpty(selectedParams.str)) {
+                    //重新设置EditText 字符控制
+                    setEditTextFilter(selectedParams.wordSize);
                     ledView.setMatrixText(selectedParams.str, selectedParams.wordSize, selectedParams.wordType);
                 }
             }
@@ -794,6 +872,15 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
                     }
                 }
         );
+        tv_head_left.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                llContent.setVisibility(View.GONE);
+                scrollView.setVisibility(View.VISIBLE);
+                include.setVisibility(View.VISIBLE);
+                isInMain = true;
+            }
+        });
         tvSpeedNum = (TextView) findViewById(R.id.tv_speed_num);
         seekBarSpeed = (IndicatorSeekBar) findViewById(R.id.seekBar);
         //速度
@@ -817,11 +904,11 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onStopTrackingTouch(IndicatorSeekBar indicatorSeekBar) {
                 if (mConnected) {
-                    requestCode = 1001;
-                    sendCmd((CmdConts.WRITE_SPEED + tvSpeedNum.getText() + "<E>").getBytes());
+                    sendCmdType = CommandHelper.dataType_speed;
+                    messgeHandler.sendEmptyMessage(CMD_SENDING);
                 } else {
-                    Intent intent = new Intent(NewEditActivity.this, NewScanActivity.class);
-                    startActivityForResult(intent, 1001);
+                    Intent intent = new Intent(MEditActivity.this, SelectDeviceActivity.class);
+                    startActivityForResult(intent, 1004);
                 }
             }
         });
@@ -850,11 +937,11 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onStopTrackingTouch(IndicatorSeekBar indicatorSeekBar) {
                 if (mConnected) {
-                    requestCode = 1002;
-                    sendCmd((CmdConts.WRITE_LIGHT + tvLightNum.getText() + "<E>").getBytes());
+                    sendCmdType = CommandHelper.dataType_light;
+                    messgeHandler.sendEmptyMessage(CMD_SENDING);
                 } else {
-                    Intent intent = new Intent(NewEditActivity.this, NewScanActivity.class);
-                    startActivityForResult(intent, 1002);
+                    Intent intent = new Intent(MEditActivity.this, SelectDeviceActivity.class);
+                    startActivityForResult(intent, 1004);
                 }
             }
         });
@@ -873,15 +960,15 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
                     }
                 }
                 if (TextUtils.isEmpty(waitSendIndexStr)) {
-                    Toast.makeText(NewEditActivity.this, "no choice！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MEditActivity.this, "no choice！", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (mConnected) {
-                    requestCode = 1003;
-                    sendCmd((CmdConts.LOOP_SHOW + waitSendIndexStr + "<E>").getBytes());
+                    sendCmdType= CommandHelper.dataType_mesList;
+                    messgeHandler.sendEmptyMessage(CMD_SENDING);
                 } else {
-                    Intent intent = new Intent(NewEditActivity.this, NewScanActivity.class);
-                    startActivityForResult(intent, 1003);
+                    Intent intent = new Intent(MEditActivity.this, SelectDeviceActivity.class);
+                    startActivityForResult(intent, 1004);
                 }
             }
         });
@@ -936,26 +1023,21 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
 
     }
 
-    private void clearBlueData() {
-        MyApplication.getInstance().mClient.disconnect(mac);
-        MyApplication.getInstance().mClient.refreshCache(mac);
-
-//        MyApplication.getInstance().mClient.unindicate();
-//        if(null != gatt){
-//            try {
-//                BluetoothGatt localBluetoothGatt = gatt;
-//                Method localMethod = localBluetoothGatt.getClass().getMethod( "refresh", new Class[0]);
-//                if (localMethod != null) {
-//                    boolean bool = ((Boolean) localMethod.invoke(
-//                            localBluetoothGatt, new Object[0])).booleanValue();
-//                    return bool;
-//                }
-//            } catch (Exception localException) {
-//                localException.printStackTrace();
-//            }
-//        }
-//        return false;
+    private void setEditTextFilter(int wordSize) {
+        if (wordSize==12){
+            MAX_COUNT = 250;
+        }else if (wordSize == 16){
+            MAX_COUNT = 128;
+            if (clearEditText.getText().toString().length()>=128){
+                clearEditText.setText(clearEditText.getText().toString().substring(0,128));
+                clearEditText.setSelection(128);
+                Toast.makeText(getApplication(),getResources().getString(R.string.out_of_max),Toast.LENGTH_SHORT).show();
+            }
+        }
+        clearEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(MAX_COUNT)});//250字符限制
+        setLeftCount();
     }
+
 
     /**
      * 刷新列表
@@ -1078,7 +1160,6 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
 
     private long getInputCount() {
 
-//        return calculateLength(clearEditText.getText().toString());//以字节数显示
         return clearEditText.getText().toString().length();//以字符数显示
     }
 
@@ -1086,188 +1167,317 @@ public class NewEditActivity extends AppCompatActivity implements View.OnClickLi
     /*********************************************************************************************************************************/
 
 
-    /***
-     * 蓝牙链接状态 监听
-     */
-    private final BleConnectStatusListener mConnectStatusListener = new BleConnectStatusListener() {
+
+    public static String connected_MAC = "";//当前连接设备的mac地址
+    public static  String connected_name = "";
+    public static SMSGBLEMBLE ble_admin;
+    private MTBLEManager mMTBLEManager;
+    private ThreadPoolExecutor poolExecutor;
+    private void initBle() {
+        mMTBLEManager = MTBLEManager.getInstance();
+        mMTBLEManager.init(this);
+        ble_admin = new SMSGBLEMBLE(getApplicationContext(),
+                mMTBLEManager.mBluetoothManager,
+                mMTBLEManager.mBluetoothAdapter);
+//        connectThread =new ConnectThread();
+        ble_admin.setCallback(bleCallback);
+    }
+    private  final  int CMD_CONNTCTING =1001;
+    private  final  int DISMISS_DIALOG =1002;
+    private  final  int CMD_SENDING =1003;
+    private  final  int CMD_TIMEOUT =1004;//操作超时
+    private  final  int CMD_TIMEOUT_RECEIVE =1005;//接收反馈超时
+    private  final  int CONNECTED_FAIL =1006;//连接失败-打开通知失败
+    private int sendCmdType = -1;//发送数据类型
+    private boolean power = false;//开关机命令
+    private boolean isNeedSendData = false;
+    @SuppressLint("HandlerLeak")
+    public Handler messgeHandler = new Handler(){
         @Override
-        public void onConnectStatusChanged(String mac, int status) {
-            if (pd != null) {
-                pd.dismiss();
-            }
-            if (status == STATUS_CONNECTED) {
-                mConnected = true;
-                Log.e("iscontrolauto",switch_state_iscontrolauto+"");
-//                switch_state_iscontrolauto = false;
-//                aSwitch.setChecked(mConnected);
-            } else {
-                mConnected = false;
-                switch_state_iscontrolauto = true;
-                aSwitch.setChecked(mConnected);
-                tv_device_name.setText(getString(R.string.connectstate));
-//                CommonUtils.toast("disconnected");
-//                MyApplication.getInstance().mClient.disconnect(mac);
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what){
+                case CONNECTED_FAIL:
+                    showYCDialog(getResources().getString(R.string.connectedfail));
+                    break;
+                case CMD_CONNTCTING:
+                    showDialog(getResources().getString(R.string.connecting));
+                    connectDevice();
+                    break;
+                case CMD_TIMEOUT:
+                    showYCDialog(getResources().getString(R.string.connectionTimedOut));
+//                    ble_admin.disConnect();
+                    break;
+                case CMD_TIMEOUT_RECEIVE:
+//                    if (erroCount>3){
+                        showYCDialog(getResources().getString(R.string.sendOperationTimeout));
+                        messgeHandler.removeMessages(CMD_TIMEOUT_RECEIVE);
+                        ble_admin.disConnect();
+//                    }
+                    break;
+                case DISMISS_DIALOG:
+                    if (pd!=null){
+                        pd.dismiss();
+//                        pd=null;
+                    }
+                    break;
+                case CMD_SENDING:
+//                    if (!isConnectIntime){//连接成功发送开机  不显示提示
+
+                        showDialog(getResources().getString(R.string.dialog_sending));
+//                    }
+                    sendDataToDevice();
+                    break;
             }
         }
     };
 
-
-    /**
-     * 监听通知
-     */
-    private final BleNotifyResponse mNotifyRsp = new BleNotifyResponse() {
+    private void showDialog(String message){
+        if (pd==null){
+            pd = new ProgressDialog(MEditActivity.this);
+            pd.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Toast.makeText(getApplicationContext(),getString(R.string.cancelOperation),Toast.LENGTH_SHORT).show();
+                    messgeHandler.removeMessages(CMD_TIMEOUT_RECEIVE);
+                    messgeHandler.removeMessages(CMD_TIMEOUT);
+                    ble_admin.disConnect();
+                }
+            });
+//            pd = ProgressDialog.show(MEditActivity.this, "", message,
+//                    true, false);
+            pd.setCancelable(true);
+//            pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+//                @Override
+//                public void onCancel(DialogInterface dialogInterface) {
+//                    ble_admin.disConnect();
+//                }
+//            });
+            pd.setMessage(message);
+            pd.setCanceledOnTouchOutside(false);
+            pd.show();
+//            pd.setButton("cancel", new DialogInterface.OnClickListener() {
+//                @Override
+//                public void onClick(DialogInterface dialogInterface, int i) {
+//                    ble_admin.disConnect();
+//                }
+//            });
+        }else {
+            pd.setMessage(message);
+            pd.show();
+        }
+    }
+    private boolean isConnectIntime = false;//是否刚连接
+    // BLE回调信息
+    private SMSGBLEMBLE.CallBack bleCallback = new SMSGBLEMBLE.CallBack() {
+        //发送数据成功回调
+        @Override
+        public void onWrited() {
+            //发送延时消息，如果3s内没有接收到 回馈 即 视为 发送超时
+            messgeHandler.sendEmptyMessageDelayed(CMD_TIMEOUT_RECEIVE,3000);
+        }
 
         @Override
-        public void onNotify(UUID service, UUID character, byte[] value) {
+        public void onTimeOut(int type) {
+            //连接超时
+            if (type==0){
+                messgeHandler.sendEmptyMessage(DISMISS_DIALOG);
+                messgeHandler.sendEmptyMessage(CMD_TIMEOUT);
+                ble_admin.disConnect();
 
-            Log.e("xxx", "onNotify = " + new String(value));
+            }
+        }
+        //接收数据回调
+        @Override
+        public void onDataReturn(String values) {
+            //收到回馈 移除 超时消息
+            messgeHandler.removeMessages(CMD_TIMEOUT_RECEIVE);
+            if (values.contains("S")){//成功
+                if (CommandHelper.dataType_data==sendCmdType){//如果是发数据包  判断是否还有数据需要发送
+                    //判断是否还有剩余帧需要发送
+                    if (hasSendData < edit_byte.length) {
 
-            //接收指定服务
-            if (service.equals(UUID.fromString(DATA_SERVICE_UUID)) && character.equals(UUID.fromString(RXD_CHARACT_UUID))) {
-                isGettingResponse = true;
-
-                if (mConnected) {
-
-                    if (requestCode == 1004) {
-                        //是发送文本，需要判断是否是大数据操作
-                        //发送成功
-                        if (new String(value).toUpperCase().contains("S")) {
-
-                            //判断是否还需要发送
-                            if (hasSendData < edit_byte.length) {
-                                sendTxtData();
-                            } else {
-                                pd.dismiss();
-                                CommonUtils.toast("control right");
-                                //发送成功添加到数据库
-                                UmsResultBean umsResultBean = new UmsResultBean();
-                                umsResultBean.type = selectedParams.model;
-                                umsResultBean.color = selectedParams.color;
-                                umsResultBean.numberIndex = Integer.parseInt(selectedParams.switchValue);
-                                umsResultBean.body = clearEditText.getText().toString();
-                                umsResultBean.speed = seekBarSpeed.getProgress();
-                                umsResultBean.bright = seekBarLight.getProgress();
-                                umsResultHelper.storeUmsReulst(umsResultBean);
-                            }
-                        } else {
-                            //发送失败
-                            erroCount++;
-                            Log.e("xxx", "erroCount=" + erroCount);
-                            if (erroCount > 3) {
-                                erroCount = 0;
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (pd != null) {
-                                            pd.dismiss();
-                                        }
-                                        showYCDialog(getString(R.string.failedOperation));
-
-                                    }
-                                });
-                            } else {
-                                //错误次数在3次以内，重发
-                                sendCmd(sendcmd);
-                            }
-                        }
-
+                        messgeHandler.sendEmptyMessage(CMD_SENDING);
                     } else {
+                        messgeHandler.sendEmptyMessage(DISMISS_DIALOG);
+                        //发送成功添加到数据库
+                        savaData();
+                        messgeHandler.post(new Runnable() {
 
-                        //普通操作
-                        if (pd != null) {
-                            pd.dismiss();
-                        }
-                        if (new String(value).toUpperCase().equals("E")) {
-                            CommonUtils.toast("control failed");
-                        } else {
-                            //发送成功添加到数据库
-                            UmsResultBean umsResultBean = new UmsResultBean();
-                            umsResultBean.type = selectedParams.model;
-                            umsResultBean.color = selectedParams.color;
-                            umsResultBean.numberIndex = Integer.parseInt(selectedParams.switchValue);
-                            umsResultBean.body = clearEditText.getText().toString();
-                            umsResultBean.speed = seekBarSpeed.getProgress();
-                            umsResultBean.bright = seekBarLight.getProgress();
-                            umsResultHelper.storeUmsReulst(umsResultBean);
-                            CommonUtils.toast("control right");
-                        }
-                    }
+                            @Override
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), getResources().getString(R.string.sendsuccess),
+                                        Toast.LENGTH_SHORT).show();
+                            }
 
-                } else {
-                    if (pd != null) {
-                        pd.dismiss();
+                        });
                     }
+                }else {
+                    messgeHandler.sendEmptyMessage(DISMISS_DIALOG);
+                    //发送成功添加到数据库
+                    savaData();
+                    if (!isConnectIntime){//首次连接 发送开机命令不 提示
+
+                        messgeHandler.post(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), getResources().getString(R.string.successfulOperation),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+
+                        });
+                    }
+                    //如果是刚连接成功 并且成功发送开机命令    再发送数据
+                    if (sendCmdType==CommandHelper.dataType_power&&isConnectIntime&&isNeedSendData){
+                        isConnectIntime = false;
+                        sendCmdType=CommandHelper.dataType_data;
+                            //发送数据
+                            edit_byte = ledView.getTextByte();
+                            hasSendData = 0;
+//                        messgeHandler.sendEmptyMessage(DISMISS_DIALOG);
+                        messgeHandler.sendEmptyMessage(CMD_SENDING);
+                    }
+                }
+            }else if (values.contains("E")){//失败
+                //发送失败
+                erroCount++;
+                Log.e("xxx", "erroCount=" + erroCount);
+                if (erroCount > 3) {
+                    erroCount = 0;
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            showYCDialog(getString(R.string.connectionCasBeenDisconnected));
+                            if (pd != null) {
+                                pd.dismiss();
+                            }
+                            showYCDialog(getString(R.string.failedOperation));
+                            ble_admin.disConnect();
                         }
                     });
-                    //连接断开
-                    CommonUtils.toast("Disconnect !");
+                } else {
+                    //错误次数在3次以内，重发
+                    ble_admin.sendDatas(sendcmd);
                 }
             }
         }
-
+        //打开通知回调
         @Override
-        public void onResponse(int code) {
-            if (pd != null) {
-                pd.dismiss();
-            }
-            if (code == REQUEST_SUCCESS) {
+        public void onNotification(int code) {
+
+            if (code== BluetoothGatt.GATT_SUCCESS){//打开通知成功  连接真正成功
                 //打开通知成功
-                CommonUtils.toast("open notify success ");
                 mConnected = true;
+                isConnectIntime = true;
+
+                messgeHandler.post(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        //设置打开开关,发送开机命令
+//                        switch_state_iscontrolauto = true;
+                        aSwitch.setChecked(true);
+                        aSwitch.setVisibility(View.VISIBLE);
+                        Toast.makeText(getApplicationContext(), getResources().getString(R.string.connecttingSuccessful),
+                                Toast.LENGTH_SHORT).show();
+                        tv_device_name.setText(getTenChar(connected_name));
+                    }
+
+                });
+
+
+            }else {//如果打开通知失败
+                messgeHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        messgeHandler.sendEmptyMessage(CONNECTED_FAIL);
+//                        CommonUtils.toast("open notify failed ");
+                        ble_admin.disConnect();
+                    }
+                });
+//                mConnected = false;
 //                switch_state_iscontrolauto = true;
-                //设置打开开关,发送开机命令
-                aSwitch.setChecked(mConnected);
-                //连接成功
-                Log.e("requestCode",requestCode+"");
-                if (requestCode == 1001) {
-                    //速度
-                    sendCmd((CmdConts.WRITE_SPEED + tvSpeedNum.getText() + "<E>").getBytes());
-                } else if (requestCode == 1002) {
-                    //亮度
-                    sendCmd((CmdConts.WRITE_LIGHT + tvLightNum.getText() + "<E>").getBytes());
-                } else if (requestCode == 1003) {
-                    //发送列表
-                    sendCmd((CmdConts.LOOP_SHOW + waitSendIndexStr + "<E>").getBytes());
-                } else if (requestCode == 1004) {
-                    //发送数据
-                    edit_byte = ledView.getTextByte();
-                    hasSendData = 0;
-                    sendTxtData();
-                } else if (requestCode == 1005) {
-                    //发送开关
-                    sendCmd(turnOnOrOffCmd.getBytes());
-                }
-                //发送数据
-                requestCode = 1004;
-                edit_byte = ledView.getTextByte();
-                hasSendData = 0;
-                pd.show();
-                sendTxtData();
-            } else {
-                CommonUtils.toast("open notify failed ");
-                clearBlueData();
-                mConnected = false;
-                switch_state_iscontrolauto = true;
-                aSwitch.setChecked(mConnected);
-                tv_device_name.setText(getString(R.string.connectstate));
+//                aSwitch.setChecked(mConnected);
+//                tv_device_name.setText(getString(R.string.connectstate));
+
             }
         }
-    };
-
-    /***
-     * 写数据监听
-     */
-    private final BleWriteResponse mWriteRsp = new BleWriteResponse() {
+        //断开连接回调
         @Override
-        public void onResponse(int code) {
-            Log.e("xxx", "BleWriteResponse code=" + code);
-
+        public void onDisconnect() {
+            messgeHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    CommonUtils.toast(getResources().getString(R.string.connectionCasBeenDisconnected));
+//                    messgeHandler.removeMessages();
+//                    messgeHandler.removeMessages(CMD_TIMEOUT_RECEIVE);
+                    mConnected = false;
+                    aSwitch.setVisibility(View.GONE);
+                    hasSendData=0;
+                    sendcmd=null;
+                    switch_state_iscontrolauto = true;
+                    aSwitch.setChecked(mConnected);
+                    isConnectIntime = false;
+                    tv_device_name.setText(getResources().getString(R.string.connectstate));
+                    connected_MAC="";
+                    connected_name = "";
+                    if (pd!=null){
+                        pd.dismiss();
+                    }
+                }
+            });
         }
     };
 
+    private void savaData() {
+        //发送成功添加到数据库
+        UmsResultBean umsResultBean = new UmsResultBean();
+        umsResultBean.type = selectedParams.model;
+        umsResultBean.color = selectedParams.color;
+        umsResultBean.numberIndex = Integer.parseInt(selectedParams.switchValue);
+        umsResultBean.body = clearEditText.getText().toString();
+        umsResultBean.speed = seekBarSpeed.getProgress();
+        umsResultBean.bright = seekBarLight.getProgress();
+        umsResultHelper.storeUmsReulst(umsResultBean);
+    }
+
+    private void connectDevice(){
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                if ((!mConnected)&&(!connected_MAC.equals(""))){//未连接
+                    mConnected = ble_admin.connect(connected_MAC, 8000, 1);//10s 超时  重试两次
+
+                }
+            }
+        };
+        poolExecutor.execute(runnable);
+    }
+    public   void sendDataToDevice(){
+
+        //发送数据
+        Runnable ad = new Runnable() {
+            @Override
+            public void run() {
+                if ( mConnected) {
+                    byte[] cmd = new byte[0];
+                    Log.e("信息类型", sendCmdType + "");
+                    if (sendCmdType==CommandHelper.dataType_data){
+                        sendTxtData();
+                    }else if (sendCmdType == CommandHelper.dataType_light){
+                        sendcmd = ((CmdConts.WRITE_LIGHT + tvLightNum.getText() + "<E>").getBytes());
+                    }else if (sendCmdType == CommandHelper.dataType_mesList){
+                        sendcmd = ((CmdConts.LOOP_SHOW + waitSendIndexStr + "<E>").getBytes());
+                    }else if (sendCmdType == CommandHelper.dataType_power){
+                        sendcmd = (turnOnOrOffCmd.getBytes());
+                    }else if (sendCmdType == CommandHelper.dataType_speed){
+                        sendcmd = ((CmdConts.WRITE_SPEED + tvSpeedNum.getText() + "<E>").getBytes());
+                    }
+                    ble_admin.sendDatas(sendcmd);
+                }
+            }
+        };
+        poolExecutor.execute(ad);
+    }
 
 }

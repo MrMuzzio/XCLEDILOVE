@@ -55,4 +55,16 @@
         <item>闪烁</item>
         <item>跑马灯</item>
     </string-array>
+
+    <string-array name="popup_message">
+        <item>设置</item>
+        <item>其他</item>
+    </string-array>
+
+    <string-array name="other_message">
+        <!--<item>获取设备电量</item>-->
+        <item>检查更新</item>
+        <item>关于APP</item>
+        <item>帮助</item>
+    </string-array>
 </resources>
