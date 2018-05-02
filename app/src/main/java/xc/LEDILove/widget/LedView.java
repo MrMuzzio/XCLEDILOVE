@@ -1,5 +1,6 @@
 package xc.LEDILove.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -10,6 +11,8 @@ import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -19,6 +22,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 
+import xc.LEDILove.Bean.ColumnDataBean;
+import xc.LEDILove.Bean.TextBean;
 import xc.LEDILove.R;
 import xc.LEDILove.font.FontUtils;
 import xc.LEDILove.utils.Helpful;
@@ -46,11 +51,17 @@ public class LedView extends AppCompatTextView {
     private Paint normalPaint;
     private Paint selectPaint;
     private FontUtils utils;
+    private List<Integer> wordWildLists = new ArrayList<>();//字符宽度
+    private List<TextBean> beanList;//字符属性
+    private boolean isSupportMarFullColor = false;
+    @SuppressLint("HandlerLeak")
     private  android.os.Handler handler = new android.os.Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if (msg.what==1){
+                wordWildLists =  utils.getWordWilds();
+//                beanList = utils.getTextBeanList();
                 postInvalidate();
             }
         }
@@ -65,6 +76,10 @@ public class LedView extends AppCompatTextView {
      * 对应的点阵矩阵
      */
     private boolean[][] matrix;
+    /*
+     * 多彩点阵颜色数组
+     */
+    private int[][] latticeColors;
 
     /*
      * 选中颜色红色
@@ -123,7 +138,7 @@ public class LedView extends AppCompatTextView {
                 utils.zlx = zlcs;
                 utils.setPix(pix);
             }
-            matrix = utils.getWordsInfo(txt);
+            matrix = utils.getWordsInfo(txt,beanList);
             completeCallback.onComplete(true);
             if(colorVaules != 0) {
                     selectorPaintColor = colorVaules;
@@ -154,7 +169,8 @@ public class LedView extends AppCompatTextView {
      * @param pix 12 16 48
      * @param zlcs  正 斜 粗
      */
-    public void setMatrixText( final String txt,  final int pix,  final String zlcs) {
+    public void setMatrixText(final String txt, final int pix, final String zlcs, final List<TextBean> beanList) {
+        this.beanList = beanList;
         this.txt = txt;
         this.pix = pix;
         this.zlcs = zlcs;
@@ -210,7 +226,9 @@ public class LedView extends AppCompatTextView {
      * @param zlcs  正 斜 粗
      * @param colorValue 选中颜色
      */
-    public void setMatrixTextWithColor(  final String txt,   final int pix,   final String zlcs,  final int colorValue) {
+    public void setMatrixTextWithColor(  final boolean isSupportMarFullColor, final String txt,   final int pix,   final String zlcs,  final int colorValue,final List<TextBean> beanList) {
+        this.isSupportMarFullColor = isSupportMarFullColor;
+        this. beanList= beanList;
         this.txt = txt;
         this.pix = pix;
         this.zlcs = zlcs;
@@ -247,17 +265,33 @@ public class LedView extends AppCompatTextView {
 //        poolExecutor.execute(runnable);
     }
 
-    public byte[] getTextByte() {
+    public byte[] getTextByte(boolean isSupportMarFullColor) {
+        byte[] result;
+        if (isSupportMarFullColor){
+            result = getRGBData();
+        }else {
+            result = utils.getAdjustedData(matrix);
+        }
         // byte[] temp = new byte[utils.dataResult.length+1];
         //Helpful.catByte(utils.dataResult, 0, temp, 0);
         // temp[utils.dataResult.length] = 0;
-        utils.dataResult =  utils.getAdjustedData(matrix);
-        Log.e("sendData000->", Helpful.MYBytearrayToString(utils.dataResult) + " SIZE=" + utils.dataResult.length);
-        return utils.dataResult;
+//        utils.dataResult =  utils.getAdjustedData(matrix);
+//        Log.e("sendData000->", Helpful.MYBytearrayToString(utils.dataResult) + " SIZE=" + utils.dataResult.length);
+//        return utils.dataResult;
+        /**
+         * 全彩返回值
+         * */
+        return result;
     }
 
-    public int getLEDWidget() {
-        return utils.getLEDWidget();
+    public int getLEDWidget(boolean isSupportMarFullColor) {
+        if (isSupportMarFullColor){
+            return utils.getLEDWidget();
+        }else {
+            return utils.getLEDWidget();
+        }
+//        return utils.getLEDWidget();
+//        return datalengh;
     }
 
     /**
@@ -298,23 +332,193 @@ public class LedView extends AppCompatTextView {
 
     private void drawText(Canvas canvas) {
         if (matrix != null && matrix.length > 0) {
+            latticeColors = new int[matrix.length][matrix[0].length];
+            getColumnColor();
             radius = (getHeight() - (dots + 1) * spacing) / (2 * dots);
             // 行
-            int row = 0;
+//            int row = 0;
             // 列
-            int column = 0;
-            while (getYPosition(row) < getHeight()) {
-                while (getXPosition(column) < getWidth()) {
-                    // just draw
-                    if (row < matrix.length && column < matrix[0].length && matrix[row][column]) {
+//            int column = 0;
+            int col_back = 0;
+            int col_font = 1;
+            Log.e("drawText: ", columnDataBeans.size()+"");
+            for (int i=0;i<columnDataBeans.size();i++){
+//                Log.e( "onTextChanged:字符 ",columnDataBeans.get(i).getCharacter());
+//                Log.e("字体色>>>",columnDataBeans.get(i).getColor_font()+"");
+//                Log.e("背景色>>>",columnDataBeans.get(i).getColor_back()+"");
+            }
+            for (int column = 0;getXPosition(column) < getWidth();column++) {
+//            for (int column = 0;column < matrix.length;column++) {
+//                Log.e("LEDView", "drawText: "+column);
+
+                if (column<columnDataBeans.size()&&isSupportMarFullColor){
+                    col_back  = (columnDataBeans.get(column).getColor_back());
+                    col_font  = (columnDataBeans.get(column).getColor_font());
+                    selectPaint.setColor(parseColor(col_font));
+                    normalPaint.setColor(parseColor(col_back));
+                }else {
+                    selectPaint.setColor(selectorPaintColor);
+                    normalPaint.setColor(normallPaintColor);
+                }
+                for (int row = 0;getYPosition(row) < getHeight();row++){
+                        int length = matrix.length;//12
+                        int length1 = matrix[0].length;//24
+                    if (row < matrix.length && column < matrix[0].length  ) {
+                        if (row < matrix.length && column < matrix[0].length && matrix[row][column]) {
+//
                         canvas.drawCircle(getXPosition(column), getYPosition(row), radius, selectPaint);
+                        latticeColors[row][column] = col_font;//记录每个点的颜色值
                     } else {
                         canvas.drawCircle(getXPosition(column), getYPosition(row), radius, normalPaint);
+                            latticeColors[row][column] = col_back;//记录每个点的颜色值
                     }
-                    column++;
+                    }
                 }
-                row++;
-                column = 0;
+//                row++;
+            }
+//            while (getYPosition(row) < getHeight()) {
+//                while (getXPosition(column) < getWidth()) {
+//                    // just draw
+//                    if (row < matrix.length && column < matrix[0].length && matrix[row][column]) {
+//
+//                        canvas.drawCircle(getXPosition(column), getYPosition(row), radius, selectPaint);
+//                    } else {
+//                        canvas.drawCircle(getXPosition(column), getYPosition(row), radius, normalPaint);
+//                    }
+//                    column++;
+//                }
+//                row++;
+//                column = 0;
+//            }
+        }
+    }
+    private int datalengh = 0;
+    private byte[] getRGBData(){
+        int y=latticeColors[0].length;
+        int x = latticeColors.length;
+        boolean[][] R_booleanArry = new boolean[x][y];
+        boolean[][] G_booleanArry = new boolean[x][y];
+        boolean[][] B_booleanArry = new boolean[x][y];
+        datalengh = y*3;
+        /**
+         * 根据记录的颜色值(int) 用三个boolean数组分别记录RGB颜色
+         * */
+        for (int i = 0;i<x;i++){
+            for (int j = 0;j<y;j++){
+                switch (latticeColors[i][j]){
+                    case 0://黑 000
+                        R_booleanArry[i][j] = false;
+                        G_booleanArry[i][j] = false;
+                        B_booleanArry[i][j] = false;
+                        break;
+                    case 1://红 100
+                        R_booleanArry[i][j] = true;
+                        G_booleanArry[i][j] = false;
+                        B_booleanArry[i][j] = false;
+                        break;
+                    case 2://黄 110
+                        R_booleanArry[i][j] = true;
+                        G_booleanArry[i][j] = true;
+                        B_booleanArry[i][j] = false;
+                        break;
+                    case 3://绿 010
+                        R_booleanArry[i][j] = false;
+                        G_booleanArry[i][j] = true;
+                        B_booleanArry[i][j] = false;
+                        break;
+                    case 4://青 011
+                        R_booleanArry[i][j] = false;
+                        G_booleanArry[i][j] = true;
+                        B_booleanArry[i][j] = true;
+                        break;
+                    case 5://蓝 001
+                        R_booleanArry[i][j] = false;
+                        G_booleanArry[i][j] = false;
+                        B_booleanArry[i][j] = true;
+                        break;
+                    case 6://紫 101
+                        R_booleanArry[i][j] = true;
+                        G_booleanArry[i][j] = false;
+                        B_booleanArry[i][j] = true;
+                        break;
+                    case 7://白 111
+                        R_booleanArry[i][j] = true;
+                        G_booleanArry[i][j] = true;
+                        B_booleanArry[i][j] = true;
+                        break;
+                }
+            }
+        }
+        /**
+         * boolean 二维数组转化成 byte 数组
+         * */
+        byte[] R_byteArry =  utils.getAdjustedData(R_booleanArry);
+        byte[] G_byteArry  = utils.getAdjustedData(G_booleanArry);
+        byte[] B_byteArry  = utils.getAdjustedData(B_booleanArry);
+        byte[] reult = new byte[R_byteArry.length*3];
+        /**
+         * 拼接三个数组
+         * */
+        Helpful.catByte(R_byteArry,0,reult,0);
+        Helpful.catByte(G_byteArry,0,reult,R_byteArry.length);
+        Helpful.catByte(B_byteArry,0,reult,R_byteArry.length*2);
+
+        return reult;
+    }
+    private int parseColor(int position) {
+        int color = -1;
+        switch (position){
+            case 0:
+                color =  context.getResources().getColor(R.color.black);
+                break;
+            case 1:
+                color = context.getResources().getColor(R.color.red);
+                break;
+            case 2:
+                color = context.getResources().getColor(R.color.yellow);
+                break;
+            case 3:
+                color = context.getResources().getColor(R.color.dark_green);
+                break;
+            case 4:
+                color = context.getResources().getColor(R.color.cyan);
+                break;
+            case 5:
+                color = context.getResources().getColor(R.color.blove);
+                break;
+            case 6:
+                color = context.getResources().getColor(R.color.purple);
+                break;
+            case 7:
+                color = context.getResources().getColor(R.color.white);
+                break;
+        }
+        return color;
+    }
+    private List<ColumnDataBean> columnDataBeans;
+    private synchronized void getColumnColor() {
+        if (columnDataBeans!=null){
+            columnDataBeans.clear();
+        }else {
+            columnDataBeans = new ArrayList<>();
+        }
+        ColumnDataBean bean;
+        Log.e("wordWildLists: ", wordWildLists.size()+"");
+        Log.e("beanList: ", beanList.size()+"");
+        if (wordWildLists.size()<=beanList.size()){
+
+            for (int i = 0;i<wordWildLists.size();i++){
+                int back_color = beanList.get(i).getBackdrop();
+                int font_color = beanList.get(i).getFont();
+                int wild = wordWildLists.get(i);
+                Log.e("getColumnColor", "wild>>>"+wild);
+                for (int j=0;j<wild;j++){
+                    bean = new ColumnDataBean();
+                    bean.setColor_back(back_color);
+                    bean.setColor_font(font_color);
+                    columnDataBeans.add(bean);
+                }
+
             }
         }
     }

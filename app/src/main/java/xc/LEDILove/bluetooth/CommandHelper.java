@@ -32,7 +32,7 @@ public class CommandHelper {
         }else if (datatype==dataType_speed){
         }else if (datatype==dataType_mesList){
         }else if (datatype==dataType_power){
-            send_cmd =  getDataPower(dataBean,power);
+//            send_cmd =  getDataPower(dataBean,power);
         }
         return send_cmd;
     }

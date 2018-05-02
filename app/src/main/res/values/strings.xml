@@ -15,9 +15,11 @@
     <string name="marquee">Marquee</string>
     <string name="comfirmAndSend">Comfirm and Send</string>
     <string name="speed">Speed</string>
+    <string name="speed_set">Set speed</string>
     <string name="sendSpeed">Send Speed</string>
     <string name="sendBrightness">Send Brightness</string>
     <string name="brightness">Brightness</string>
+    <string name="brightness_set">Set Brightness</string>
     <string name="sendlist">Send List</string>
     <string name="send">Send</string>
     <string name="connectstate">Unconnected</string>
@@ -69,11 +71,38 @@
     <string name="connecting">connecting</string>
     <string name="refreshheadupdate">Last updated on:just</string>
 
+    <!--viewpager-->
+    <string name="pre">Color</string>
+    <string name="after">Font</string>
+    <string name="color_auto">Auto_Color</string>
+    <string name="color_manual">User_defined</string>
+    <!--fragment-->
+    <string name="preview">Preview</string>
+    <string name="color_font">Font_color</string>
+    <string name="color_back">BGColor</string>
+    <string name="color_model">Color_Mode</string>
     <!--帮助-->
     <string name="help">Help</string>
     <string name="about">About APP</string>
     <string name="other">Other</string>
+
+    <string name="music">Sync music</string>
     <string name="back">Back</string>
+    <string name="operating_manual">
+       APP operate instruction:\n
+1.Download the APP operating software\n
+scan the two-dimensional code and Select the corresponding system to download;
+After installing the app successfully , The name displayed is “LEDILove”\n
+
+2.Edit text and send\n
+First, Turn on LED display, mobile Bluetooth and APP software\n
+Second, Click APP Bluetooth signal search function, select the corresponding Bluetooth signal and click Connect\n
+Third, display content, select the appropriate font size, font, icon, font color,Scenery, information number (1-8) and mobile mode.\n
+Fourth, Click the Settings button in the upper right corner to set the information speed, brightness and send list.\n
+Finally, after editing the text, Click “OK and send” button.\n
+
+3. The LED screen displays the information successfully\n
+    </string>
     <string name="helpMessage">
         Problem: \n
         bluetooth connection timeout/send operation timeout/send failure\n
@@ -98,8 +127,27 @@ Support information left, right, shift, down, snowflake,
     <string name="app_new">It\'s the latest version.</string>
 
     <string name="refresh_tip">Drop-down refresh device list</string>
+    <string name="shift_auto">Auto/Custom</string>
+    <string name="model_color">Color_Mode</string>
 
     <!--Network-->
     <string name="netWorkTimeOout">Get the information timeout, check the network!</string>
     <string name="netWorkConntect">Getting version information...</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_message_list">MessageListActivity</string>
+
+    <!--音乐-->
+    <string name="play_model_repeat">Loop playlist</string>
+    <string name="play_model_shuffle">Randomize</string>
+    <string name="play_model_repeat_one">Loop track</string>
+
+
+    <string name="sync_enable">Opened sync</string>
+    <string name="sync_disenable">Closed sync</string>
+    <string name="playing_music">Now Playing ：</string>
+    <string name="playing_music_next">Next：</string>
+    <string name="unknown_music">unknown</string>
+    <string name="unconnect_device">Unconnected device！</string>
 </resources>

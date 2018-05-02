@@ -63,6 +63,9 @@
 
     <string-array name="other_message">
         <!--<item>Get the power of the device</item>-->
+        <item>Gif Animation</item>
+        <item>Sync music</item>
+        <item>Painted Palette</item>
         <item>Check for updates</item>
         <item>About APP</item>
         <item>Help</item>
@@ -71,4 +74,32 @@
         <!--<item>@</item>-->
         <!--<item>About</item>-->
     <!--</string-array>-->
+    <string-array name="unicode_images">
+        <item>☏</item>
+        <item>☎</item>
+        <item>♡</item>
+        <item>♥</item>
+        <item>☞</item>
+        <item>☜</item>
+        <item>★</item>
+        <item>☆</item>
+        <item>■</item>
+        <item>△</item>
+        <item>▲</item>
+        <item>▷</item>
+        <item>▶</item>
+        <item>▽</item>
+        <item>▼</item>
+        <item>◁</item>
+        <item>◀</item>
+        <item>◇</item>
+        <item>◆</item>
+        <item>◈</item>
+
+    </string-array>
+    <string-array name="resource_music_name">
+        <item>croatian_rhapsody</item>
+        <item>musicdemo2</item>
+        <item>musicdemo4</item>
+    </string-array>
 </resources>

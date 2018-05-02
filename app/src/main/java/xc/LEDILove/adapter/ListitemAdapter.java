@@ -1,6 +1,12 @@
 package xc.LEDILove.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +18,9 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import xc.LEDILove.Bean.TextBean;
 import xc.LEDILove.R;
+import xc.LEDILove.bluetooth.StaticDatas;
 import xc.LEDILove.db.UmsResultBean;
 
 /**
@@ -27,7 +35,7 @@ public class ListitemAdapter extends BaseAdapter {
 
     private List<HistoryListItem> historyListItemList;
     private HistoryListItem historyListItem;
-
+    private boolean isMatixColor = false;
     public class HistoryListItem {
         public UmsResultBean umsResultBean;
         public Boolean isChecked;
@@ -52,6 +60,8 @@ public class ListitemAdapter extends BaseAdapter {
         mContext = context;
         mInflater = LayoutInflater.from(context);
         this.onClickListener = onClickListener;
+        if (StaticDatas.getInstance().isSupportMarFullColor) isMatixColor = true;
+        else isMatixColor = false;
     }
 
     @Override
@@ -82,8 +92,12 @@ public class ListitemAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        holder.mTitle.setText(historyListItemList.get(position).umsResultBean.body);
-        holder.mTitle.setTextColor(historyListItemList.get(position).umsResultBean.color);
+        if (isMatixColor){
+            holder.mTitle.setText(setTextSpan(historyListItemList.get(position).umsResultBean.beanList,historyListItemList.get(position).umsResultBean.body));
+        }else {
+            holder.mTitle.setText(historyListItemList.get(position).umsResultBean.body);
+        }
+//        holder.mTitle.setTextColor(historyListItemList.get(position).umsResultBean.color);
         holder.mCb.setChecked(historyListItemList.get(position).isChecked);
         holder.mContent.setTag(position + "");
         holder.mContent.setOnClickListener(new View.OnClickListener() {
@@ -104,7 +118,65 @@ public class ListitemAdapter extends BaseAdapter {
 
         return convertView;
     }
-
+    private SpannableStringBuilder setTextSpan(List<TextBean> textBeanList, String text) {
+        SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder("");
+        //这里使用字符信息对象集合尺寸做上限，而不是 text长度，理论上是一样的数值，但这样可以避免下面取的时候 超集合最大值(不知道怎么发生的)
+        if (textBeanList==null){
+            textBeanList = getDefultTextBeanList(text);
+        }
+        for (int j= 0;j<textBeanList.size();j++){
+            if (j<text.length()){
+                SpannableString spannableString = new SpannableString(text.substring(j,j+1));
+                spannableString.setSpan(new BackgroundColorSpan(parseColor(textBeanList.get(j).getBackdrop())),0,1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                spannableString.setSpan(new ForegroundColorSpan(parseColor(textBeanList.get(j).getFont())),0,1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                spannableStringBuilder.append(spannableString);
+                spannableString = null;
+            }
+        }
+        return spannableStringBuilder;
+    }
+    private int parseColor(int position) {
+        int color = -1;
+        switch (position){
+            case 0:
+                color =  mContext.getResources().getColor(R.color.black);
+                break;
+            case 1:
+                color = mContext.getResources().getColor(R.color.red);
+                break;
+            case 2:
+                color = mContext.getResources().getColor(R.color.yellow);
+                break;
+            case 3:
+                color = mContext.getResources().getColor(R.color.dark_green);
+                break;
+            case 4:
+                color = mContext.getResources().getColor(R.color.cyan);
+                break;
+            case 5:
+                color = mContext.getResources().getColor(R.color.blove);
+                break;
+            case 6:
+                color = mContext.getResources().getColor(R.color.purple);
+                break;
+            case 7:
+                color = mContext.getResources().getColor(R.color.white);
+                break;
+        }
+        return color;
+    }
+    private List<TextBean> getDefultTextBeanList(String body) {
+        char [] chars = body.toCharArray();
+        List<TextBean> result = new ArrayList<>();
+        for (int i=0;i<chars.length;i++){
+            TextBean bean = new TextBean();
+            bean.setFont(1);
+            bean.setBackdrop(0);
+            bean.setCharacter(chars[i]);
+            result.add(bean);
+        }
+        return result;
+    }
     public void refresh(List<UmsResultBean> list) {
         historyListItemList = new ArrayList<>();
         for (UmsResultBean umsResultBean : list) {

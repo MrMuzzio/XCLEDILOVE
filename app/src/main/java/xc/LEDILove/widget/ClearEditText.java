@@ -1,11 +1,13 @@
 package xc.LEDILove.widget;
 
 
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
@@ -18,6 +20,33 @@ import xc.LEDILove.R;
 
 public class ClearEditText extends android.support.v7.widget.AppCompatEditText implements OnFocusChangeListener,
 		TextWatcher {
+	private  CutAndPastCallback cutAndPastCallback;
+	public void setCutAndPastCallback(CutAndPastCallback callback){
+		this.cutAndPastCallback = callback;
+	}
+	public interface CutAndPastCallback{
+		void onCut(String string);
+		void  onPast(String string);
+		void  onDelete();
+	}
+	@Override
+	public boolean onTextContextMenuItem(int id) {
+		ClipboardManager clip2 = (ClipboardManager)getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+		switch (id) {
+			case android.R.id.cut:
+				Log.e("cut",clip2.getText().toString());
+				cutAndPastCallback.onCut(clip2.getText().toString());
+				break;
+			case android.R.id.copy:
+				break;
+			case android.R.id.paste:
+				Log.e("paste",clip2.getText().toString());
+				cutAndPastCallback.onPast(clip2.getText().toString());
+				break;
+		}
+		return super.onTextContextMenuItem(id);
+	}
+
 	/**
 	 * 删除按钮的引用
 	 */
@@ -75,6 +104,7 @@ public class ClearEditText extends android.support.v7.widget.AppCompatEditText i
 
 				if (touchable) {
 					this.setText("");
+					cutAndPastCallback.onDelete();
 				}
 			}
 		}

@@ -15,9 +15,11 @@
     <string name="marquee">跑马灯</string>
     <string name="comfirmAndSend">确定并发送</string>
     <string name="speed">速度</string>
+    <string name="speed_set">设置速度</string>
     <string name="sendSpeed">发送速度</string>
     <string name="sendBrightness">发送亮度</string>
     <string name="brightness">亮度</string>
+    <string name="brightness_set">设置亮度</string>
     <string name="sendlist">发送列表</string>
     <string name="send">发送</string>
     <string name="dialog_reset">即将重置连接，请确认。</string>
@@ -66,12 +68,36 @@
     <string name="connecting">正在连接</string>
     <string name="refreshheadupdate">最后更新于：刚刚</string>
 
-
+    <!--viewpager-->
+    <string name="pre">颜色</string>
+    <string name="after">字体</string>
+    <string name="color_auto">自动颜色</string>
+    <string name="color_manual">自定义</string>
+    <!--fragment-->
+    <string name="preview">预览</string>
+    <string name="color_font">字体色</string>
+    <string name="color_back">背景色</string>
+    <string name="color_model">颜色模式</string>
     <!--帮助-->
     <string name="help">帮助</string>
     <string name="about">关于APP</string>
+    <string name="music">音乐同步</string>
     <string name="other">其他</string>
     <string name="back">返回</string>
+    <string name="operating_manual">
+        APP操作说明：\n
+1.下载APP操作软件:\n
+扫描二维码，选择对应系统下载\n
+安装成功APP后,成功显示名为 ’LEDILove’\n
+2. 编辑信息及发送\n
+第一. 打开LED显示屏，手机蓝牙功能和 APP软件.\n
+第二. 点击APP蓝牙信号搜索功能，选择相应的蓝牙信号并点击连接。\n
+第三. 在APP操作界面编辑框输入所需显示的内容、选择相应的字号、字体、图标、字体色、
+背景色、信息号（1-8）及移动模式。\n
+第四, 点击右上角的设置按钮，可设置信息速度，亮度及发送列表.\n
+最后, 编辑完成后点击‘确定并发送’按钮\n
+3.LED屏幕成功显示信息。\n
+    </string>
     <string name="helpMessage">
         问题:\n
         蓝牙连接超时/发送操作超时/发送失败\n
@@ -94,9 +120,25 @@
     <string name="app_new">已是最新版本</string>
 
     <string name="refresh_tip">下拉可刷新设备列表</string>
-
+    <string name="shift_auto">自动/自定义</string>
+    <string name="model_color">颜色模式</string>
 
     <!--网络-->
     <string name="netWorkTimeOout">获取信息超时，请检查网络！</string>
     <string name="netWorkConntect">正在获取版本信息……</string>
+
+    <!--音乐-->
+    <string name="play_model_repeat">列表循环</string>
+    <string name="play_model_shuffle">随机播放</string>
+    <string name="play_model_repeat_one">单曲循环</string>
+
+
+    <string name="sync_enable">已开启同步</string>
+    <string name="sync_disenable">已关闭同步</string>
+    <string name="playing_music">正在播放：</string>
+    <string name="playing_music_next">下一首：</string>
+
+    <string name="unknown_music">未知</string>
+    <string name="unconnect_device">未连接设备！</string>
+
 </resources>

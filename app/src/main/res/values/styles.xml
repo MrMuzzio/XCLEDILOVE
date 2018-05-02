@@ -5,6 +5,7 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="colorPrimaryDark">#64c4f6</item>
+        <item name="android:windowIsTranslucent">true</item>
     </style>
 
     <style name="action_view_text_style">
@@ -26,5 +27,9 @@
         <item name="android:divider">@drawable/list_divider_line</item>
         <item name="android:dividerHeight">1.5dp</item>
     </style>
+
+    <style name="MyAppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="MyAppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 </resources>

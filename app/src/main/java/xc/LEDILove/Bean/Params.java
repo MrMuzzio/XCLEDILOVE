@@ -1,5 +1,7 @@
 package xc.LEDILove.Bean;
 
+import java.util.List;
+
 /**
  * Created by xcgd on 2018/3/13.
  */
@@ -22,4 +24,6 @@ package xc.LEDILove.Bean;
         public String switchValue = "1";
         //颜色
         public int color;
+        //字符数据
+        public List<TextBean> beanLists;
     }

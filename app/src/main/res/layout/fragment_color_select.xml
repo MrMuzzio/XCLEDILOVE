@@ -1,0 +1,235 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context="xc.LEDILove.fragment.ColorSelectFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:id="@+id/ll_preview"
+        android:layout_marginLeft="0dp"
+        android:orientation="horizontal"
+        android:layout_height="0dp"
+        android:minHeight="15dp"
+        android:layout_weight="1">
+        <TextView
+            android:gravity="center_vertical"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="30dp"
+            android:textSize="12sp"
+            android:text="@string/preview"/>
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="10dp"
+            android:gravity="center_vertical"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:layout_weight="8">
+            <Button
+                android:id="@+id/btn_auto_shift"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+
+                android:textSize="14sp"
+                android:background="@drawable/selector_auto_manual_button"
+                android:text="@string/shift_auto"
+                android:textAllCaps="false"
+                />
+            <TextView
+                android:gravity="center_vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textSize="12sp"
+                android:layout_toLeftOf="@id/btn_auto_shift"
+                android:paddingRight="5dp"
+                android:text="@string/color_model"/>
+            <TextView
+                android:id="@+id/tv_preview"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:background="@color/black"
+                android:text="LED"
+                android:gravity="center"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:textColor="@color/red" />
+        </RelativeLayout>
+
+            <RadioGroup
+                android:visibility="gone"
+                android:layout_marginLeft="15dp"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:layout_height="match_parent">
+                <RadioButton
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:singleLine="true"
+                    android:text="@string/color_auto"
+                    android:layout_height="match_parent" />
+                <RadioButton
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:singleLine="true"
+                    android:text="@string/color_manual"
+                    android:layout_height="match_parent" />
+            </RadioGroup>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:orientation="horizontal">
+
+
+        <TextView
+            android:gravity="center_vertical"
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:textSize="12sp"
+            android:textColor="@color/red"
+            android:layout_weight="2"
+            android:text="@string/color_font"/>
+        <ImageView
+            android:layout_marginLeft="10dp"
+            android:id="@+id/iv_font_black"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+
+            android:layout_height="30dp"
+            android:background="@color/black" />
+        <ImageView
+            android:id="@+id/iv_font_red"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="30dp"
+            android:background="@color/red" />
+
+        <ImageView
+            android:id="@+id/iv_font_yellow"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="30dp"
+            android:background="@color/yellow" />
+
+        <ImageView
+            android:id="@+id/iv_font_green"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="30dp"
+            android:background="@color/dark_green" />
+
+        <ImageView
+            android:id="@+id/iv_font_cyan"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="30dp"
+            android:background="@color/cyan" />
+
+        <ImageView
+            android:id="@+id/iv_font_blove"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="30dp"
+            android:background="@color/blove" />
+
+        <ImageView
+            android:id="@+id/iv_font_purple"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="30dp"
+            android:background="@color/purple" />
+
+        <ImageView
+            android:id="@+id/iv_font_white"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="30dp"
+            android:background="@color/white" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:orientation="horizontal"
+        android:id="@+id/ll_background_color">
+
+
+        <TextView
+            android:gravity="center_vertical"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="30dp"
+            android:textSize="12sp"
+            android:textColor="@color/red"
+            android:text="@string/color_back"/>
+        <ImageView
+            android:layout_marginLeft="10dp"
+            android:id="@+id/iv_backdrop_black"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="30dp"
+            android:background="@color/black" />
+        <ImageView
+            android:id="@+id/iv_backdrop_red"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="30dp"
+            android:background="@color/red" />
+
+        <ImageView
+            android:id="@+id/iv_backdrop_yellow"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="30dp"
+            android:background="@color/yellow" />
+
+        <ImageView
+            android:id="@+id/iv_backdrop_green"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="30dp"
+            android:background="@color/dark_green" />
+
+        <ImageView
+            android:id="@+id/iv_backdrop_cyan"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="30dp"
+            android:background="@color/cyan" />
+
+        <ImageView
+            android:id="@+id/iv_backdrop_blove"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="30dp"
+            android:background="@color/blove" />
+
+        <ImageView
+            android:id="@+id/iv_backdrop_purple"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="30dp"
+            android:background="@color/purple" />
+
+        <ImageView
+            android:id="@+id/iv_backdrop_white"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="30dp"
+            android:background="@color/white" />
+
+    </LinearLayout>
+</LinearLayout>

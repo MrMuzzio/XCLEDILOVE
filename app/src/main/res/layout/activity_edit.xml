@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@mipmap/ic_background"
     android:orientation="vertical"
-    tools:context="xc.LEDILove.activity.NewEditActivity">
+    tools:context="xc.LEDILove.activity.MEditActivity">
 
     <include
         android:id="@+id/include"
@@ -21,16 +21,18 @@
         android:layout_height="match_parent"
         >
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
             >
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:id="@+id/ll_display"
                 android:background="@drawable/black_bg"
                 android:padding="5dp">
 
@@ -45,115 +47,102 @@
                 </HorizontalScrollView>
 
             </LinearLayout>
-
-
-            <LinearLayout
+            <RadioGroup
+                android:id="@+id/rg_font_color_select"
+                android:layout_below="@id/ll_display"
                 android:layout_width="match_parent"
+                android:layout_marginRight="15dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginLeft="15dp"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-
-                <LinearLayout
+                <RadioButton
+                    android:id="@+id/rb_font"
+                    android:button="@null"
+                    android:text="@string/after"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_weight="0.5"
-                    android:gravity="center|left"
-                    android:orientation="horizontal"
-                    android:paddingLeft="15dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/size"
-                        android:textColor="@color/txt_red"
-                        android:textSize="16sp" />
-
-                    <Spinner
-                        android:id="@+id/spinnerWordSize"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="5dp"
-                        android:layout_marginRight="5dp"></Spinner>
-                </LinearLayout>
-
-                <LinearLayout
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:background="@drawable/selector_radiogroup_item"
+                    android:layout_height="wrap_content" />
+                <RadioButton
+                    android:id="@+id/rb_color"
+                    android:gravity="center"
+                    android:button="@null"
+                    android:text="@string/pre"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_weight="0.5"
-                    android:gravity="center|right"
-                    android:paddingRight="15dp"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/font"
-                        android:textColor="@color/txt_red"
-                        android:textSize="16sp" />
-
-                    <Spinner
-                        android:id="@+id/spinnerWordType"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="clip_horizontal"
-                        android:layout_marginLeft="5dp"
-                        android:layout_marginRight="0dp"></Spinner>
-                </LinearLayout>
-
-            </LinearLayout>
-
-
+                    android:layout_weight="1"
+                    android:background="@drawable/selector_radiogroup_item"
+                    android:layout_height="wrap_content" />
+            </RadioGroup>
+            <android.support.v4.view.ViewPager
+                android:layout_below="@id/rg_font_color_select"
+                android:id="@+id/vp_selector"
+                android:layout_marginRight="15dp"
+                android:layout_marginLeft="15dp"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"/>
             <LinearLayout
+                android:visibility="gone"
+                android:id="@+id/ll_navigation"
+                android:layout_below="@id/vp_selector"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center"
                 android:orientation="horizontal">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_weight="0.4"
-                    android:gravity="center|left"
-                    android:orientation="horizontal"
-                    android:paddingLeft="15dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/bytes"
-                        android:textColor="@color/txt_red"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:id="@+id/tvTxtNumber"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="5dp"
-                        android:text="0/250"
-                        android:textColor="@color/white"
-                        android:textSize="14sp" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_weight="0.6"
-                    android:gravity="center|left"
-                    android:orientation="horizontal">
-
-
-                </LinearLayout>
-
+                <ImageView
+                    android:id="@+id/iv_navigation_left"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/selector_viepager_image_left"
+                    android:src="@mipmap/ic_keyboard_arrow_left_black_24dp"/>
+                <TextView
+                    android:id="@+id/tv_navigation_index"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="10sp"
+                    android:text="第1页"/>
+                <ImageView
+                    android:id="@+id/iv_navigation_right"
+                    android:layout_width="wrap_content"
+                    android:background="@drawable/selector_viepager_image_left"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_keyboard_arrow_right_black_24dp"/>
             </LinearLayout>
+            <RelativeLayout
+                android:visibility="gone"
+                android:id="@+id/rl_point"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                >
 
+                <LinearLayout
+                    android:id="@+id/linLay_guide_pointContainer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" />
+
+                <ImageView
+                    android:id="@+id/iv_guide_redPoint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/shape_point_red" />
+            </RelativeLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
+                android:layout_below="@id/ll_navigation"
+                android:id="@+id/ll_text_single"
                 android:orientation="vertical">
 
 
                 <LinearLayout
+                    android:visibility="gone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="5dp"
@@ -219,6 +208,7 @@
                     android:background="@drawable/edittext_bg"
                     android:padding="5dp"
                     android:singleLine="true"
+                    android:inputType="textAutoComplete"
                     android:text="" />
 
             </LinearLayout>
@@ -228,6 +218,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="15dp"
+                android:layout_below="@id/ll_text_single"
+                android:id="@+id/ll_move_mould"
                 android:background="@drawable/choosen_bg"
                 android:gravity="center"
                 android:orientation="vertical"
@@ -256,153 +248,35 @@
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_margin="15dp"
+                android:layout_alignParentBottom="true"
+                android:layout_below="@id/ll_move_mould"
                 android:background="@drawable/selector_btn"
                 android:text="@string/comfirmAndSend" />
-        </LinearLayout>
-
+        </RelativeLayout>
     </ScrollView>
-
-    <LinearLayout
-        android:id="@+id/ll_content"
+    <RelativeLayout
+        android:visibility="gone"
+        android:id="@+id/rl_launcher"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:visibility="gone"
         >
-
-        <include
-            layout="@layout/head_back"
-            android:layout_width="match_parent"
+        <ImageView
+            android:id="@+id/iv_app"
+            android:src="@mipmap/ic_about_app"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
             />
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_below="@id/iv_app"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/tv_version"
+            android:layout_marginTop="5dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_weight="1"
-                    android:gravity="right"
-                    android:text="@string/speed" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_weight="1"
-                    android:gravity="right"
-                    android:text="@string/brightness" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <com.warkiz.widget.IndicatorSeekBar
-                    android:id="@+id/seekBar"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:progress="0"
-                    app:isb_max="7"
-                    app:isb_seek_bar_type="continuous"
-                    app:isb_thumb_width="30dp"
-                    app:isb_track_background_bar_size="5dp"
-                    app:isb_track_progress_bar_size="5dp" />
-
-                <com.warkiz.widget.IndicatorSeekBar
-                    android:id="@+id/seekBar2"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:progress="0"
-                    app:isb_max="7"
-                    app:isb_seek_bar_type="continuous"
-                    app:isb_thumb_width="30dp"
-                    app:isb_track_background_bar_size="5dp"
-                    app:isb_track_progress_bar_size="5dp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tv_speed_num"
-                    android:layout_width="10dp"
-                    android:layout_height="0dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="1" />
-
-                <TextView
-                    android:id="@+id/tv_light_num"
-                    android:layout_width="10dp"
-                    android:layout_height="0dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="1" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="20dp"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:text="@string/sendlist" />
-
-            <ListView
-                android:id="@+id/list_item"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_marginTop="5dp"
-                android:layout_weight="1"
-                android:divider="#00000000"
-                />
-
-            <Button
-                android:id="@+id/btn_send_run_list"
-                android:layout_width="match_parent"
-                android:layout_height="45dp"
-                android:clickable="false"
-                android:layout_marginTop="10dp"
-                android:textColor="@color/black"
-                android:background="@drawable/shape_button_unablecheck"
-                android:gravity="center"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="15dp"
-                android:layout_marginBottom="5dp"
-                android:enabled="false"
-                android:text="@string/send" />
-
-        </LinearLayout>
-
-    </LinearLayout>
+            android:textSize="14sp"
+            android:text="1111"
+            android:textColor="@color/black"/>
+    </RelativeLayout>
 
 </LinearLayout>

@@ -28,11 +28,11 @@ import java.util.UUID;
 
 @SuppressLint("NewApi")
 public class SMSGBLEMBLE {
-
+    private String TAG = SMSGBLEMBLE.class.getSimpleName();
     private Context context ;
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
-    private BluetoothGatt mBluetoothGatt;
+    private   BluetoothGatt mBluetoothGatt;
 
     public BluetoothGatt getmBluetoothGatt() {
         return mBluetoothGatt;
@@ -73,65 +73,65 @@ public class SMSGBLEMBLE {
     private BluetoothGattCharacteristic txd_charact;
     private BluetoothGattCharacteristic rxd_charact;
 
-    public boolean connect(String mac, int sectime, int reset_times) {
-        try {
-            if (!mBluetoothAdapter.isEnabled()) { // 没有打开蓝牙
-                return false;
-            }
-            disConnect();
-            for (int i = 0; i < reset_times; i++) {
-                initTimeFlag(WORK_onServicesDiscovered);
-                System.out.println("开始连接");
-                if ((mBluetoothGatt != null) && mac.equals(last_mac)) {
-                    if (connect_flag == true) { // 当前已经连接好了
-                        return true;
-                    }
-                    System.out.println("重连");
-                    mBluetoothGatt.connect();
-                } else {
-                    System.out.println("新连接");
-                    disConnect(); // 新设备进行连接
-                    device = mBluetoothAdapter.getRemoteDevice(mac);
-                    if (device == null) {
-                        System.out.println("device == null");
-                        return false;
-                    }
-                    mBluetoothGatt = device.connectGatt(context, false,
-                            mGattCallback);
-                }
-
-                if (startTimeOut(sectime)) { // 连接超时
-                    System.out.println("连接超时");
-//                    if((i+1)==reset_times){
+    public void connect(String mac, int sectime, int reset_times) {
+        Log.e(TAG,"connect>>000");
+        if (!mBluetoothAdapter.isEnabled()) { // 没有打开蓝牙
+            return ;
+        }
+//            disConnect();
+        for (int i = 0; i < reset_times; i++) {
+            initTimeFlag(WORK_onServicesDiscovered);
+            Log.e(TAG,"connect>>开始连接");
+            System.out.println("开始连接");
+            if ((mBluetoothGatt != null) && mac.equals(last_mac)) {
+//                    if (connect_flag == true) { // 当前已经连接好了
+//                        return true;
 //                    }
-                    callback.onTimeOut(0);
-//                    disConnect();
-                    continue;
+                System.out.println("重连");
+                mBluetoothGatt.close();
+//                    mBluetoothGatt.connect();
+            }
+//                else {
+                System.out.println("新连接");
+//                    disConnect(); // 新设备进行连接
+                device = mBluetoothAdapter.getRemoteDevice(mac);
+                if (device == null) {
+                    System.out.println("device == null");
+                    return ;
                 }
+                handl.sendEmptyMessageDelayed(CONNECT_TIMEOUT,sectime);
+                mBluetoothGatt = device.connectGatt(context, false,
+                        mGattCallback);
+//                }
 
-                connect_flag = true;
+//                if (startTimeOut(sectime)) { // 连接超时
+//                    Log.e(TAG,"connect>>连接超时");
+//                    System.out.println("连接超时");
+////                    if((i+1)==reset_times){
+////                    }
+//                    callback.onTimeOut(0);
+////                    disConnect();
+//                    continue;
+//                }
 
-                txd_charact = getCharact(DATA_SERVICE_UUID, TXD_CHARACT_UUID);
-                rxd_charact = getCharact(DATA_SERVICE_UUID, RXD_CHARACT_UUID);
+//                connect_flag = true;
 
-                if ((txd_charact == null) || (rxd_charact == null)) {
-                    // System.out.println("获取服务失败");
-                    return false;
-                }
+//                txd_charact = getCharact(DATA_SERVICE_UUID, TXD_CHARACT_UUID);
+//                rxd_charact = getCharact(DATA_SERVICE_UUID, RXD_CHARACT_UUID);
+//
+//                if ((txd_charact == null) || (rxd_charact == null)) {
+//                    // System.out.println("获取服务失败");
+//                    return false;
+//                }
 
-                Thread.sleep(100);
-                setNotifyACK(rxd_charact, 1000);
+//                Thread.sleep(100);
+//                setNotifyACK(rxd_charact, 1000);
 //               boolean isok =  enableData(true);
 //                Log.e("使能数据接收",isok+"");
-                last_mac = mac;
+            last_mac = mac;
 //                NewMsgActivity.isConnected = true;
 //                NewMsgActivity.connected_MAC = mac;
-                return true;
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
-        return false;
     }
 
     // 获取特征值
@@ -174,6 +174,7 @@ public class SMSGBLEMBLE {
     public boolean refreshDeviceCache() {
         if (mBluetoothGatt != null) {
             try {
+//                Log.e("清除缓存", "清除缓存");
                 BluetoothGatt localBluetoothGatt = mBluetoothGatt;
                 Method localMethod = localBluetoothGatt.getClass().getMethod(
                         "refresh", new Class[0]);
@@ -183,16 +184,18 @@ public class SMSGBLEMBLE {
                     return bool;
                 }
             } catch (Exception localException) {
-                Log.i("清除缓存", "An exception occured while refreshing device");
+                Log.e("清除缓存", "An exception occured while refreshing device");
             }
         }
+        Log.e("refreshDeviceCache", "false" );
         return false;
     }
     // 断开连接
-    public boolean disConnect() {
+    public synchronized  boolean disConnect() {
         if (mBluetoothGatt != null) {
             System.out.println("断开连接");
             mBluetoothGatt.disconnect();
+//            mBluetoothGatt.close();
 //            mBluetoothGatt.close();
 //            mBluetoothGatt = null;
 //            connect_flag = false;
@@ -220,19 +223,22 @@ public class SMSGBLEMBLE {
         public void onConnectionStateChange(BluetoothGatt gatt, int status,
                                             int newState) {
             super.onConnectionStateChange(gatt, status, newState);
-            System.out.println(newState);
-            Log.e("ConnectionStateChange->",newState+"");
+//            System.out.println(newState);
+//            Log.e("ConnectionStateChange->",newState+"");
             if (newState == BluetoothProfile.STATE_CONNECTED) { // 连接成功
+                Log.e(TAG,"STATE_CONNECTED");
                 System.out.println("STATE_CONNECTED");
                 if (work_witch == WORK_onConnectionStateChange) {
                     work_ok_flag = true;
                 }
                 mBluetoothGatt.discoverServices();
+                connect_flag = true;
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) { // 断开连接
-                refreshDeviceCache();
-                mBluetoothGatt.close();
-                mBluetoothGatt = null;
-                Log.e("ConnectionStateChange","STATE_DISCONNECTED");
+                Log.e(TAG,"STATE_DISCONNECTED");
+                if (refreshDeviceCache()){
+                    mBluetoothGatt.close();
+//                    mBluetoothGatt = null;
+                }
                 if (connect_flag) { // 如果外部已经主动调用了断开连接的话
                     connect_flag = false;
                     if (callback != null) {
@@ -248,6 +254,17 @@ public class SMSGBLEMBLE {
             super.onServicesDiscovered(gatt, status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 System.out.println("onServicesDiscovered");
+                txd_charact = getCharact(DATA_SERVICE_UUID, TXD_CHARACT_UUID);
+                rxd_charact = getCharact(DATA_SERVICE_UUID, RXD_CHARACT_UUID);
+
+                if ((txd_charact == null) || (rxd_charact == null)) {
+                    // System.out.println("获取服务失败");
+                }else {
+                    setNotifyACK(rxd_charact, 1000);
+                }
+
+//                Thread.sleep(100);
+
                 if (work_witch == WORK_onServicesDiscovered) {
                     work_ok_flag = true;
                 }
@@ -271,14 +288,14 @@ public class SMSGBLEMBLE {
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
-//            byte[] data = characteristic
-//                    .getValue();
+            byte[] data = characteristic
+                    .getValue();
 //            //也可以先打印出来看看
-//            String str = "";
-//            for (int i = 0; i < data.length; i++) {
-//                str += MYConvertHexByteToString(data[i]) + " ";
-//            }
-//            Log.e("收消息回调",str);
+            String str = "";
+            for (int i = 0; i < data.length; i++) {
+                str += MYConvertHexByteToString(data[i]) + " ";
+            }
+            Log.e("收消息回调",str);
 //            Toast.makeText(context,"回调",Toast.LENGTH_LONG).show();
 //            if (work_witch != WORK_onCharacteristicChanged){
 //                return;
@@ -286,12 +303,12 @@ public class SMSGBLEMBLE {
 //            Toast.makeText(context,"Changed->"+Helpful.MYBytearrayToString(characteristic.getValue()),Toast.LENGTH_LONG).show();
 
 			Log.e("Changed->",new String(characteristic.getValue()));
-			callback.onDataReturn(new String(characteristic.getValue()));
+            handl.removeMessages(RECIVE_TIMEOUT);
+            handl.sendEmptyMessageDelayed(RECIVE_TIMEOUT, 400);
+            callback.onDataReturn(data);
             Helpful.catByte(characteristic.getValue(), 0, reciveDatas,
                     reciveLength);
             reciveLength += characteristic.getValue().length;
-            handl.removeMessages(RECIVE_TIMEOUT);
-            handl.sendEmptyMessageDelayed(RECIVE_TIMEOUT, 400);
         }
 
         @Override
@@ -315,9 +332,10 @@ public class SMSGBLEMBLE {
         public void onDescriptorWrite(BluetoothGatt gatt,
                                       BluetoothGattDescriptor descriptor, int status) {
             super.onDescriptorWrite(gatt, descriptor, status);
+            handl.removeMessages(CONNECT_TIMEOUT);
             callback.onNotification(status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.e("Changed->","打开通知成功");
+                Log.e(TAG,"打开通知成功");
                 if (work_witch == WORK_onDescriptorWrite) {
                     work_ok_flag = true;
                 }
@@ -363,6 +381,7 @@ public class SMSGBLEMBLE {
     // 设置可通知
     public boolean setNotifyACK(BluetoothGattCharacteristic data_char,
                                 int milsec) {
+        Log.e(TAG, "setNotifyACK: 打开通知……");
         if (exit_flag) {
             return false;
         }
@@ -408,6 +427,7 @@ public class SMSGBLEMBLE {
     private List<byte[]> senddatas = new ArrayList<byte[]>();
 
     public boolean sendDatas(byte[] value) {
+        Log.e("sendDatas", value.length+"");
         if (!isConnected()) {
             return false;
         }
@@ -470,7 +490,7 @@ public class SMSGBLEMBLE {
     public interface CallBack {
          void onDisconnect();
         void onNotification(int code);
-        void onDataReturn(String values);
+        void onDataReturn(byte[] values);
         void onTimeOut(int type);
         void onWrited();
     }
@@ -535,16 +555,20 @@ public class SMSGBLEMBLE {
     private static final int HANDLE_TIMEOUT = 0;
     private static final int SEND_DATAS = 1;
     private static final int RECIVE_TIMEOUT = 2;
+    private static final int CONNECT_TIMEOUT = 3;
     private boolean timeout_flag = false;
     private boolean work_ok_flag = false;
     private byte[] reciveDatas = new byte[2046];
     private int reciveLength = 0;
+    @SuppressLint("HandlerLeak")
     private Handler handl = new Handler() {
 
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-
+            if (msg.what ==CONNECT_TIMEOUT ){
+                callback.onTimeOut(0);
+            }
             if (msg.what == HANDLE_TIMEOUT) {
                 System.out.println("超时");
                 timeout_flag = true;

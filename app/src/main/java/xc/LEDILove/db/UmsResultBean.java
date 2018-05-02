@@ -1,5 +1,9 @@
 package xc.LEDILove.db;
 
+import java.util.List;
+
+import xc.LEDILove.Bean.TextBean;
+
 /**
  * Created by yuchang on 2016/11/25.
  */
@@ -37,6 +41,10 @@ public class UmsResultBean {
      * 亮度
      */
     public static String BRIGHT = "bright";
+    /***
+     * 字符数据
+     */
+    public static String BEANLIST = "beanList";
     public int id;
 
     public int numberIndex;
@@ -51,5 +59,5 @@ public class UmsResultBean {
 
     public int bright;
 
-
+    public List<TextBean> beanList;
 }

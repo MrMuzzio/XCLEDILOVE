@@ -9,6 +9,7 @@
     <color name="txt_red">#FE1515</color>
     <color name="black">#000000</color>
     <color name="transparent">#00000000</color>
+    <color name="head_bg">#64c4f6</color>
     <color name="dividingline_color">#aeaeae</color>
 
     <color name="title_color">#aaaaaa</color>
@@ -22,7 +23,8 @@
     <color name="blue">#0000ff</color>
     <color name="purple">#800080</color>
     <color name="white">#FFFFFF</color><!--白色 -->
-
+    <color name="dark_green">#3CB371</color>
+    <color name="blove">#0000ff</color>
 
     <color name="pull_to_refresh_bg_color">#f6f6f6</color>
     <color name="timeline_home_bg_color">#f6f6f6</color>

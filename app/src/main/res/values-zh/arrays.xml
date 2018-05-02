@@ -63,8 +63,34 @@
 
     <string-array name="other_message">
         <!--<item>获取设备电量</item>-->
+        <item>Gif动画</item>
+        <item>同步音乐</item>
+        <item>手绘画板</item>
         <item>检查更新</item>
         <item>关于APP</item>
-        <item>帮助</item>
+        <item>帮助/说明</item>
+    </string-array>
+    <string-array name="unicode_images">
+        <item>☏</item>
+        <item>☎</item>
+        <item>♡</item>
+        <item>♥</item>
+        <item>☞</item>
+        <item>☜</item>
+        <item>★</item>
+        <item>☆</item>
+        <item>■</item>
+        <item>△</item>
+        <item>▲</item>
+        <item>▷</item>
+        <item>▶</item>
+        <item>▽</item>
+        <item>▼</item>
+        <item>◁</item>
+        <item>◀</item>
+        <item>◇</item>
+        <item>◆</item>
+        <item>◈</item>
+
     </string-array>
 </resources>

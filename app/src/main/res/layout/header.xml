@@ -46,13 +46,13 @@
                 android:track="@drawable/track" />
             <ImageView
                 android:id="@+id/iv_more"
-                android:src="@mipmap/ic_add_white_18dp"
+                android:src="@mipmap/ic_setting_48px"
                 android:layout_alignParentRight="true"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="@string/set"
                 android:layout_centerVertical="true"
-                android:layout_marginRight="15dp"
+                android:layout_marginRight="10dp"
                 android:gravity="center"
                 android:textColor="@color/white" />
             <TextView

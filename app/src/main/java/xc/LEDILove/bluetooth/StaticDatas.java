@@ -6,12 +6,19 @@ import android.content.SharedPreferences.Editor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 
 
 public class StaticDatas {
-
+	public static ExecutorService poolExecutor;
 	private static StaticDatas object;
-	
+	public static boolean isSupportMarFullColor = true;
+	public static int  LEDHight = 12;
+	public static int  LEDWidth = 48;
+	public static int  VersionFunction = 0;
+	public static int  LEDVersion =  0;
+
 	public static String PreferencesName = "PreferencesName";
 	public static String LibDbName       = "LibDbName";
 	public static int LibDbVersion       = 1;

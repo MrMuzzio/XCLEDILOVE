@@ -29,7 +29,12 @@ import xc.LEDILove.bluetooth.SMSGBLEMBLE;
 import xc.LEDILove.bluetooth.StaticDatas;
 
 
-public class SelectDeviceActivity extends Activity {
+public class SelectDeviceActivity extends BaseActivity {
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        scrollToFinishActivity();//左滑退出activity
+    }
 
     private final static String TAG = "SelectDeviceActivity";
 
@@ -37,7 +42,7 @@ public class SelectDeviceActivity extends Activity {
     private StaticDatas mStaticDatas;
     private Handler handl;
     private MTBLEDevice select_device;
-    public SMSGBLEMBLE mBle;
+//    public SMSGBLEMBLE mBle;
     private ImageView iv_getback;
 
     //
@@ -85,14 +90,18 @@ public class SelectDeviceActivity extends Activity {
 //        } catch (Exception e) {
 //            Log.d(TAG, "onCreate->" + e.toString());
 //        }
-
+//        if (SMSGBLEMBLE.mBluetoothGatt!=null){
+//            Log.e(TAG, "init: mBluetoothGatt");
+//            SMSGBLEMBLE.mBluetoothGatt.disconnect();
+//            SMSGBLEMBLE.mBluetoothGatt =null;
+//        }
         mMTBLEManager = MTBLEManager.getInstance();
         mStaticDatas = StaticDatas.getInstance();
         mMTBLEManager.init(this);
 
-        mBle = new SMSGBLEMBLE(getApplicationContext(),
-                mMTBLEManager.mBluetoothManager,
-                mMTBLEManager.mBluetoothAdapter);
+//        mBle = new SMSGBLEMBLE(getApplicationContext(),
+//                mMTBLEManager.mBluetoothManager,
+//                mMTBLEManager.mBluetoothAdapter);
 
 //        mBle.setCallback(bleCallback);
         handl = new Handler();
@@ -294,8 +303,8 @@ public class SelectDeviceActivity extends Activity {
 //        intent.putExtra("NAME","");
 //        SelectDeviceActivity.this.setResult(RESULT_OK,intent);
         mStaticDatas.scandevice_list.clear();
-        if(mBle != null)
-            mBle.exit();
+//        if(mBle != null)
+//            mBle.exit();
     }
 
     public static class BAdapter extends RecyclerView.Adapter {

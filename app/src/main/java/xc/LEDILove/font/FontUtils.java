@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Handler;
 
+import xc.LEDILove.Bean.TextBean;
 import xc.LEDILove.utils.ArabicUtils;
 import xc.LEDILove.utils.Helpful;
 import xc.LEDILove.utils.LangUtils;
@@ -28,7 +29,7 @@ public class FontUtils {
     private boolean hasJapanese = false;
     private boolean hasKorean = false;
     private boolean hasWestern = false;
-
+    private List<Integer> wordWilds;
     //英文的  12点位高 占12字节宽8位，16点位高占16字节 宽8位
     private int asciiwordByteByDots = 12;
 
@@ -65,6 +66,7 @@ public class FontUtils {
     private int lineTotalByte = 0;
     private boolean isReadBC =false;
     private Thread word_stork;
+    private List<TextBean> beanList;
     public FontUtils(Context context, String zlcs, int pix) {
         this.context = context;
 //        word_stork = new Thread(new)
@@ -74,10 +76,17 @@ public class FontUtils {
         }
         setPix(pix);
     }
+    public List<Integer> getWordWilds(){
+        return wordWilds;
+    }
+    public List<TextBean> getTextBeanList(){
+        return beanList;
+    }
     /**
      * 获取字库信息
      */
-    public synchronized boolean[][] getWordsInfo(String str) {
+    public synchronized boolean[][] getWordsInfo(String str, List<TextBean> beanList) {
+        this.beanList = beanList;
         //由于个别字符显示问题 在读字库前先做处理
 //        String inversod = inverso(str);//字符反序
         String inversod = str;
@@ -174,7 +183,7 @@ public class FontUtils {
             Log.e(subStr+"unicode>>>>",gbEncoding(subStr));
             if (gbEncoding(subStr).equals("\\u2013")){
                 subStr = getStrFromUniCode("\\uff0d");
-                Log.e("unicode>>>>","shift");
+//                Log.e("unicode>>>>","shift");
             }
             stringBuffer.append(subStr);
         }
@@ -187,8 +196,14 @@ public class FontUtils {
     public byte[] getzimodata(String str){
         this.str = str;
         dataResult = new byte[str.length()*dots*2];
+        if (wordWilds!=null){
+            wordWilds.clear();
+        }else {
+            wordWilds = new ArrayList<>();//字符宽度记录
+        }
         int hasDealByte = 0;
         for (int index = 0; index < str.length(); index++) {
+            wordWilds.add(16);
             String subjectStr = str.substring(index, index + 1);
             String followStr ="";
             if (index<str.length()-1){
@@ -602,6 +617,7 @@ public class FontUtils {
             }else {
                 Log.e("insert",position+"");
                 tem.add(position,empty_data);
+                wordWilds.set(i,wordWilds.get(i)+1);
                 position+=1;
             }
         }
@@ -884,9 +900,15 @@ public class FontUtils {
                 if (space_number==16){
                     space_number=0;
                 }
+                if (i%17>0){
+                    wordWilds.set(i/17,5);
+                }
             }
             else if (!isSpaceVaules(i)&&Arrays.equals(empty_data,indx)&&Arrays.equals(empty_data,indy)){//如果相邻两列都为空 不保存
 //                Log.e(i+">>>>","empty_data");
+                if (i%17>0){
+                    wordWilds.set(i/17,wordWilds.get(i/17)-1);
+                }
             }
             else if (isArabicVaules(i)&&!isSpaceVaules(i)&&Arrays.equals(empty_data,indx)){//阿拉伯文 清除所有空格
 
@@ -1316,7 +1338,7 @@ public class FontUtils {
         }
     }
     protected byte[] readAllZiMo(String str) {
-        Log.e("readAllZiMo",str);
+//        Log.e("readAllZiMo",str);
         byte[] data = null;
         try {
             data = new byte[wordByteByDots];
