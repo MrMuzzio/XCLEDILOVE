@@ -9,12 +9,14 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -28,6 +30,7 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.method.NumberKeyListener;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
@@ -35,6 +38,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -90,7 +94,9 @@ import xc.LEDILove.service.BleConnectService;
 import xc.LEDILove.utils.AppVersionUpdate;
 import xc.LEDILove.utils.CommonUtils;
 import xc.LEDILove.utils.Helpful;
+import xc.LEDILove.utils.LangUtils;
 import xc.LEDILove.utils.SPUtils;
+import xc.LEDILove.utils.TimonLibary;
 import xc.LEDILove.widget.ClearEditText;
 import xc.LEDILove.widget.LedView;
 
@@ -348,6 +354,12 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
     private boolean isStartFirst = true;
     private boolean isNeedShowDialog = true;
     private void connectLastDevice() {
+        if (serviceBinder.getConnectedStatus()){
+            return;
+        }
+        if (!needAutoConnected){
+            return;
+        }
         connected_MAC = (String) SPUtils.get(this,"MAC","");
         connected_name = (String) SPUtils.get(this,"NAME","");
         if (connected_MAC!=null&&connected_name!=null&!connected_MAC.equals("")){
@@ -365,7 +377,7 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
                 serviceBinder = (BleConnectService.Mybinder) iBinder;
                 serviceBinder.setServiceListener(serviceListener);
                 if (isStartFirst){
-//                    MEHandler.sendEmptyMessageDelayed(CMD_CONNTCTING,500);
+                    MEHandler.sendEmptyMessageDelayed(CONNECT_AUTO,500);
 //                    connectLastDevice();
                     isStartFirst = false;
                 }
@@ -518,7 +530,7 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
         super.onResume();
         refreshViewByColorModel();
         Log.e(TAG, "onResume: ");
-        if (serviceBinder!=null){
+        if (serviceBinder!=null&&serviceListener!=null){
             serviceBinder.setServiceListener(serviceListener);
             if(serviceBinder.getConnectedStatus()){
 //                isConnectIntime = true;
@@ -556,6 +568,9 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
                         }
                     }
                 });
+//                MEHandler.removeMessages(CONNECT_AUTO);
+//                needAutoConnected
+                MEHandler.sendEmptyMessageDelayed(CONNECT_AUTO,500);
             }
         }
 
@@ -566,10 +581,17 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
         super.onStart();
         Log.e(TAG, "onStart: ");
     }
+
+    @Override
+    protected void onPause() {
+        serviceBinder.removeServiceListener();
+        MEHandler.removeMessages(CONNECT_AUTO);
+        super.onPause();
+    }
+
     @Override
     protected void onStop() {
         super.onStop();
-        serviceBinder.removeServiceListener();
     }
 //    @Override
 //    public void onBackPressed() {
@@ -588,8 +610,7 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
 
     @Override
     protected void onDestroy() {
-        SPUtils.put(this,"MAC",connected_MAC);
-        SPUtils.put(this,"NAME",connected_name);
+        serviceBinder.removeServiceListener();
         unbindService(serviceConnection);
         if (pd!=null){
             pd.dismiss();
@@ -597,6 +618,10 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
         }
         MEHandler.removeCallbacksAndMessages(null);
         super.onDestroy();
+    }
+    private void saveDevice(){
+        SPUtils.put(this,"MAC",connected_MAC);
+        SPUtils.put(this,"NAME",connected_name);
     }
     private boolean only_connect = true;
     private boolean select_return_first = false;
@@ -606,6 +631,7 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         sendCmdType = CommandHelper.dataType_data;
+        needAutoConnected =true;
         if (requestCode ==1004&&resultCode == RESULT_OK) {
             if (data.getExtras().getString("MAC").equals("")){
 
@@ -618,6 +644,7 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
             }
         }else {
             select_return_first = true;
+            MEHandler.sendEmptyMessageDelayed(CONNECT_AUTO,5000);
         }
     }
     private String getTenChar(String str){
@@ -635,35 +662,7 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
              */
             case R.id.btnOk:
 //                this.requestCode = 1004;
-                isNeedSendData = true;
-                sendCmdType = CommandHelper.dataType_data;
-                //如果输入为空 返回
-                if (TextUtils.isEmpty(clearEditText.getText().toString())) {
-                    showYCDialog(getString(R.string.pleaseEnterText));
-                    return;
-                }
-                //如果无连接 进入扫描页面
-                if (!serviceBinder.getConnectedStatus()) {
-                    Intent intent = new Intent(MEditActivity.this, SelectDeviceActivity.class);
-                    startActivityForResult(intent, 1004);
-                    return;
-                    //有连接 但处于关机状态
-                }
-                else if (!switch_state){
-                    showYCDialog(getString(R.string.pleasepoweron));
-                    return;
-                }
-
-                //数据未处理完成
-                if (!isComplete){
-
-                    showYCDialog(getString(R.string.please_wait));
-                    return;
-                }
-                edit_byte = ledView.getTextByte(isSupportMarFullColor);
-                hasSendData = 0;
-//                pd.show();
-                MEHandler.sendEmptyMessage(CMD_SENDING);
+                pressSend();
         }
     }
 
@@ -816,6 +815,7 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
     private int mPointWidth;
     private int defaultFontColor = 1;
     private int defaultBGColor =0;
+    private boolean needAutoConnected = true;
     /***
      * 初始化
      */
@@ -1031,6 +1031,7 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
         ll_connect_state.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                needAutoConnected = false;
                 Log.e(TAG,"ll_connect_state>>onClick");
                 isNeedSendData = false;
                 if (serviceBinder.getConnectedStatus()){
@@ -1045,6 +1046,7 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
 //                    poolExecutor.execute(runnable);
 
                 }
+                MEHandler.removeMessages(CONNECT_AUTO);
                 Intent intent = new Intent(MEditActivity.this, SelectDeviceActivity.class);
                 startActivityForResult(intent, 1004);
             }
@@ -1087,9 +1089,42 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
             }
         });
         clearEditText.addTextChangedListener(mTextWatcher);
+//        clearEditText.setKeyListener(new NumberKeyListener() {
+//            @NonNull
+//            @Override
+//            protected char[] getAcceptedChars() {
+//                Log.e(TAG, "getAcceptedChars: "+new char[0] );
+//                return new char[0];
+//            }
+//
+//            @Override
+//            public int getInputType() {
+//                return 0;
+//            }
+//        });
+        clearEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent event) {
+                if (i== EditorInfo.IME_ACTION_SEND||
+                        (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)){
+                    Log.e(TAG, "onEditorAction: search");
+                    TimonLibary.hideKeyboard(clearEditText);
+                    pressSend();
+//                    switch (event.getAction()){
+//                        case KeyEvent.ACTION_UP:
+//                            break;
+//                            default:
+//                                break;
+//                    }
+                    return true;
+                }
+                return false;
+            }
+        });
         clearEditText.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int i, KeyEvent arg0) {
+                Log.e(TAG, "onKey: >>>>>>>>>>>>>>"+arg0.getCharacters());
                 if (i==KeyEvent.KEYCODE_DEL&& arg0.getAction()==KeyEvent.ACTION_DOWN){//如果单独判定按键值，if内容会执行两次！(包含按下 松开 两次事件)
                     if (textBeanList.size()>clearEditText.getSelectionStart()-1&&clearEditText.getSelectionStart()>0){
 //                        Log.e(TAG, "onKey: delete" + textBeanList.size());
@@ -1148,6 +1183,39 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
 
 
     }
+
+    private void pressSend() {
+        isNeedSendData = true;
+        sendCmdType = CommandHelper.dataType_data;
+        //如果输入为空 返回
+        if (TextUtils.isEmpty(clearEditText.getText().toString())) {
+            showYCDialog(getString(R.string.pleaseEnterText));
+            return;
+        }
+        //如果无连接 进入扫描页面
+        if (!serviceBinder.getConnectedStatus()) {
+            Intent intent = new Intent(MEditActivity.this, SelectDeviceActivity.class);
+            startActivityForResult(intent, 1004);
+            return;
+            //有连接 但处于关机状态
+        }
+        else if (!switch_state){
+            showYCDialog(getString(R.string.pleasepoweron));
+            return;
+        }
+
+        //数据未处理完成
+        if (!isComplete){
+
+            showYCDialog(getString(R.string.please_wait));
+            return;
+        }
+        edit_byte = ledView.getTextByte(isSupportMarFullColor);
+        hasSendData = 0;
+//                pd.show();
+        MEHandler.sendEmptyMessage(CMD_SENDING);
+    }
+
     /**
      *
      * 全彩下，自动颜色
@@ -1175,7 +1243,26 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
         setTextSpan(string);
         clearEditText.setSelection(clearEditText.getText().length());
     }
-
+    /**
+     *
+     * 全彩下，自动颜色
+     * */
+    private void getTextBeanListAutoColor(String str) {
+        textBeanList.clear();
+//        String string = clearEditText.getText().toString();
+        String string = str;
+        char[] chars = string.toCharArray();
+        TextBean bean;
+        for (int i = 0;i<chars.length;i++){
+            bean = new TextBean();
+            bean.setFont((i%7)+1);//字体颜色值在1-7循环
+            bean.setBackdrop(0);//自动颜色，背景设为黑色
+            bean.setCharacter(chars[i]);
+            textBeanList.add(bean);
+        }
+//        setTextSpan(string);
+//        clearEditText.setSelection(clearEditText.getText().length());
+    }
     private void initViewData(){
         if (null != umsResultBeanList && umsResultBeanList.size() > 0) {
             numberRecyclerAdapter.setSelected(umsResultBeanList.get(0).numberIndex - 1);
@@ -1331,11 +1418,34 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
     public void AddTextCountListener(TextCountListener countListener){
         this.countListener = countListener;
     }
+    /**
+     * 监听软键盘显示隐藏
+     */
+    private void addSoftInputListener() {
+        final View decorView = getWindow().getDecorView();
+        decorView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Rect rect = new Rect();
+                decorView.getWindowVisibleDisplayFrame(rect);
+                int displayHight = rect.bottom - rect.top;
+                int hight = decorView.getHeight();
+
+                if (displayHight > hight / 3 * 2) {
+                }else {
+
+                }
+            }
+        });
+    }
     private TextWatcher mTextWatcher = new TextWatcher() {
-
-        private int editStart;
-
-        private int editEnd;
+        boolean running =false;
+        int editStart;
+        int editEnd;
+        int selection = 0;
+        int charCount = 0;
+        String contxt ="";
+        String lastContext = "";
         public  boolean isFastDoubleClick() {
             long time = System.currentTimeMillis();
             long timeD = time - lastTextChangeTime;
@@ -1347,58 +1457,116 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
         }
         @Override
         public void afterTextChanged(Editable s) {
-            if (!isSet){
-                if(delayRun!=null){
-                    //每次editText有变化的时候，则移除上次发出的延迟线程
-                    handler.removeCallbacks(delayRun);
-                }
-                editStart = clearEditText.getSelectionStart();
-                editEnd = clearEditText.getSelectionEnd();
+            String text = s.toString();
+            //增加running判断可防止堆栈溢出
+            if (!running){
+                running = true;
+                //非代码设置 产生的回调
+                if (!isSet){
+                    Log.e(TAG, "afterTextChanged: "+text);
+                    //韩文/日文 无法输入无法触发字符拼接解决 方案
+                    // 触发的条件是：光标之前的字符（也就是正处于拼接状态的字符）不能经过任何处理
+                    // 包括设置spanner 或者editable 替换
+                    if (LangUtils.isJapanese(text) || LangUtils.isKorean(text)){//如果含日文/韩文
 
-                clearEditText.removeTextChangedListener(mTextWatcher);
+                        selection = clearEditText.getSelectionEnd();
+                        Log.e(TAG, "afterTextChanged: selection>>>"+selection );
+                        if (text.length()>0&&selection>0){//判空
+                            if (selection==text.length()){//光标处于字符末端
+                                /**
+                                 * 这里处理在onTextChanged回调中已经将每次输入的字符加入到textBeanList中 ，
+                                 * 但是英文韩文/日文的字符拼接 最终需要的只是最后拼接的字符 之前的字符数据需要移除掉
+                                 * 判断条件：EditText中字符长度小于 textBeanList的长度
+                                 * */
+                                if (text.length()<textBeanList.size()&&!isPaste){
+                                    while (text.length()<textBeanList.size()){
+                                        /**
+                                         * 移除多余的数据
+                                         * */
+                                        textBeanList.remove(textBeanList.size()-1-1);
+                                    }
+                                }
+                                /**
+                                 * 这里设置EditText中字符颜色 但是不能包括光标前的字符
+                                 * */
+                                s.replace(0,text.length()-1,getTextSpan(text.substring(0,text.length()-1)));
+                            }else if (selection>1&&selection!=text.length()&&!isPaste){//光标处于中间位置
+                                if (text.length()<textBeanList.size()){
+                                    while (text.length()<textBeanList.size()){
+                                        textBeanList.remove(selection-1);
+                                    }
+                                }
+                                s.replace(0,selection-1,getTextSpan(text.substring(0,selection-1)));
+                                s.replace(selection,text.length(),getTextSpan(text.substring(selection,text.length())));
+                            }else if (selection==1&&!isPaste){//光标处于位置1  这里单独拿出来 主要是 防止 selection-1=0，replace (0,0)会报错
+                                if (text.length()<textBeanList.size()){
+                                    while (text.length()<textBeanList.size()){
+                                        textBeanList.remove(0);
+                                    }
+                                }
+                                s.replace(1,text.length(),getTextSpan(text.substring(1,text.length())));
+                            }
+                        }
+                    }else {//非韩文/日文  直接设置颜色
+                        s.replace(0,text.length(),getTextSpan(text));
 
-                // 这里只能每次都对整个EditText的内容求长度，不能对删除的单个字符求长度
-                // 因为是中英文混合，单个字符而言，calculateLength函数都会返回1
-                while (calculateLength(s.toString()) > MAX_COUNT) { // 当输入字符个数超过限制的大小时，进行截断操作
-                    s.delete(editStart - 1, editEnd);
-                    editStart--;
-                    editEnd--;
-                }
-                // mEditText.setText(s);将这行代码注释掉就不会出现后面所说的输入法在数字界面自动跳转回主界面的问题了，
-                clearEditText.setSelection(editStart);
+                    }
+//
+                    if(delayRun!=null){
+                        //每次editText有变化的时候，则移除上次发出的延迟线程
+                        handler.removeCallbacks(delayRun);
+                    }
+                    editStart = clearEditText.getSelectionStart();
+                    editEnd = clearEditText.getSelectionEnd();
 
-                // 恢复监听器
-                clearEditText.addTextChangedListener(mTextWatcher);
+                    clearEditText.removeTextChangedListener(mTextWatcher);
+
+                    // 这里只能每次都对整个EditText的内容求长度，不能对删除的单个字符求长度
+                    // 因为是中英文混合，单个字符而言，calculateLength函数都会返回1
+                    while (calculateLength(s.toString()) > MAX_COUNT) { // 当输入字符个数超过限制的大小时，进行截断操作
+                        s.delete(editStart - 1, editEnd);
+                        editStart--;
+                        editEnd--;
+                    }
+                    // mEditText.setText(s);将这行代码注释掉就不会出现后面所说的输入法在数字界面自动跳转回主界面的问题了，
+                    clearEditText.setSelection(editStart);
+
+                    // 恢复监听器
+                    clearEditText.addTextChangedListener(mTextWatcher);
 
 //            setLeftCount();
 
-                // if (!TextUtils.isEmpty(s.toString())) {
-                selectedParams.str = s.toString();
+                    // if (!TextUtils.isEmpty(s.toString())) {
+                    selectedParams.str = s.toString();
 //            ledView.setMatrixTextWithColor(selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color);
 //            //  }
-                //延迟400ms，如果不再输入字符，则执行该线程的run方法
-                if (s.toString().length()<50){
-                    handler.postDelayed(delayRun, 100);
-                }else if(s.toString().length()>50&&s.toString().length()<200){
-                    handler.postDelayed(delayRun, 300);
-                }else {
-                    handler.postDelayed(delayRun, 400);
+                    //延迟400ms，如果不再输入字符，则执行该线程的run方法
+                    if (s.toString().length()<50){
+                        handler.postDelayed(delayRun, 100);
+                    }else if(s.toString().length()>50&&s.toString().length()<200){
+                        handler.postDelayed(delayRun, 300);
+                    }else {
+                        handler.postDelayed(delayRun, 400);
+                    }
                 }
+                running = false;
             }
+
         }
 
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count,
                                       int after) {
-//            if (isFastDoubleClick()) {
-//                return;
-//            }
         }
-
+        /**
+         * 对多彩字符的设置 ，原则上 在onTextChanged 回调中记录颜色数据
+         * 然后在afterTextChanged通过改变Editable属性增加颜色
+         *
+         * **/
         @Override
         public void onTextChanged(CharSequence charSequence, int start, int before,
                                   int count) {
-            Log.e(TAG, "onTextChanged: "+charSequence);
+
             if (fontSelectFragment!=null){//更新字符计数
                 fontSelectFragment.setCharCount(charSequence.length() + "/"+MAX_COUNT);
             }
@@ -1406,30 +1574,40 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
 //            if (charSequence.length()>0){
 //                iv_edit_delete.setVisibility(View.VISIBLE);
 //            }
-            if (!isSet){
+            if (!isSet&&!running){
+                Log.e(TAG, "onTextChanged: running"+charSequence);
+                running=true;
 //                    textBeanList.clear();
                 //没选
                 if (!textSelected()){
 //                    textBeanList.clear();
-                    int selection = clearEditText.getSelectionEnd();
+                    selection = clearEditText.getSelectionEnd();
                     if (isAutoColor){
-                        setTextAutoColor(charSequence.toString());
+//                        setTextAutoColor(charSequence.toString());
+                        getTextBeanListAutoColor(charSequence.toString());
                     }else {
                         if (!isPaste){
-                            for (int i=0;i<count;i++){
-                                TextBean bean = new TextBean();
-                                bean.setCharacter(chars[start+i]);
-                                bean.setBackdrop(colorSelctParams.getColor_backdrop());
-                                bean.setFont(colorSelctParams.getColor_font());
-                                if (selection<charSequence.length()&&selection>0){
-                                    textBeanList.add(clearEditText.getSelectionEnd()-1,bean);
-                                    bean=null;
-                                }else {
-                                    textBeanList.add(bean);
-                                    bean=null;
+                                for (int i=0;i<count;i++){
+                                    TextBean bean = new TextBean();
+                                    bean.setCharacter(chars[start+i]);
+                                    bean.setBackdrop(colorSelctParams.getColor_backdrop());
+                                    bean.setFont(colorSelctParams.getColor_font());
+                                    if (selection<charSequence.length()&&selection>0){
+//                                        if (chars.length==charCount&&textBeanList.size()>0){
+//                                            textBeanList.remove(selection-1);
+//                                        }
+                                        textBeanList.add(clearEditText.getSelectionEnd()-1,bean);
+                                        bean=null;
+                                    }else {
+//                                        if (chars.length==charCount&&textBeanList.size()>0){
+//                                            textBeanList.remove(selection-1);
+//                                        }
+                                        textBeanList.add(bean);
+                                        bean=null;
+                                    }
                                 }
-                            }
-                            setTextSpan(charSequence.toString());
+//                            }
+//                            setTextSpan(charSequence.toString());
                         }else {
                             isPaste = false;
                         }
@@ -1439,22 +1617,50 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
                         Log.e(TAG, "onTextChanged:字体色 "+textBeanList.get(i).getFont());
                         Log.e(TAG, "onTextChanged:背景色 "+textBeanList.get(i).getBackdrop());
                     }
-                    if (selection<charSequence.length()){
-                        clearEditText.setSelection(selection);
-                    }else if (selection==charSequence.length()){
-                        clearEditText.setSelection(clearEditText.getText().length());
-                    }
+
+//                    if (selection<charSequence.length()){
+//                        clearEditText.setSelection(selection);
+//                    }else if (selection==charSequence.length()){
+//                        clearEditText.setSelection(clearEditText.getText().length());
+//                    }
                     clearEditText.requestFocus();
                     clearEditText.setCursorVisible(true);
                 }
+                running = false;
             }else {
                 isSet=false;
-
             }
 
         }
 
     };
+    private SpannableStringBuilder getTextSpan(String text) {
+        Log.e("textBeanList",textBeanList.size()+"");
+        if (spannableStringBuilder!=null){
+            spannableStringBuilder.clear();
+        }
+        spannableStringBuilder = new SpannableStringBuilder("");
+        if (text.equals("")){
+
+        }else {
+            if (textBeanList==null){
+                textBeanList = getDefultTextBeanList(text);
+            }
+            //这里使用字符信息对象集合尺寸做上限，而不是 text长度，理论上是一样的数值，但这样可以避免下面取的时候 超集合最大值(不知道怎么发生的)
+            for (int j= 0;j<textBeanList.size();j++){
+                if (j<text.length()){
+                    SpannableString spannableString = new SpannableString(text.substring(j,j+1));
+//                    if (j!=text.length()-1){
+//                    }
+                    spannableString.setSpan(new BackgroundColorSpan(parseColor(textBeanList.get(j).getBackdrop())),0,1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    spannableString.setSpan(new ForegroundColorSpan(parseColor(textBeanList.get(j).getFont())),0,1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    spannableStringBuilder.append(spannableString);
+                    spannableString = null;
+                }
+            }
+        }
+        return spannableStringBuilder;
+    }
     private void setTextSpan(String text) {
 //        if (text.length()>MAX_COUNT||textBeanList.size()>MAX_COUNT){
 //            textBeanList.subList(0,MAX_COUNT);
@@ -1476,6 +1682,8 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
             for (int j= 0;j<textBeanList.size();j++){
                 if (j<text.length()){
                     SpannableString spannableString = new SpannableString(text.substring(j,j+1));
+//                    if (j!=text.length()-1){
+//                    }
                     spannableString.setSpan(new BackgroundColorSpan(parseColor(textBeanList.get(j).getBackdrop())),0,1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     spannableString.setSpan(new ForegroundColorSpan(parseColor(textBeanList.get(j).getFont())),0,1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     spannableStringBuilder.append(spannableString);
@@ -1486,6 +1694,9 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
         isSet=true;
         if (isSupportMarFullColor){
             clearEditText.setText(spannableStringBuilder);
+//            clearEditText.getText().clear();
+//            clearEditText.getText().append(spannableStringBuilder);
+//            clearEditText.getEditableText().append("0");
         }else {
             clearEditText.setText(text);
         }
@@ -1563,6 +1774,7 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
     private  final  int CONNECTED_FAIL =1006;//连接失败-打开通知失败
     private  final  int ACTIVITY_LAUNCHER =1007;//连接失败-打开通知失败
     private  final  int REFRESH_VP =1008;//接收下位机返回数据后刷新界面
+    private  final  int CONNECT_AUTO =1009;//自动连接上次连接过的设备 每2S连接一次
     private int sendCmdType = -1;//发送数据类型
     private boolean power = false;//开关机命令
     private boolean isNeedSendData = false;
@@ -1572,6 +1784,14 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what){
+                case CONNECT_AUTO:
+                    Log.e(TAG, "handleMessage: CONNECT_AUTO" );
+                    MEHandler.removeMessages(CONNECT_AUTO);
+//                    connectLastDevice();
+//                    if (!serviceBinder.getConnectedStatus()){
+//                        MEHandler.sendEmptyMessageDelayed(CONNECT_AUTO,5000);
+//                    }
+                    break;
                 case REFRESH_VP:
                     refreshViewByColorModel();
                     break;
@@ -1690,6 +1910,7 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
                         }
 
                     });
+                    saveDevice();
                     break;
                 case BleConnectService.ServiceListener.connected_timeOut:
                     MEHandler.sendEmptyMessage(DISMISS_DIALOG);
@@ -1746,6 +1967,7 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
 
                                 @Override
                                 public void run() {
+
                                     Toast.makeText(getApplicationContext(), getResources().getString(R.string.successfulOperation),
                                             Toast.LENGTH_SHORT).show();
                                 }
@@ -1795,6 +2017,8 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
                         }
                     }
                 });
+                Log.e(TAG, "onConnectStatueChange: disconnected");
+                MEHandler.sendEmptyMessageDelayed(CONNECT_AUTO,5000);
             }
         }
 
@@ -2027,6 +2251,7 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
                     }else if (sendCmdType == CommandHelper.dataType_speed){
                         sendcmd = ((CmdConts.WRITE_SPEED + tvSpeedNum.getText() + "<E>").getBytes());
                     }
+                    Log.e(TAG, "run: "+Helpful.MYBytearrayToString(sendcmd) );
                     serviceBinder.sendData(sendcmd,true);
                 }
             }

@@ -81,11 +81,19 @@
     <string name="color_font">Font_color</string>
     <string name="color_back">BGColor</string>
     <string name="color_model">Color_Mode</string>
+    <!--画板-->
+    <string name="undo">Last Step</string>
+    <string name="reset">Reset</string>
+    <string name="save">Save</string>
+    <string name="dimensions">Dimensions：</string>
     <!--帮助-->
     <string name="help">Help</string>
     <string name="about">About APP</string>
+    <string name="gif">Animation</string>
+    <string name="palte">Painted Palette</string>
+    <string name="palte_simplename">Palette</string>
     <string name="other">Other</string>
-
+    <string name="PhotoGallery">Photo Gallery</string>
     <string name="music">Sync music</string>
     <string name="back">Back</string>
     <string name="operating_manual">

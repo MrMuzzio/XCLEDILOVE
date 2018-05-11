@@ -74,6 +74,7 @@ public class SMSGBLEMBLE {
     private BluetoothGattCharacteristic rxd_charact;
 
     public void connect(String mac, int sectime, int reset_times) {
+        handl.removeMessages(CONNECT_TIMEOUT);
         Log.e(TAG,"connect>>000");
         if (!mBluetoothAdapter.isEnabled()) { // 没有打开蓝牙
             return ;
@@ -253,7 +254,7 @@ public class SMSGBLEMBLE {
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             super.onServicesDiscovered(gatt, status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                System.out.println("onServicesDiscovered");
+                Log.e(TAG, "onServicesDiscovered: ");
                 txd_charact = getCharact(DATA_SERVICE_UUID, TXD_CHARACT_UUID);
                 rxd_charact = getCharact(DATA_SERVICE_UUID, RXD_CHARACT_UUID);
 

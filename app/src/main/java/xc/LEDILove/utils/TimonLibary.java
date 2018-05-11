@@ -1,6 +1,9 @@
 package xc.LEDILove.utils;
 
+import android.content.Context;
 import android.text.Editable;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 
 import com.handmark.pulltorefresh.library.internal.Utils;
@@ -29,4 +32,29 @@ public class TimonLibary {
 //
 //        return;
 //    }
+    //弹出软键盘
+    public static void showKeyboard(View view) {
+        InputMethodManager imm = (InputMethodManager) view.getContext()
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            view.requestFocus();
+            imm.showSoftInput(view, 0);
+        }
+    }
+    //隐藏软键盘
+    public static void hideKeyboard(View view){
+        InputMethodManager imm = (InputMethodManager) view.getContext()
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(view.getWindowToken(),0);
+        }
+    }
+    //切换软键盘状态(隐藏/弹出)
+    public static void  toggleSoftInput(View view){
+        InputMethodManager imm = (InputMethodManager) view.getContext()
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.toggleSoftInput(0,0);
+        }
+    }
 }

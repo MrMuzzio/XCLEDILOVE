@@ -8,6 +8,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
@@ -20,6 +21,12 @@ import xc.LEDILove.R;
 
 public class ClearEditText extends android.support.v7.widget.AppCompatEditText implements OnFocusChangeListener,
 		TextWatcher {
+	@Override
+	public boolean onKeyPreIme(int keyCode, KeyEvent event) {
+		Log.e("00", "onKeyPreIme: >>>>"+event.getCharacters());
+		return super.onKeyPreIme(keyCode, event);
+	}
+
 	private  CutAndPastCallback cutAndPastCallback;
 	public void setCutAndPastCallback(CutAndPastCallback callback){
 		this.cutAndPastCallback = callback;

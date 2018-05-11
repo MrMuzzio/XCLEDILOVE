@@ -78,12 +78,21 @@
     <string name="color_font">字体色</string>
     <string name="color_back">背景色</string>
     <string name="color_model">颜色模式</string>
+    <!--画板-->
+    <string name="undo">上一步</string>
+    <string name="reset">重置</string>
+    <string name="save">保存</string>
+    <string name="dimensions">规格：</string>
     <!--帮助-->
     <string name="help">帮助</string>
     <string name="about">关于APP</string>
     <string name="music">音乐同步</string>
+    <string name="gif">动画</string>
+    <string name="palte">手绘画板</string>
     <string name="other">其他</string>
     <string name="back">返回</string>
+    <string name="PhotoGallery">图库</string>
+    <string name="palte_simplename">画板</string>
     <string name="operating_manual">
         APP操作说明：\n
 1.下载APP操作软件:\n

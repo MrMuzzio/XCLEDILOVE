@@ -905,10 +905,25 @@ public class FontUtils {
                 }
             }
             else if (!isSpaceVaules(i)&&Arrays.equals(empty_data,indx)&&Arrays.equals(empty_data,indy)){//如果相邻两列都为空 不保存
-//                Log.e(i+">>>>","empty_data");
-                if (i%17>0){
-                    wordWilds.set(i/17,wordWilds.get(i/17)-1);
-                }
+//                if (i%17>0){
+//                    Log.e(i/17+">>>>","empty_data");
+//                    wordWilds.set((i/17)+1,wordWilds.get(i/17)-1);
+//                }else {
+//                    wordWilds.set(i/17,wordWilds.get(i/17)-1);
+//                }
+//                if (i%17==0){
+//
+//                    Log.e(i/17+">>>>","empty_data");
+//                }else {
+//                    Log.e((i/17)+1+">>>>","empty_data++");
+//                }
+//                Log.e(i+"", "fillMatrixEmpty:" );
+                wordWilds.set(i/17,wordWilds.get(i/17)-1);
+//                if (i%17>0){
+//                    Log.e(i/17+"", "fillMatrixEmpty: "+ wordWilds.get(i/17));
+//                }else {
+//                    Log.e(i/17+"", "fillMatrixEmpty:+++++ "+ wordWilds.get(i/17));
+//                }
             }
             else if (isArabicVaules(i)&&!isSpaceVaules(i)&&Arrays.equals(empty_data,indx)){//阿拉伯文 清除所有空格
 

@@ -209,6 +209,7 @@
                     android:padding="5dp"
                     android:singleLine="true"
                     android:inputType="textAutoComplete"
+                    android:imeOptions="actionSend"
                     android:text="" />
 
             </LinearLayout>

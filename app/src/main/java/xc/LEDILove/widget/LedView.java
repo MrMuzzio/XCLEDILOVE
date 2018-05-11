@@ -511,7 +511,7 @@ public class LedView extends AppCompatTextView {
                 int back_color = beanList.get(i).getBackdrop();
                 int font_color = beanList.get(i).getFont();
                 int wild = wordWildLists.get(i);
-                Log.e("getColumnColor", "wild>>>"+wild);
+                Log.e("getColumnColor", "wild>>>"+i+"   "+wild);
                 for (int j=0;j<wild;j++){
                     bean = new ColumnDataBean();
                     bean.setColor_back(back_color);
