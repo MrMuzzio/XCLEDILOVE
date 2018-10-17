@@ -1,21 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <com.daimajia.androidviewhover.BlurLayout
-        android:id="@+id/blur_layout"
-        android:layout_width="wrap_content"
-        android:layout_marginBottom="5dp"
-        android:layout_height="wrap_content">
-    <ImageView
-        android:id="@+id/iv_pic"
-        android:scaleType="fitXY"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    </com.daimajia.androidviewhover.BlurLayout>
+    android:layout_gravity="center"
+    android:layout_height="wrap_content">
+    <!--<com.daimajia.androidviewhover.BlurLayout-->
+    <!--android:id="@+id/blur_layout"-->
+    <!--android:layout_gravity="center"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_marginBottom="0dp"-->
+    <!--android:layout_height="wrap_content">-->
     <!--<ImageView-->
-        <!--android:id="@+id/iv_pic"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:scaleType="centerInside"/>-->
-</LinearLayout>
+    <!--android:layout_height="wrap_content"-->
+    <!--android:scaleType="fitCenter"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:id="@+id/iv_pic"-->
+    <!--android:src="@mipmap/ic_launcher"-->
+    <!--/>-->
+
+    <!--</com.daimajia.androidviewhover.BlurLayout>-->
+
+    <ImageView
+        android:layout_centerHorizontal="true"
+        android:adjustViewBounds="true"
+        android:id="@+id/iv_pic"
+        android:scaleType="centerInside"
+        android:layout_width="wrap_content"
+        android:src="@mipmap/ic_launcher"
+        android:layout_height="wrap_content"
+        />
+    <LinearLayout
+        android:layout_below="@id/iv_pic"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:gravity="center"
+        android:background="@color/head_bg_low">
+        <ImageView
+            android:id="@+id/iv_grid_function"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:background="@drawable/selector_grid_del"/>
+    </LinearLayout>
+</RelativeLayout>

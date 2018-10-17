@@ -84,14 +84,7 @@ public class SMSGBLEMBLE {
             initTimeFlag(WORK_onServicesDiscovered);
             Log.e(TAG,"connect>>开始连接");
             System.out.println("开始连接");
-            if ((mBluetoothGatt != null) && mac.equals(last_mac)) {
-//                    if (connect_flag == true) { // 当前已经连接好了
-//                        return true;
-//                    }
-                System.out.println("重连");
-                mBluetoothGatt.close();
-//                    mBluetoothGatt.connect();
-            }
+
 //                else {
                 System.out.println("新连接");
 //                    disConnect(); // 新设备进行连接
@@ -101,6 +94,15 @@ public class SMSGBLEMBLE {
                     return ;
                 }
                 handl.sendEmptyMessageDelayed(CONNECT_TIMEOUT,sectime);
+            if ((mBluetoothGatt != null)) {
+//            if ((mBluetoothGatt != null) && mac.equals(last_mac)) {
+//                    if (connect_flag == true) { // 当前已经连接好了
+//                        return true;
+//                    }
+                System.out.println("重连");
+                mBluetoothGatt.close();
+//                    mBluetoothGatt.connect();
+            }
                 mBluetoothGatt = device.connectGatt(context, false,
                         mGattCallback);
 //                }
@@ -192,8 +194,10 @@ public class SMSGBLEMBLE {
         return false;
     }
     // 断开连接
-    public synchronized  boolean disConnect() {
+    public synchronized  boolean
+    disConnect() {
         if (mBluetoothGatt != null) {
+            handl.removeMessages(CONNECT_TIMEOUT);
             System.out.println("断开连接");
             mBluetoothGatt.disconnect();
 //            mBluetoothGatt.close();
@@ -205,7 +209,9 @@ public class SMSGBLEMBLE {
         }
         return false;
     }
-
+    public void clearTimeOut(){
+        handl.removeMessages(CONNECT_TIMEOUT);
+    }
     // 销毁连接
     public void close() {
         mBluetoothGatt.close();
@@ -405,9 +411,10 @@ public class SMSGBLEMBLE {
             mBluetoothGatt.setCharacteristicNotification(data_char, true);
             BluetoothGattDescriptor descriptor = data_char.getDescriptor(UUID
                     .fromString("00002902-0000-1000-8000-00805f9b34fb"));
-            descriptor
-                    .setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+//            descriptor.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
             mBluetoothGatt.writeDescriptor(descriptor);
+
         }
 
         if (startTimeOut(milsec)) {

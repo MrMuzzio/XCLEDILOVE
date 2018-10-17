@@ -5,14 +5,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
- * Created by yuchang on 2016/11/25.
+ * Created by timon on 2016/11/25.
  * 输入信息内容保存
  */
 
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "yc.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
 
     public DBHelper(Context context) {
@@ -29,6 +29,9 @@ public class DBHelper extends SQLiteOpenHelper {
                 UmsResultBean.SPEED + "  INTEGER, "+
                 UmsResultBean.BRIGHT + "  INTEGER, " +
                 UmsResultBean.BODY + "  VARCHAR,"+
+                UmsResultBean.LAYERBG + "  INTEGER,"+
+                UmsResultBean.LAYERCHARBYTE + "  BLOB,"+
+                UmsResultBean.LAYERDIYBYTE + "  BLOB,"+
                 UmsResultBean.BEANLIST + "  BLOB)"
         );
     }
@@ -38,6 +41,10 @@ public class DBHelper extends SQLiteOpenHelper {
         switch (oldVersion){
             case 1:
                 db.execSQL("ALTER TABLE "+ UmsResultBean.TABLE_NAME +" ADD COLUMN "+ UmsResultBean.BEANLIST +" BLOB");
+            case 2:
+                db.execSQL("ALTER TABLE "+ UmsResultBean.TABLE_NAME +" ADD COLUMN "+ UmsResultBean.LAYERBG +" INTEGER");
+                db.execSQL("ALTER TABLE "+ UmsResultBean.TABLE_NAME +" ADD COLUMN "+ UmsResultBean.LAYERCHARBYTE +" BLOB");
+                db.execSQL("ALTER TABLE "+ UmsResultBean.TABLE_NAME +" ADD COLUMN "+ UmsResultBean.LAYERDIYBYTE +" BLOB");
         }
     }
 }

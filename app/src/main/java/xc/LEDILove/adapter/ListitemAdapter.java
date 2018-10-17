@@ -7,6 +7,7 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +33,7 @@ public class ListitemAdapter extends BaseAdapter {
     public List<HistoryListItem> getHistoryListItemList() {
         return historyListItemList;
     }
-
+    private final String TAG = ListitemAdapter.class.getSimpleName();
     private List<HistoryListItem> historyListItemList;
     private HistoryListItem historyListItem;
     private boolean isMatixColor = false;
@@ -57,6 +58,7 @@ public class ListitemAdapter extends BaseAdapter {
             historyListItem.isChecked = false;
             historyListItemList.add(historyListItem);
         }
+        Log.e(TAG, "ListitemAdapter: >>>"+historyListItemList.size() );
         mContext = context;
         mInflater = LayoutInflater.from(context);
         this.onClickListener = onClickListener;

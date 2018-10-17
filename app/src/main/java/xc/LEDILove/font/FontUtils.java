@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.logging.Handler;
 
 import xc.LEDILove.Bean.TextBean;
+import xc.LEDILove.R;
 import xc.LEDILove.utils.ArabicUtils;
 import xc.LEDILove.utils.Helpful;
 import xc.LEDILove.utils.LangUtils;
@@ -24,7 +25,7 @@ import xc.LEDILove.utils.LangUtils;
 public class FontUtils {
 
     private Context context;
-
+    private final String TAG = FontUtils.class.getSimpleName();
     private boolean hasChinese = false;
     private boolean hasJapanese = false;
     private boolean hasKorean = false;
@@ -74,6 +75,9 @@ public class FontUtils {
 
             this.zlx = zlcs;
         }
+        if (dots!=pix){
+            asciiStorks = null;
+        }
         setPix(pix);
     }
     public List<Integer> getWordWilds(){
@@ -86,9 +90,11 @@ public class FontUtils {
      * 获取字库信息
      */
     public synchronized boolean[][] getWordsInfo(String str, List<TextBean> beanList) {
+        Log.e(TAG, "getWordsInfo: ");
         this.beanList = beanList;
         //由于个别字符显示问题 在读字库前先做处理
 //        String inversod = inverso(str);//字符反序
+
         String inversod = str;
         inversod = ArabicUtils.getArbicResult(inversod);//阿拉伯文重排
         //针对阿拉伯文和希伯来文 需要反序处理
@@ -180,7 +186,7 @@ public class FontUtils {
         StringBuffer stringBuffer = new StringBuffer();
         for (int i=0;i<str.length();i++){
             String subStr = str.substring(i,i+1);
-            Log.e(subStr+"unicode>>>>",gbEncoding(subStr));
+//            Log.e(subStr+"unicode>>>>",gbEncoding(subStr));
             if (gbEncoding(subStr).equals("\\u2013")){
                 subStr = getStrFromUniCode("\\uff0d");
 //                Log.e("unicode>>>>","shift");
@@ -195,7 +201,10 @@ public class FontUtils {
      * */
     public byte[] getzimodata(String str){
         this.str = str;
-        dataResult = new byte[str.length()*dots*2];
+        int length  =0;
+        length = getByteLengthByDots(dots);
+//        dataResult = new byte[str.length()*dots*2];
+        dataResult = new byte[str.length()*lengh*dots];
         if (wordWilds!=null){
             wordWilds.clear();
         }else {
@@ -203,7 +212,8 @@ public class FontUtils {
         }
         int hasDealByte = 0;
         for (int index = 0; index < str.length(); index++) {
-            wordWilds.add(16);
+//            Log.e(TAG, "getzimodata: length>>>>"+length );
+            wordWilds.add(length);
             String subjectStr = str.substring(index, index + 1);
             String followStr ="";
             if (index<str.length()-1){
@@ -215,9 +225,9 @@ public class FontUtils {
                 replacedata[r]=0x00;
             }
             if (data != null) {
-                byte[] data_follow = readAllZiMo(followStr);
 //                特殊国别上下标处理
                 if (!followStr.equals("")){//后续字符不为空
+                    byte[] data_follow = readAllZiMo(followStr);
                     //阿拉伯文上下标处理
                     if (ArabicUtils.isArbic(subjectStr)&ArabicUtils.isArbic(followStr)){//都为阿拉伯字符
                         if (ArabicUtils.isSup_SubArabic(subjectStr)){//当前字符是否为上下标特殊字符  因为阿拉伯文输入方向为左到右  所以判断当前是否为下一字符的上下标
@@ -260,10 +270,10 @@ public class FontUtils {
                                 System.arraycopy(replacedata, 0, dataResult, hasDealByte, replacedata.length);
                                 hasDealByte = hasDealByte + replacedata.length;
                             }
-                        else {
-                            System.arraycopy(data, 0, dataResult, hasDealByte, data.length);
-                            hasDealByte = hasDealByte + data.length;
-                        }
+                            else {
+                                System.arraycopy(data, 0, dataResult, hasDealByte, data.length);
+                                hasDealByte = hasDealByte + data.length;
+                            }
 
                         }else
                             //泰文上下标处理
@@ -308,15 +318,24 @@ public class FontUtils {
                 }
             }
         }
-
-
+        Log.e(TAG, "getzimodata: "+Helpful.MYBytearrayToString(dataResult) );
         getbooleandata(dataResult);//将读取的byte数组数据转化成boolean二维数组
         //字模读取出来的数据为十六进制，
 //        fillMatrix(lineTotalByte);
-        inserAemptyData();//为解决某些字库 字模数据之间连在一起没有间隔 所以在消除多余间隔前在所有字符字模数据之间插入一排空值
-        fillMatrixEmpty();//字符间隔判定-解决字符间隔过大的情况
+
+        inserAemptyData(false);//为解决某些字库 字模数据之间连在一起没有间隔 所以在消除多余间隔前在所有字符字模数据之间插入一排空值
+        fillMatrixEmpty(false);//字符间隔判定-解决字符间隔过大的情况
 
         return dataResult;
+    }
+
+    private int getByteLengthByDots(int dots) {
+        int x = dots/8;
+        int y=0;
+        if ((y=dots%8)>0){
+            x+=1;
+        }
+        return x*8;
     }
 
     /***
@@ -529,7 +548,7 @@ public class FontUtils {
     /**
      * 在字符间插入一位空格
      * */
-    private void inserAemptyData(){
+    private void inserAemptyData(boolean isRedo){
         Log.e("matrix",matrix[0].length+"");
         //初始化空值数组
         empty_data = new boolean[dots];
@@ -554,58 +573,116 @@ public class FontUtils {
             boolean isArabic = (!followstr.equals(""))&&ArabicUtils.isArbic(followstr)&&ArabicUtils.isArbic(indexstr);
             boolean isHindi = (!followstr.equals(""))&&ArabicUtils.isHindi(followstr)&&ArabicUtils.isHindi(indexstr);
             if (i==0&&str.length()>1){
-                for (int K=0;K<17;K++){//无论是12还是16字体 横排都是两个字节 16位
-                    position=position+1;
-                    matrix_index+=1;
-                    boolean[] indx = getstrbycolumn(matrix,matrix_index);//取一竖排
-                    if (isArabic){
-                        ArabicIndexs.add(position);
+                if (isRedo){
+                    for (int K=0;K<dots+1;K++){//无论是12还是16字体 横排都是两个字节 16位
+                        position=position+1;
+                        matrix_index+=1;
+                        boolean[] indx = getstrbycolumn(matrix,matrix_index);//取一竖排
+                        if (isArabic){
+                            ArabicIndexs.add(position);
+                        }
+                        if (isSpace){
+                            spaceIndexs.add(position);
+                        }
+                        if (isHindi){
+                            HindiIndexs.add(position);
+                        }
+                        tem.add(position,indx);
+                        indx =null;
                     }
-                    if (isSpace){
-                        spaceIndexs.add(position);
+                }else {
+//                    for (int K=0;K<17;K++){//无论是12还是16字体 横排都是两个字节 16位
+                    for (int K=0;K<lengh*8+1;K++){//
+                        position=position+1;
+                        matrix_index+=1;
+                        boolean[] indx = getstrbycolumn(matrix,matrix_index);//取一竖排
+                        if (isArabic){
+                            ArabicIndexs.add(position);
+                        }
+                        if (isSpace){
+                            spaceIndexs.add(position);
+                        }
+                        if (isHindi){
+                            HindiIndexs.add(position);
+                        }
+                        tem.add(position,indx);
+                        indx =null;
                     }
-                    if (isHindi){
-                        HindiIndexs.add(position);
-                    }
-                    tem.add(position,indx);
-                    indx =null;
                 }
             }else if (i==str.length()-1&&str.length()>1){
 //                matrix_index-=1;
-                for (int K=0;K<15;K++){//无论是12还是16字体 横排都是两个字节 16位
-                    position=position+1;
-                    matrix_index+=1;
-                    boolean[] indx = getstrbycolumn(matrix,matrix_index);//取一竖排
-                    if (isArabic){
-                        ArabicIndexs.add(position);
+                if (isRedo){
+                    for (int K=0;K<dots-1;K++){//无论是12还是16字体 横排都是两个字节 16位
+                        position=position+1;
+                        matrix_index+=1;
+                        boolean[] indx = getstrbycolumn(matrix,matrix_index);//取一竖排
+                        if (isArabic){
+                            ArabicIndexs.add(position);
+                        }
+                        if (isSpace){
+                            spaceIndexs.add(position);
+                        }
+                        if (isHindi){
+                            HindiIndexs.add(position);
+                        }
+                        tem.add(position,indx);
+                        indx =null;
                     }
-                    if (isSpace){
-                        spaceIndexs.add(position);
+                }else {
+                    for (int K=0;K<lengh*8-1;K++){//无论是12还是16字体 横排都是两个字节 16位
+                        position=position+1;
+                        matrix_index+=1;
+                        boolean[] indx = getstrbycolumn(matrix,matrix_index);//取一竖排
+                        if (isArabic){
+                            ArabicIndexs.add(position);
+                        }
+                        if (isSpace){
+                            spaceIndexs.add(position);
+                        }
+                        if (isHindi){
+                            HindiIndexs.add(position);
+                        }
+                        tem.add(position,indx);
+                        indx =null;
                     }
-                    if (isHindi){
-                        HindiIndexs.add(position);
-                    }
-                    tem.add(position,indx);
-                    indx =null;
                 }
 //                tem.add(position+1,getstrbycolumn(matrix,matrix[0].length));
             }else {
-                Log.e("indexstr>>>>",indexstr+"");
-                for (int j=0;j<16;j++){//无论是12还是16字体 横排都是两个字节 16位
-                    position=position+1;
-                    matrix_index+=1;
-                    boolean[] indx = getstrbycolumn(matrix,matrix_index);//取一竖排
-                    if (isArabic){
-                        ArabicIndexs.add(position);
+//                Log.e("indexstr>>>>",indexstr+"");
+                if (isRedo){
+                    for (int j=0;j<dots;j++){//无论是12还是16字体 横排都是两个字节 16位
+                        position=position+1;
+                        matrix_index+=1;
+                        boolean[] indx = getstrbycolumn(matrix,matrix_index);//取一竖排
+                        if (isArabic){
+                            ArabicIndexs.add(position);
+                        }
+                        if (isSpace){
+                            spaceIndexs.add(position);
+                        }
+                        if (isHindi){
+                            HindiIndexs.add(position);
+                        }
+                        tem.add(position,indx);
+                        indx =null;
                     }
-                    if (isSpace){
-                        spaceIndexs.add(position);
+                }else {
+                    for (int j=0;j<lengh*8;j++){//无论是12还是16字体 横排都是两个字节 16位
+                        position=position+1;
+                        matrix_index+=1;
+                        boolean[] indx = getstrbycolumn(matrix,matrix_index);//取一竖排
+                        if (isArabic){
+                            ArabicIndexs.add(position);
+                        }
+                        if (isSpace){
+                            spaceIndexs.add(position);
+                        }
+                        if (isHindi){
+                            HindiIndexs.add(position);
+                        }
+                        tem.add(position,indx);
+                        indx =null;
                     }
-                    if (isHindi){
-                        HindiIndexs.add(position);
-                    }
-                    tem.add(position,indx);
-                    indx =null;
                 }
             }
 
@@ -615,7 +692,11 @@ public class FontUtils {
             }else if ((!followstr.equals(""))&&ArabicUtils.isHindi(followstr)&&ArabicUtils.isHindi(indexstr)) {
 
             }else {
-                Log.e("insert",position+"");
+                if (dots==16&&(zlx.equals(context.getResources().getString(R.string.wordType_bold))||
+                        zlx.equals(context.getResources().getString(R.string.wordType_italic)))&&i==str.length()-1){
+                    position++;
+                }
+//                Log.e("insert",position+"");
                 tem.add(position,empty_data);
                 wordWilds.set(i,wordWilds.get(i)+1);
                 position+=1;
@@ -798,8 +879,8 @@ public class FontUtils {
         return  result;
     }
     /*
-    * 根据字符转unicode码
-    * */
+     * 根据字符转unicode码
+     * */
     private   String gbEncoding(final String gbString) {
         char[] utfBytes = gbString.toCharArray();
         String unicodeBytes = "";
@@ -814,8 +895,8 @@ public class FontUtils {
         return unicodeBytes;
     }
     /*
-    * 根据unicode转字符
-    * */
+     * 根据unicode转字符
+     * */
     private String getStrFromUniCode(String unicode){
         StringBuffer string = new StringBuffer();
 
@@ -876,10 +957,10 @@ public class FontUtils {
         return  result;
     }
     /*
-    * 2017.12.25 添加
-    * 消除多余空格
-    * */
-    private void fillMatrixEmpty(){
+     * 2017.12.25 添加
+     * 消除多余空格
+     * */
+    private void fillMatrixEmpty(boolean isRedo){
         //原则：判断boolean二维数组竖排是否出现连续为Flase的情况 如果是 便舍弃一个  否则添加到新的数组中
         //
         ArrayList<boolean[]> tem = new ArrayList<>();
@@ -892,17 +973,33 @@ public class FontUtils {
                 tem.add(indy);
             } else if (isSpaceVaules(i)&&isSpaceVaules(i+1)){//如果是空格的位置
                 space_number+=1;
+                if (isRedo){
+                    if (space_number<5){//空格位置过长  只取4个点作为空格
+                        tem.add(indx);
+                    }
+                    if (space_number==dots){
+                        space_number=0;
+                    }
+                    if (i%(dots+1)>0){
+                        wordWilds.set(i/(dots+1),5);
+                    }
+                }else {
+                    if (space_number<5){//空格位置过长  只取4个点作为空格
+                        tem.add(indx);
+                    }
+                    if (space_number==lengh*8){
+                        space_number=0;
+                    }
+//                    if (i%lengh+1>0){
+////                        wordWilds.set(i/(lengh*8)+1,5);
+//                        wordWilds.set(i/(lengh+1),5);
+//                        Log.e(TAG, "fillMatrixEmpty: space>>"+i/(lengh+1)+"  "+5);
+//                    }
+                    if (i%17>0){
+                        wordWilds.set(i/17,5);
+                    }
+                }
 
-//                Log.e(i+">>>>","空格");
-                if (space_number<5){//空格位置过长  只取4个点作为空格
-                    tem.add(indx);
-                }
-                if (space_number==16){
-                    space_number=0;
-                }
-                if (i%17>0){
-                    wordWilds.set(i/17,5);
-                }
             }
             else if (!isSpaceVaules(i)&&Arrays.equals(empty_data,indx)&&Arrays.equals(empty_data,indy)){//如果相邻两列都为空 不保存
 //                if (i%17>0){
@@ -918,7 +1015,13 @@ public class FontUtils {
 //                    Log.e((i/17)+1+">>>>","empty_data++");
 //                }
 //                Log.e(i+"", "fillMatrixEmpty:" );
-                wordWilds.set(i/17,wordWilds.get(i/17)-1);
+                if (isRedo){
+                    wordWilds.set(i/(dots+1),wordWilds.get(i/(dots+1))-1);
+                }else {
+
+//                    wordWilds.set(i/17,wordWilds.get(i/17)-1);
+                    wordWilds.set(i/(lengh*8+1),wordWilds.get(i/(lengh*8+1))-1);
+                }
 //                if (i%17>0){
 //                    Log.e(i/17+"", "fillMatrixEmpty: "+ wordWilds.get(i/17));
 //                }else {
@@ -950,7 +1053,7 @@ public class FontUtils {
         ArabicIndexs =null;
         HindiIndexs =null;
         matrix = temps1;
-//        Log.e("matrix>>>>",matrix[0].length+"");
+        Log.e("matrix>>>>",matrix[0].length+"");
 //        Log.e("tem>>>>",tem.size()+"");
 //        Log.e("temps1>>>>",temps1[0].length+"");
 
@@ -970,17 +1073,25 @@ public class FontUtils {
      * 将读取出来的字模数据 按byte转成二维数组
      * 再转成boolean数组
      * */
+    private int lengh = 0;
     private void getbooleandata (byte[] data){
         int s = 0;
-        matrix = new boolean[dots][str.length()*8*2];
-        byte[][] tem = new byte[dots][str.length()*2];
+        matrix = new boolean[dots][str.length()*lengh*8];
+//        matrix = new boolean[dots][str.length()*8*2];
+        byte[][] tem = new byte[dots][str.length()*lengh];
+//        byte[][] tem = new byte[dots][str.length()*2];
         for (int i=0;i<str.length();i++){
             for (int j=0;j<dots;j++){
-                tem[j][i*2] = data[s];
-                tem[j][i*2+1] = data[s+1];
-                s+=2;
+                for (int a = 0;a<lengh;a++){
+                    tem[j][i*lengh+a] = data[s+a];
+                }
+//                tem[j][i*lengh] = data[s];
+//                tem[j][i*lengh+1] = data[s+1];
+                s+=lengh;
             }
         }
+        Log.e("tem>>>>",tem[0].length+"");
+        Log.e("tem>>>>",tem.length+"");
         for (int m = 0; m < dots; m++) {
             for (int line = 0; line < tem[0].length; line++) {
                 byte tmp = tem[m][line];
@@ -994,6 +1105,8 @@ public class FontUtils {
                 }
             }
         }
+        Log.e("matrix>>>>",matrix[0].length+"");
+        Log.e("matrix>>>>",matrix.length+"");
     }
     /***
      *
@@ -1016,22 +1129,196 @@ public class FontUtils {
         }
     }
     /**
+     * 字符镜像
+     * */
+    public boolean[][] mirrorData(boolean[][] datass){
+        boolean[][] results = new boolean[datass.length][datass[0].length];
+        for (int i = 0;i<results.length;i++){
+            for (int j= 0;j<results[0].length;j++){
+                results[i][j] = datass[i][datass[0].length-1-j];
+            }
+        }
+        return results;
+    }
+    private List<Integer> wordHighs;//字符高度集合
+    /**
+     * 字符旋转90度 针对每个字符旋转  并且
+     * */
+    public boolean[][] rotate90(boolean[][] datass){
+        wordHighs = new ArrayList<>();
+        boolean[][] results = new boolean[datass.length][wordWilds.size()*dots];
+        List<boolean[][]> booleans = new ArrayList<>();
+        int sum_wild = 0;
+        for (int i=0;i<wordWilds.size();i++){
+            int wild =0;
+            if (i==wordWilds.size()-1){
+                wild = wordWilds.get(i)-1;
+            }else {
+                wild= wordWilds.get(i);
+            }
+            boolean[][] indexs =Helpful.subBooleanArray(datass,sum_wild,sum_wild+wild);//按照位截取boolean数组
+            boolean[][] indexs_a =new boolean[indexs[0].length][indexs.length];
+            //数组旋转
+            for (int s = 0;s<indexs_a.length;s++){
+                for (int j= 0;j<indexs_a[0].length;j++){
+                    if (indexs.length-j>0){
+                        indexs_a[s][j]= indexs[indexs.length-1-j][s];
+                    }
+                }
+            }
+            //数组旋转后如果高度不够当前字库高度，需要填满
+            if (indexs_a.length<dots){
+                int a = (dots-wild)/2;
+                if ((dots-wild)%2>0){
+                    a=a+1;
+                }
+                Log.e(TAG, "rotate90: a>>>"+a);
+                indexs = null;
+                indexs = new boolean[dots][indexs_a[0].length];
+                for (int x = 0;x<indexs[0].length;x++){
+                    for (int y= 0;y<indexs.length;y++){
+//                        Log.e(TAG, "rotate90: length>>"+indexs.length);
+                        if (y<a||((y>(indexs.length-a))&&(y<indexs.length))){
+
+//                            Log.e(TAG, "rotate90: x,y>>" +x+" "+y );
+                            indexs[y][x] = false;
+                        }else {
+                            if ((y-a)<indexs_a.length){
+                                indexs[y][x] = indexs_a[y-a][x];
+                            }
+                        }
+                    }
+                }
+            }else {
+                indexs = indexs_a;
+            }
+            //获取旋转后数组数据宽度
+
+
+            sum_wild=sum_wild+wild;
+            booleans.add(indexs);
+        }
+        for (int k=booleans.size()-1;k>=0;k--){
+            if (k==booleans.size()-1){
+                results = booleans.get(k);
+            }else {
+                results = Helpful.catBooleanArray(results,booleans.get(k));
+            }
+        }
+        for (int p=0;p<wordWilds.size();p++){
+            wordWilds.set(p,dots);
+        }
+        matrix =results;
+        str = inverso(str);
+        inserAemptyData(true);//为解决某些字库 字模数据之间连在一起没有间隔 所以在消除多余间隔前在所有字符字模数据之间插入一排空值
+        fillMatrixEmpty(true);//字符间隔判定-解决字符间隔过大的情况
+        return matrix;
+    }
+    /**
+     * 字符顺时针旋转180度
+     * */
+    public boolean[][] rotate270(boolean[][] datass){
+        wordHighs = new ArrayList<>();
+        boolean[][] results = new boolean[datass.length][wordWilds.size()*dots];
+        List<boolean[][]> booleans = new ArrayList<>();
+        int sum_wild = 0;
+        for (int i=0;i<wordWilds.size();i++){
+            int wild =0;
+            if (i==wordWilds.size()-1){
+                wild = wordWilds.get(i)-1;
+            }else {
+                wild= wordWilds.get(i);
+            }
+            boolean[][] indexs =Helpful.subBooleanArray(datass,sum_wild,sum_wild+wild);//按照位截取boolean数组
+            boolean[][] indexs_a =new boolean[indexs[0].length][indexs.length];
+            //数组旋转
+            for (int s = 0;s<indexs_a.length;s++){
+                for (int j= 0;j<indexs_a[0].length;j++){
+                    if (indexs[0].length-s>0){
+                        indexs_a[s][j]= indexs[j][indexs[0].length-1-s];
+                    }
+                }
+            }
+            //数组旋转后如果高度不够当前字库高度，需要填满
+            if (indexs_a.length<dots){
+                int a = (dots-wild)/2;
+                if ((dots-wild)%2>0){
+                    a=a+1;
+                }
+                Log.e(TAG, "rotate270: a>>>"+a);
+                indexs = null;
+                indexs = new boolean[dots][indexs_a[0].length];
+                for (int x = 0;x<indexs[0].length;x++){
+                    for (int y= 0;y<indexs.length;y++){
+//                        Log.e(TAG, "rotate90: length>>"+indexs.length);
+                        if (y<a||((y>(indexs.length-a))&&(y<indexs.length))){
+
+//                            Log.e(TAG, "rotate90: x,y>>" +x+" "+y );
+                            indexs[y][x] = false;
+                        }else {
+                            if ((y-a)<indexs_a.length){
+                                indexs[y][x] = indexs_a[y-a][x];
+                            }
+                        }
+                    }
+                }
+            }else {
+                indexs = indexs_a;
+            }
+            //获取旋转后数组数据宽度
+
+
+            sum_wild=sum_wild+wild;
+            booleans.add(indexs);
+        }
+        for (int k=0;k<booleans.size();k++){
+            if (k==0){
+                results = booleans.get(k);
+            }else {
+                results = Helpful.catBooleanArray(results,booleans.get(k));
+            }
+        }
+        for (int p=0;p<wordWilds.size();p++){
+            wordWilds.set(p,dots);
+        }
+        matrix =results;
+        inserAemptyData(true);//为解决某些字库 字模数据之间连在一起没有间隔 所以在消除多余间隔前在所有字符字模数据之间插入一排空值
+        fillMatrixEmpty(true);//字符间隔判定-解决字符间隔过大的情况
+        return matrix;
+    }
+    /**
+     * 字符顺时针旋转180度
+     * */
+    public boolean[][] rotate180(boolean[][] datass){
+        boolean[][] results = new boolean[datass.length][datass[0].length];
+        for (int i = 0;i<results.length;i++){
+            for (int j= 0;j<results[0].length;j++){
+                results[i][j] = datass[datass.length-i-1][datass[0].length-1-j];
+            }
+        }
+        return results;
+    }
+
+    /**
      *
      * 将布尔型二维数组转化成一维十六进制数组  作为最终数据
      *
      */
     public byte[] getAdjustedData(boolean[][] datass){
+//        datass = mirrorData(datass);
         List<Byte> results = new ArrayList<>();
         Log.e("datass.length",datass.length+"");
         Log.e("datass[0].length",datass[0].length+"");
         realLEDWidget = datass[0].length;
         for (int i=0;i<datass.length;i++){
+//        for (int i=datass.length;i>0;i--){
             //用一个最大的十六进制数 与二进制进行|运算 最低位参与运算  如果是0 最低位变成1 否则为0
             //然后再将新的十六进制数 左移一位
             byte bite = 0x00;
             int position = 0;
             int m = 0;//行尾补齐计数
             for (int j=0 ;j<datass[0].length;j++){
+//            for (int j=datass[0].length-1 ;j>=0;j++){
                 byte boolea_bite = 0b0;
 
                 if (datass[i][j]){
@@ -1344,32 +1631,227 @@ public class FontUtils {
             wordByteByDots = 24;
             line = 16;
             asciiwordByteByDots = 12;
-        }
+        }else
         if (pix == 16) {
             dots = 16;
             line = 16;
             wordByteByDots = 32;
             asciiwordByteByDots = 16;
+        }else
+        if (pix == 11) {
+            dots = 11;
+            line = 11;
+            wordByteByDots = 22;
+            asciiwordByteByDots = 11;
+        }else
+        if (pix == 24) {
+            dots = 24;
+            line = 24;
+            wordByteByDots = 72;
+            asciiwordByteByDots = 24;
+        }else
+        if (pix == 32) {
+            dots = 32;
+            line = 32;
+            wordByteByDots = 128;
+            asciiwordByteByDots = 32;
         }
+        else {
+            line = dots;
+            dots=pix;
+            wordByteByDots = pix;
+            asciiwordByteByDots = pix;
+        }
+        lengh = getByteLengthByDots(dots)/8;
     }
+    private List<byte[]> asciiStorks;
     protected byte[] readAllZiMo(String str) {
-//        Log.e("readAllZiMo",str);
+        Log.e("readAllZiMo",str+"   "+dots+" "+zlx+ " "+wordByteByDots);
+//        Log.e(TAG, "readAllZiMo: ascii code>>>"+ (int)str.charAt(0));
         byte[] data = null;
-        try {
-            data = new byte[wordByteByDots];
-            dotMatrixFont = wordNameOveral(zlx,dots);
-            AssetManager.AssetInputStream in = (AssetManager.AssetInputStream) context.getResources().getAssets().open(dotMatrixFont);
-            in.skip(((int) str.charAt(0)) * wordByteByDots);
-            in.read(data, 0, wordByteByDots);
-            in.close();
+        int index = 0;
+//        dots=16;
+        if (dots==12||dots==11||dots==24||dots==32
+                //全部读取unicode字库
+//                ||((dots==16)
+                //unicode码字库 除去16点粗体ascii码字符
+                ||((dots==16)&&!(
+                (zlx.equals("粗体")||zlx.equals("Bold"))
+                &&((int)str.charAt(0)>=32&&(int)str.charAt(0)<=127))
+        )
+                ){//
+            try {
+//                wordByteByDots = lengh*8*dots;
+                data = new byte[wordByteByDots];
+//                dotMatrixFont = wordNameOveral(zlx,dots);
+                dotMatrixFont = wordNameOveralTypeface(zlx,dots);
+                AssetManager.AssetInputStream in = (AssetManager.AssetInputStream) context.getResources().getAssets().open(dotMatrixFont);
+                in.skip(((int) str.charAt(0)) * wordByteByDots);
+                in.read(data, 0, wordByteByDots);
+                in.close();
 
-        } catch (Exception ex) {
+            } catch (Exception ex) {
+
+            }
+        } else if (dots==24||dots==32){
+            try {
+                byte[] data_font = new byte[(dots-1)*2];
+                dotMatrixFont = asciiWordNameOveral(zlx,dots);
+                AssetManager.AssetInputStream in = (AssetManager.AssetInputStream) context.getResources().getAssets().open(dotMatrixFont);
+                in.skip(((int) str.charAt(0)-32) * (dots*2-1)+1);
+                in.read(data_font, 0, (dots-1)*2);
+                in.close();
+                data = new byte[dots*2];
+                for (int s = 0;s<data.length;s++){
+                    if (s==data_font.length||s==data_font.length+1){
+                        data[s]=0x00;
+                    }else {
+                        data[s]=data_font[s];
+                    }
+                }
+            } catch (Exception ex) {
+
+            }
+        } else {
+            /**
+             * Ascii 码 特殊字库读取
+             * */
+//            if (asciiStorks==null){
+                asciiStorks = new ArrayList<>();
+                try {
+                    int realdots =0;
+                    //16 24 32 点字库 实际上是15 23 31 点字库
+                    if (dots==16||dots==24||dots==32){
+                        realdots=dots-1;
+                    }else {
+                        realdots=dots;
+                    }
+                    //将字库读取 放入集合
+                    dotMatrixFont = asciiWordNameOveral(zlx,dots);
+                    AssetManager.AssetInputStream in = (AssetManager.AssetInputStream) context.getResources().getAssets().open(dotMatrixFont);
+                    //1.读取字库数据
+                    byte[] datas = new byte[97*(dots+1)];
+                    in.read(datas,0,datas.length);
+                    for (int i=0;i<97;i++){
+                        //2.读取字符点整数据放入集合中
+                        if (dots==16){
+                            data = new byte[dots];
+                            data=Helpful.subByte(datas,(realdots+1)*i+1,data.length);
+                                data[data.length-1]=0x00;
+                        }
+                        else {//5 7 10
+                            data = new byte[dots];
+                            data=Helpful.subByte(datas,(realdots+1)*i+1,dots);
+                        }
+                        asciiStorks.add(data);
+                    }
+                    in.close();
+                } catch (Exception ex) {
+                    Log.e(TAG, "readAllZiMo: read stork error");
+                }
+//            }
+                //根据字符Ascii码值 从集合中取字库数据
+//            Log.e(TAG, "readAllZiMo: ascii>>"+((int) str.charAt(0)-32) );
+                data = asciiStorks.get((int) str.charAt(0)-32);
+            if (dots==10||dots==16){
+                //当为10 或16 字体（目前有的字体，其实是横向占2个字节的所有字体），字库中10直接表示，而实际上我们用20字节参与运算
+                //也就是说 需要将10字节变成20字节 ，这里读取出来的数据  在后面自动添加了0x00(初始化默认值)，但我们需要的是插入在每个字节之间
+                data = insertBySteo(data);
+            }
         }
+//            if (dots==24){
+//                data= insertByDrop(data,2,lengh);
+//            }
+//            if (dots==32){
+//                data= insertByDrop2(data,2,lengh);
+//            }
+        Log.e(TAG, "data>>>"+Helpful.MYBytearrayToString(data) );
         return data;
     }
+
+    private String wordNameOveralTypeface(String wordType, int wordSize) {
+        String type = "Z";
+        if (dots==11){
+            return dots+""+dots+".DZK";
+        }
+        if (wordType.equals(context.getResources().getString(R.string.typeFace_arial))){
+            type = wordSize + "" + wordSize + "A";
+        }
+        if (wordType.equals(context.getResources().getString(R.string.typeFace_roman))) {
+            type = wordSize + "" + wordSize + "R";
+        }
+        if (wordType.equals(context.getResources().getString(R.string.typeFace_verdana))) {
+            type = wordSize + "" + wordSize + "V";
+        }
+        if (wordType.equals(context.getResources().getString(R.string.typeFace_song))) {
+            type = wordSize + "" + wordSize + "S";
+        }
+        if (wordType.equals(context.getResources().getString(R.string.typeFace_YaHei))) {
+            type = wordSize + "" + wordSize + "Y";
+        }
+        return type + ".DZK";
+    }
+
+    private byte[] insertByDrop2(byte[] data, int low, int high) {
+        byte[] result;
+        result= new byte[dots*high];
+        int index = 0;
+        for (int p=0;p<result.length;p++){
+             if(p==0||p==1||p%(4)==0||(p-1)%4==0){
+                result[p] = data[index];
+                index++;
+            }else {
+                result[p]=0x00;
+            }
+        }
+        return result;
+    }
+
+    private byte[] insertByDrop(byte[] data, int low, int high) {
+        byte[] result;
+        result= new byte[dots*high];
+        int index = 0;
+        for (int p=0;p<result.length;p++){
+//            Log.e(TAG, "insertByDrop: p>>>"+p );
+//            Log.e(TAG, "insertByDrop: index>>>"+index );
+            if ((p+1)%3==0){
+                result[p]=0x00;
+            }else {
+                result[p] = data[index];
+                index++;
+            }
+        }
+        return result;
+    }
+
+    private byte[] insertBySteo(byte[] data) {
+        byte[] result;
+//        if (data.length!=dots*lengh){
+//            return data;
+//        }else {
+//        }
+
+        result= new byte[data.length*2];
+        int index = 0;
+        for (int p=0;p<result.length;p++){
+            if (p%2==0){
+                result[p]=0x00;
+            }else {
+                result[p] = data[index];
+                index++;
+            }
+        }
+        return result;
+    }
+
+    private String asciiWordNameOveral(String zlx, int dots) {
+        return "SS"+dots+".LFF";
+    }
+
     private String wordName(String header, String languge, int wordSize, String wordType) {
         isReadBC =false;
         String type = "Z";
+
         if (wordType.equals("正体") || wordType.equals("Normall")) {
             type = "Z";
         }
@@ -1392,13 +1874,17 @@ public class FontUtils {
      */
     private String wordNameOveral(String wordType,int  wordSize){
         String type = "Z";
-        if (wordType.equals("正体") || wordType.equals("Normall")) {
+        if (dots==11){
+            return dots+""+dots+".DZK";
+        }
+        if (wordType.equals(context.getResources().getString(R.string.wordType_normal))){
+//        wordType.equals("正体") || wordType.equals("Normall")
             type = wordSize + "" + wordSize + "";
         }
-        if (wordType.equals("斜体") || wordType.equals("Italic")) {
+        if (wordType.equals(context.getResources().getString(R.string.wordType_italic))) {
             type = wordSize + "" + wordSize + "L";
         }
-        if (wordType.equals("粗体") || wordType.equals("Bold")) {
+        if (wordType.equals(context.getResources().getString(R.string.wordType_bold))) {
             type = wordSize + "" + wordSize + "C";
         }
         return type + ".DZK";

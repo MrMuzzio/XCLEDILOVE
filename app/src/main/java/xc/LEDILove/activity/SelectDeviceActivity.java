@@ -1,12 +1,16 @@
 package xc.LEDILove.activity;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -18,6 +22,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jcodecraeer.xrecyclerview.XRecyclerView;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.PermissionListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,8 +87,39 @@ public class SelectDeviceActivity extends BaseActivity {
         });
         scancount_txt= (TextView)findViewById(R.id.scancount_txt);
         scancount_txt.setText(getString(R.string.devices));
+        askPermission();
         init();
 
+    }
+    private void askPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            AndPermission.with(this)
+                    .requestCode(100)
+                    .permission(
+                            // 多个权限，以数组的形式传入。
+//                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+//                            Manifest.permission.READ_EXTERNAL_STORAGE
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                    )
+                    .callback(new PermissionListener() {
+                        @Override
+                        public void onSucceed(int requestCode, @NonNull List<String> grantPermissions) {
+//                            isAllow = true;
+                        }
+
+                        @Override
+                        public void onFailed(int requestCode, @NonNull List<String> deniedPermissions) {
+//                            isAllow = false;
+                        }
+                    })
+                    .start();
+            // 没有权限，申请权限。
+        }else{
+            // 有权限了，去放肆吧。
+//            isAllow =true;
+        }
     }
     private void init() {
 //        try {
@@ -119,7 +156,7 @@ public class SelectDeviceActivity extends BaseActivity {
     // 连接线程
     private ProgressDialog pd;
 
-
+    private boolean isChoose =false;
     private void initView() {
 
 //        mDataBean = (SelectParams) getIntent().getSerializableExtra("DataBean");
@@ -133,6 +170,7 @@ public class SelectDeviceActivity extends BaseActivity {
                 intent.putExtra("NAME",select_device.getName());
                 SelectDeviceActivity.this.setResult(RESULT_OK,intent);
                 stopScan();
+                isChoose = true;
                 finish();
 //                new ConnectThread().start();
             }
@@ -298,13 +336,13 @@ public class SelectDeviceActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        Intent intent = new Intent();
-//        intent.putExtra("MAC","");
-//        intent.putExtra("NAME","");
-//        SelectDeviceActivity.this.setResult(RESULT_OK,intent);
+//        if (!isChoose){
+//            Intent intent = new Intent();
+//            intent.putExtra("MAC","");
+//            intent.putExtra("NAME","");
+//            SelectDeviceActivity.this.setResult(10010,intent);
+//        }
         mStaticDatas.scandevice_list.clear();
-//        if(mBle != null)
-//            mBle.exit();
     }
 
     public static class BAdapter extends RecyclerView.Adapter {
@@ -333,13 +371,13 @@ public class SelectDeviceActivity extends BaseActivity {
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View convertView = LayoutInflater.from(mContext).inflate(R.layout.item_bluetooth, parent, false);
+            View convertView = LayoutInflater.from(mContext).inflate(R.layout.item_bluetooth_parameter, parent, false);
 //            View convertView = LayoutInflater.from(mContext).inflate(R.layout.device_list_item, parent, false);
             return new ViewHolder(convertView);
         }
 
         @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
             ViewHolder vh = (ViewHolder) holder;
             final MTBLEDevice device = (MTBLEDevice) mList.get(position);
 
@@ -351,6 +389,7 @@ public class SelectDeviceActivity extends BaseActivity {
             vh.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    Log.e(TAG, "onClick: >>>"+position);
                     if (bAdapterInterface != null)
                         bAdapterInterface.onClick(device);
                 }

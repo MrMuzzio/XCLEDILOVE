@@ -23,6 +23,12 @@ public class CommandHelper {
     public static int dataType_mesList= 1003;
     //开关机
     public static int dataType_power= 1005;
+    //电量查询
+    public static int dataType_battery= 1006;
+    //更改名称
+    public static int dataType_rename= 1007;
+    //批量发送数据
+    public static int dataType_list= 1008;
     public static byte[] getCmd(Params dataBean,int datatype,boolean power) throws UnsupportedEncodingException {
 
         byte[] send_cmd = null;

@@ -5,7 +5,7 @@
     android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@mipmap/ic_background"
+    android:background="@color/head_bg_new"
     android:orientation="vertical"
     tools:context="xc.LEDILove.activity.MEditActivity">
 
@@ -14,7 +14,10 @@
         layout="@layout/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
-
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/head_bg_low"/>
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
@@ -221,7 +224,7 @@
                 android:layout_margin="15dp"
                 android:layout_below="@id/ll_text_single"
                 android:id="@+id/ll_move_mould"
-                android:background="@drawable/choosen_bg"
+                android:background="@color/head_bg_low"
                 android:gravity="center"
                 android:orientation="vertical"
                 android:padding="10dp">
@@ -230,7 +233,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/pageEffectAndModeSetting"
-                    android:textColor="@color/black"
+                    android:textColor="@color/text_color_yellow"
                     android:textSize="14sp" />
 
                 <android.support.v7.widget.RecyclerView
@@ -249,9 +252,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_margin="15dp"
+                android:textAllCaps="false"
                 android:layout_alignParentBottom="true"
                 android:layout_below="@id/ll_move_mould"
-                android:background="@drawable/selector_btn"
+                android:background="@drawable/selector_btn_black"
                 android:text="@string/comfirmAndSend" />
         </RelativeLayout>
     </ScrollView>

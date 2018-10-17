@@ -4,25 +4,57 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@mipmap/ic_background"
+    android:background="@color/head_bg_new"
     android:orientation="vertical"
     tools:context="xc.LEDILove.activity.PicPreViewActivity">
     <include
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         layout="@layout/head_back"/>
-    <GridView
-        android:id="@+id/gv_preview"
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:background="@color/head_bg_low"/>
+    <TextView
+        android:visibility="gone"
+        android:id="@+id/tv_no_data"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:textColor="@color/text_color_yellow"
+        android:text="@string/no_data"/>
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:numColumns="2"
-        android:layout_margin="5dp"
-        android:verticalSpacing="2dp"
-        android:horizontalSpacing="2dp"
-        android:stretchMode="columnWidth"
-        android:gravity="center"
-
         >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <xc.LEDILove.view.ScrollGridView
+                android:id="@+id/gv_preview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="5dp"
+                android:gravity="center"
+                android:horizontalSpacing="2dp"
+                android:numColumns="3"
+                android:stretchMode="columnWidth"
+                android:verticalSpacing="2dp" />
+            <xc.LEDILove.view.ScrollGridView
+                android:id="@+id/gv_preview_add"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:numColumns="3"
+                android:layout_margin="5dp"
+                android:verticalSpacing="2dp"
+                android:horizontalSpacing="2dp"
+                android:stretchMode="columnWidth"
+                android:gravity="center"
+                />
+        </LinearLayout>
+    </ScrollView>
 
-    </GridView>
+
 </LinearLayout>

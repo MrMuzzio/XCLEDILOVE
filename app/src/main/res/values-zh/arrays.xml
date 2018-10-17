@@ -4,12 +4,54 @@
     <string-array name="wordSize">
         <item>12</item>
         <item>16</item>
+        <!--<item>11</item>-->
     </string-array>
-
+    <string-array name="asciiWordSize">
+        <item>5</item>
+        <item>7</item>
+        <item>10</item>
+        <item>12</item>
+        <item>16</item>
+        <item>24</item>
+        <item>32</item>
+    </string-array>
+    <string-array name="ScreenSize">
+        <item>12xN</item>
+        <item>16xN</item>
+        <item>32x32</item>
+        <item>40x48</item>
+    </string-array>
     <string-array name="wordType">
         <item>正体</item>
         <item>斜体</item>
         <item>粗体</item>
+    </string-array>
+    <string-array name="Typeface">
+        <item>Arial</item>
+        <item>New Roman</item>
+        <item>Verdana</item>
+        <item>宋体</item>
+        <item>雅黑</item>
+    </string-array>
+    <string-array name="Typeface_full">
+        <item>Arial</item>
+        <item>New Roman</item>
+        <item>Verdana</item>
+        <item>宋体</item>
+        <item>雅黑</item>
+        <item>楷体</item>
+    </string-array>
+    <string-array name="wordspecial">
+        <item>无</item>
+        <item>镜像</item>
+        <item>旋转90°</item>
+        <item>旋转180°</item>
+        <item>旋转270°</item>
+    </string-array>
+
+    <string-array name="alignments">
+        <item>左上</item>
+        <item>居中</item>
     </string-array>
 
     <string-array name="speed">
@@ -63,9 +105,10 @@
 
     <string-array name="other_message">
         <!--<item>获取设备电量</item>-->
-        <item>炫酷动画</item>
-        <item>同步音乐</item>
-        <item>手绘画板</item>
+        <item>设置设备名称</item>
+        <item>发送列表</item>
+        <!--<item>同步音乐</item>-->
+        <!--<item>手绘画板</item>-->
         <item>检查更新</item>
         <item>关于APP</item>
         <item>帮助/说明</item>

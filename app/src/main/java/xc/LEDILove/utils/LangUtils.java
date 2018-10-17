@@ -23,7 +23,15 @@ public class LangUtils {
 //        return (fullNameStyle == FullNameStyle.CHINESE) ? true : false;
 //    }
 
-
+    public static boolean isAscii(String charSequence) {
+        char s[] = charSequence.toCharArray();
+        for (int i=0;i<s.length;i++){
+            if ((int)s[i]>128||(int)s[i]<0){//超出ASCII范围
+                return false;
+            }
+        }
+        return true;
+    }
     // 完整的判断中文汉字和符号
     public static boolean isChinese(String strName) {
         char[] ch = strName.toCharArray();

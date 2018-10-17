@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="wordSize">
+        <item>12</item>
+        <item>16</item>
+        <!--<item>11</item>-->
+    </string-array>
+    <string-array name="asciiWordSize">
+        <item>5</item>
+        <item>7</item>
+        <item>10</item>
+        <item>12</item>
+        <item>16</item>
+        <item>24</item>
+        <item>32</item>
+    </string-array>
+    <string-array name="ScreenSize">
+        <item>12xN</item>
+        <item>16xN</item>
+        <item>32x32</item>
+        <item>40x48</item>
+    </string-array>
+    <string-array name="wordType">
+        <item>正體</item>
+        <item>斜體</item>
+        <item>粗體</item>
+    </string-array>
+    <string-array name="Typeface_full">
+        <item>Arial</item>
+        <item>New Roman</item>
+        <item>Verdana</item>
+        <item>宋體</item>
+        <item>雅黑</item>
+        <item>楷體</item>
+    </string-array>
+    <string-array name="Typeface">
+        <item>Arial</item>
+        <item>New Roman</item>
+        <item>Verdana</item>
+        <item>宋體</item>
+        <item>雅黑</item>
+    </string-array>
+    <string-array name="wordspecial">
+        <item>無</item>
+        <item>鏡像</item>
+        <item>旋轉90°</item>
+        <item>旋轉180°</item>
+        <item>旋轉270°</item>
+    </string-array>
+
+    <string-array name="alignments">
+        <item>左上</item>
+        <item>居中</item>
+    </string-array>
+
+    <string-array name="speed">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+    <string-array name="effect">
+        <item>無</item>
+        <item>下劃線</item>
+        <item>粗體</item>
+        <item>斜體</item>
+    </string-array>
+
+    <string-array name="languageType">
+        <item>韓文</item>
+        <item>中文</item>
+        <item>日文</item>
+        <item>英文</item>
+    </string-array>
+
+    <string-array name="bright">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+    </string-array>
+
+    <string-array name="model">
+        <item>左移</item>
+        <item>右移</item>
+        <item>固定</item>
+        <item>雪花</item>
+        <item>上移</item>
+        <item>下移</item>
+        <item>閃爍</item>
+        <item>跑馬燈</item>
+    </string-array>
+
+    <string-array name="popup_message">
+        <item>設置</item>
+        <item>其他</item>
+    </string-array>
+
+    <string-array name="other_message">
+        <!--<item>获取设备电量</item>-->
+        <item>設置設備名稱</item>
+        <item>發送列表</item>
+        <!--<item>同步音樂</item>-->
+        <!--<item>手绘画板</item>-->
+        <item>檢查更新</item>
+        <item>關於APP</item>
+        <item>幫助/說明</item>
+    </string-array>
+    <string-array name="unicode_images">
+        <item>☏</item>
+        <item>☎</item>
+        <item>♡</item>
+        <item>♥</item>
+        <item>☞</item>
+        <item>☜</item>
+        <item>★</item>
+        <item>☆</item>
+        <item>■</item>
+        <item>△</item>
+        <item>▲</item>
+        <item>▷</item>
+        <item>▶</item>
+        <item>▽</item>
+        <item>▼</item>
+        <item>◁</item>
+        <item>◀</item>
+        <item>◇</item>
+        <item>◆</item>
+        <item>◈</item>
+
+    </string-array>
+</resources>

@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import xc.LEDILove.Bean.TextColorSelctParams;
@@ -27,7 +28,7 @@ import xc.LEDILove.R;
  * Use the {@link ColorSelectFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ColorSelectFragment extends Fragment implements View.OnClickListener {
+public class ColorSelectFragment extends Fragment  {
     private String TAG = ColorSelectFragment.class.getSimpleName();
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -38,23 +39,10 @@ public class ColorSelectFragment extends Fragment implements View.OnClickListene
     private String mParam1;
     private String mParam2;
     //背景颜色选择控件
-    private ImageView iv_backdrop_black;
-    private ImageView iv_backdrop_red;
-    private ImageView iv_backdrop_yellow;
-    private ImageView iv_backdrop_green;
-    private ImageView iv_backdrop_cyan;
-    private ImageView iv_backdrop_blove;
-    private ImageView iv_backdrop_purple;
-    private ImageView iv_backdrop_white;
+
+    private RadioGroup rg_edit_dialog_font_color;
+    private RadioGroup rg_edit_dialog_bg_color;
     //字体颜色选择控件
-    private ImageView iv_font_black;
-    private ImageView iv_font_red;
-    private ImageView iv_font_yellow;
-    private ImageView iv_font_green;
-    private ImageView iv_font_cyan;
-    private ImageView iv_font_blove;
-    private ImageView iv_font_purple;
-    private ImageView iv_font_white;
 
     private TextView tv_preview;
     private OnFragmentInteractionListener mListener;
@@ -108,50 +96,226 @@ public class ColorSelectFragment extends Fragment implements View.OnClickListene
                              Bundle savedInstanceState) {
         Log.e(TAG,"onCreateView");
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_color_select, container, false);
+        View view = inflater.inflate(R.layout.fragment_color_select, null);
         initView(view);
+        radioGroupEvent();
         return view;
     }
+    private void radioGroupEvent() {
+        rg_edit_dialog_bg_color.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                translateBGColorById(i);
+            }
+        });
+        rg_edit_dialog_font_color.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                translateFontColorById(i);
+            }
+        });
+    }
+    private void translateFontColorById(int id) {
+        switch (id){
+            case R.id.gb_edit_dialog_font_black:
+                if (0==selctParams.getColor_backdrop()){//判断用户点击的字体颜色是否与当前背景颜色相同
+                    revocationFontSelected(selctParams.getColor_font());// 如果相同，需要撤销此次点击  即设置RadioGroup 为点击前的状态
+                    return;
+                }
+                selctParams.setColor_font(0);
+                break;
+            case R.id.gb_edit_dialog_font_red:
+                if (1==selctParams.getColor_backdrop()){
+                    revocationFontSelected(selctParams.getColor_font());
+                    return;
+                }
+                selctParams.setColor_font(1);
+                break;
+            case R.id.gb_edit_dialog_font_yellow:
+                if (2==selctParams.getColor_backdrop()){
+                    revocationFontSelected(selctParams.getColor_font());
+                    return;
+                }
+                selctParams.setColor_font(2);
+                break;
+            case R.id.gb_edit_dialog_font_green:
+                if (3==selctParams.getColor_backdrop()){
+                    revocationFontSelected(selctParams.getColor_font());
+                    return;
+                }
+                selctParams.setColor_font(3);
+                break;
+            case R.id.gb_edit_dialog_font_cyan:
+                if (4==selctParams.getColor_backdrop()){
+                    revocationFontSelected(selctParams.getColor_font());
+                    return;
+                }
+                selctParams.setColor_font(4);
+                break;
+            case R.id.gb_edit_dialog_font_blue:
+                if (5==selctParams.getColor_backdrop()){
+                    revocationFontSelected(selctParams.getColor_font());
+                    return;
+                }
+                selctParams.setColor_font(5);
+                break;
+            case R.id.gb_edit_dialog_font_purple:
+                if (6==selctParams.getColor_backdrop()){
+                    revocationFontSelected(selctParams.getColor_font());
+                    return;
+                }
+                selctParams.setColor_font(6);
+                break;
+            case R.id.gb_edit_dialog_font_white:
+                if (7==selctParams.getColor_backdrop()){
+                    revocationFontSelected(selctParams.getColor_font());
+                    return;
+                }
+                selctParams.setColor_font(7);
+                break;
+        }
+        setText();
+        colorCallback.OnColorSelected(selctParams);
+    }
 
+    private void revocationFontSelected(int i) {
+        rg_edit_dialog_font_color.check(translateFontIdByColor(i));
+    }
+    private void revocationBGSelected(int i) {
+        rg_edit_dialog_bg_color.check(translateBGIdByColor(i));
+    }
+    private int translateFontIdByColor(int i) {
+        int id= R.id.gb_edit_dialog_font_black;
+        switch (i){
+            case 0:
+                id = R.id.gb_edit_dialog_font_black;
+                break;
+            case 1:
+                id = R.id.gb_edit_dialog_font_red;
+                break;
+            case 2:
+                id = R.id.gb_edit_dialog_font_yellow;
+                break;
+            case 3:
+                id = R.id.gb_edit_dialog_font_green;
+                break;
+            case 4:
+                id = R.id.gb_edit_dialog_font_cyan;
+                break;
+            case 5:
+                id = R.id.gb_edit_dialog_font_blue;
+                break;
+            case 6:
+                id = R.id.gb_edit_dialog_font_purple;
+                break;
+            case 7:
+                id = R.id.gb_edit_dialog_font_white;
+                break;
+
+        }
+        return id;
+    }
+    private int translateBGIdByColor(int i) {
+        int id = R.id.rb_edit_dialog_bg_black;
+        switch (i){
+            case 0:
+                id = R.id.rb_edit_dialog_bg_black;
+                break;
+            case 1:
+                id = R.id.rb_edit_dialog_bg_red;
+                break;
+            case 2:
+                id = R.id.rb_edit_dialog_bg_yellow;
+                break;
+            case 3:
+                id = R.id.rb_edit_dialog_bg_green;
+                break;
+            case 4:
+                id = R.id.rb_edit_dialog_bg_cyan;
+                break;
+            case 5:
+                id = R.id.rb_edit_dialog_bg_blue;
+                break;
+            case 6:
+                id = R.id.rb_edit_dialog_bg_purple;
+                break;
+            case 7:
+                id = R.id.rb_edit_dialog_bg_white;
+                break;
+
+        }
+        return id;
+    }
+    private void translateBGColorById(int id) {
+        switch (id){
+            case R.id.rb_edit_dialog_bg_black:
+                if (0==selctParams.getColor_font()){
+                    revocationBGSelected(selctParams.getColor_backdrop());
+                    return;
+                }
+                selctParams.setColor_backdrop(0);
+                break;
+            case R.id.rb_edit_dialog_bg_red:
+                if (1==selctParams.getColor_font()){
+                    revocationBGSelected(selctParams.getColor_backdrop());
+                    return;
+                }
+                selctParams.setColor_backdrop(1);
+                break;
+            case R.id.rb_edit_dialog_bg_yellow:
+                if (2==selctParams.getColor_font()){
+                    revocationBGSelected(selctParams.getColor_backdrop());
+                    return;
+                }
+                selctParams.setColor_backdrop(2);
+                break;
+            case R.id.rb_edit_dialog_bg_green:
+                if (3==selctParams.getColor_font()){
+                    revocationBGSelected(selctParams.getColor_backdrop());
+                    return;
+                }
+                selctParams.setColor_backdrop(3);
+                break;
+            case R.id.rb_edit_dialog_bg_cyan:
+                if (4==selctParams.getColor_font()){
+                    revocationBGSelected(selctParams.getColor_backdrop());
+                    return;
+                }
+                selctParams.setColor_backdrop(4);
+                break;
+            case R.id.rb_edit_dialog_bg_blue:
+                if (5==selctParams.getColor_font()){
+                    revocationBGSelected(selctParams.getColor_backdrop());
+                    return;
+                }
+                selctParams.setColor_backdrop(5);
+                break;
+            case R.id.rb_edit_dialog_bg_purple:
+                if (6==selctParams.getColor_font()){
+                    revocationBGSelected(selctParams.getColor_backdrop());
+                    return;
+                }
+                selctParams.setColor_backdrop(6);
+                break;
+            case R.id.rb_edit_dialog_bg_white:
+                if (7==selctParams.getColor_font()){
+                    revocationBGSelected(selctParams.getColor_backdrop());
+                    return;
+                }
+                selctParams.setColor_backdrop(7);
+                break;
+        }
+        setText();
+        colorCallback.OnColorSelected(selctParams);
+//        onColorChange();
+    }
     private void initView(View view) {
         selctParams = new TextColorSelctParams();
         selctParams.setColor_backdrop(0);
         selctParams.setColor_font(1);
+        rg_edit_dialog_font_color = (RadioGroup) view.findViewById(R.id.rg_edit_dialog_font_color);
+        rg_edit_dialog_bg_color = (RadioGroup) view.findViewById(R.id.rg_edit_dialog_bg_color);
         tv_preview = (TextView) view.findViewById(R.id.tv_preview);
-        iv_backdrop_black = (ImageView) view.findViewById(R.id.iv_backdrop_black);
-        iv_backdrop_red = (ImageView) view.findViewById(R.id.iv_backdrop_red);
-        iv_backdrop_yellow = (ImageView) view.findViewById(R.id.iv_backdrop_yellow);
-        iv_backdrop_green = (ImageView) view.findViewById(R.id.iv_backdrop_green);
-        iv_backdrop_cyan = (ImageView) view.findViewById(R.id.iv_backdrop_cyan);
-        iv_backdrop_blove = (ImageView) view.findViewById(R.id.iv_backdrop_blove);
-        iv_backdrop_purple = (ImageView) view.findViewById(R.id.iv_backdrop_purple);
-        iv_backdrop_white = (ImageView) view.findViewById(R.id.iv_backdrop_white);
-        iv_backdrop_black.setOnClickListener(this);
-        iv_backdrop_red.setOnClickListener(this);
-        iv_backdrop_yellow.setOnClickListener(this);
-        iv_backdrop_green.setOnClickListener(this);
-        iv_backdrop_cyan.setOnClickListener(this);
-        iv_backdrop_blove.setOnClickListener(this);
-        iv_backdrop_purple.setOnClickListener(this);
-        iv_backdrop_white.setOnClickListener(this);
-
-        iv_font_black = (ImageView) view.findViewById(R.id.iv_font_black);
-        iv_font_red = (ImageView) view.findViewById(R.id.iv_font_red);
-        iv_font_yellow = (ImageView) view.findViewById(R.id.iv_font_yellow);
-        iv_font_green = (ImageView) view.findViewById(R.id.iv_font_green);
-        iv_font_cyan = (ImageView) view.findViewById(R.id.iv_font_cyan);
-        iv_font_blove = (ImageView) view.findViewById(R.id.iv_font_blove);
-        iv_font_purple = (ImageView) view.findViewById(R.id.iv_font_purple);
-        iv_font_white = (ImageView) view.findViewById(R.id.iv_font_white);
-
-        iv_font_black.setOnClickListener(this);
-        iv_font_red.setOnClickListener(this);
-        iv_font_yellow.setOnClickListener(this);
-        iv_font_green.setOnClickListener(this);
-        iv_font_cyan.setOnClickListener(this);
-        iv_font_blove.setOnClickListener(this);
-        iv_font_purple.setOnClickListener(this);
-        iv_font_white.setOnClickListener(this);
         tv_preview.setBackgroundColor(parseColor(selctParams.getColor_backdrop()));
         tv_preview.setTextColor(parseColor(selctParams.getColor_font()));
         btn_auto_shift = (Button) view.findViewById(R.id.btn_auto_shift);
@@ -169,9 +333,8 @@ public class ColorSelectFragment extends Fragment implements View.OnClickListene
                 colorCallback.OnColorModelChange(isAutoColor);
             }
         });
-//                selectedParams.color = getResources().getColor(R.color.white);
-//                ledView.setTextColorChange( selectedParams.color);
-//                clearEditText.setTextColor(getResources().getColor(R.color.white));
+        rg_edit_dialog_font_color.check(R.id.gb_edit_dialog_font_red);
+        rg_edit_dialog_bg_color.check(R.id.rb_edit_dialog_bg_black);
     }
     private void setAutoColorShift(int choose) {
         btn_auto_shift.setTextColor(getResources().getColor(R.color.loading_bar_text_color));
@@ -180,10 +343,10 @@ public class ColorSelectFragment extends Fragment implements View.OnClickListene
         int index=str.indexOf("/");
         switch (choose){
             case 0://单行模式 “/” 前面字符显示绿色
-                style.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.red)),0,index, Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
+                style.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.text_color_yellow)),0,index, Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
                 break;
             case 1://双行模式 “/” 后面字符显示绿色
-                style.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.red)),index+1,str.length(),Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
+                style.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.text_color_yellow)),index+1,str.length(),Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
                 break;
         }
         btn_auto_shift.setText(style);
@@ -213,124 +376,114 @@ public class ColorSelectFragment extends Fragment implements View.OnClickListene
 
     }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()){
-//            case R.id.btn_choose:
+//    @Override
+//    public void onClick(View view) {
+//        switch (view.getId()){
+////            case R.id.btn_choose:
+////                break;
+//            //背景颜色
+//            case R.id.iv_backdrop_black:
+//                if (0==selctParams.getColor_font()){
+//                    return;
+//                }
+//                selctParams.setColor_backdrop(0);
 //                break;
-            //背景颜色
-            case R.id.iv_backdrop_black:
-                if (0==selctParams.getColor_font()){
-                    return;
-                }
-                selctParams.setColor_backdrop(0);
-                break;
-            case R.id.iv_backdrop_red:
-                if (1==selctParams.getColor_font()){
-                    return;
-                }
-                selctParams.setColor_backdrop(1);
-                break;
-            case R.id.iv_backdrop_yellow:
-                if (2==selctParams.getColor_font()){
-                    return;
-                }
-                selctParams.setColor_backdrop(2);
-                break;
-            case R.id.iv_backdrop_green:
-                if (3==selctParams.getColor_font()){
-                    return;
-                }
-                selctParams.setColor_backdrop(3);
-                break;
-            case R.id.iv_backdrop_cyan:
-                if (4==selctParams.getColor_font()){
-                    return;
-                }
-                selctParams.setColor_backdrop(4);
-                break;
-            case R.id.iv_backdrop_blove:
-                if (5==selctParams.getColor_font()){
-                    return;
-                }
-                selctParams.setColor_backdrop(5);
-                break;
-            case R.id.iv_backdrop_purple:
-                if (6==selctParams.getColor_font()){
-                    return;
-                }
-                selctParams.setColor_backdrop(6);
-                break;
-            case R.id.iv_backdrop_white:
-                if (7==selctParams.getColor_font()){
-                    return;
-                }
-                selctParams.setColor_backdrop(7);
-                break;
-            //字体颜色
-            case R.id.iv_font_black:
-                if (0==selctParams.getColor_backdrop()){
-                    return;
-                }
-                selctParams.setColor_font(0);
-                break;
-            case R.id.iv_font_red:
-                if (1==selctParams.getColor_backdrop()){
-                    return;
-                }
-                selctParams.setColor_font(1);
-                break;
-            case R.id.iv_font_yellow:
-                if (2==selctParams.getColor_backdrop()){
-                    return;
-                }
-                selctParams.setColor_font(2);
-                break;
-            case R.id.iv_font_green:
-                if (3==selctParams.getColor_backdrop()){
-                    return;
-                }
-                selctParams.setColor_font(3);
-                break;
-            case R.id.iv_font_cyan:
-                if (4==selctParams.getColor_backdrop()){
-                    return;
-                }
-                selctParams.setColor_font(4);
-                break;
-            case R.id.iv_font_blove:
-                if (5==selctParams.getColor_backdrop()){
-                    return;
-                }
-                selctParams.setColor_font(5);
-                break;
-            case R.id.iv_font_purple:
-                if (6==selctParams.getColor_backdrop()){
-                    return;
-                }
-                selctParams.setColor_font(6);
-                break;
-            case R.id.iv_font_white:
-                if (7==selctParams.getColor_backdrop()){
-                    return;
-                }
-                selctParams.setColor_font(7);
-                break;
-        }
-//        Log.i("click",view.getId()+"");
-        setText();
-        colorCallback.OnColorSelected(selctParams);
-//        if (textSelected()){
-//            int start = et_display.getSelectionStart();
-//            int end = et_display.getSelectionEnd();
-//            for (int k=0;k<end-start;k++){
-//                textBeanList.get(start+k).setBackdrop((selctParams.getColor_backdrop()));
-//                textBeanList.get(start+k).setFont((selctParams.getColor_font()));
-//            }
-//            setTextSpan(et_display.getText().toString());
-////            et_display.setSelection(start,end);
+//            case R.id.iv_backdrop_red:
+//                if (1==selctParams.getColor_font()){
+//                    return;
+//                }
+//                selctParams.setColor_backdrop(1);
+//                break;
+//            case R.id.iv_backdrop_yellow:
+//                if (2==selctParams.getColor_font()){
+//                    return;
+//                }
+//                selctParams.setColor_backdrop(2);
+//                break;
+//            case R.id.iv_backdrop_green:
+//                if (3==selctParams.getColor_font()){
+//                    return;
+//                }
+//                selctParams.setColor_backdrop(3);
+//                break;
+//            case R.id.iv_backdrop_cyan:
+//                if (4==selctParams.getColor_font()){
+//                    return;
+//                }
+//                selctParams.setColor_backdrop(4);
+//                break;
+//            case R.id.iv_backdrop_blove:
+//                if (5==selctParams.getColor_font()){
+//                    return;
+//                }
+//                selctParams.setColor_backdrop(5);
+//                break;
+//            case R.id.iv_backdrop_purple:
+//                if (6==selctParams.getColor_font()){
+//                    return;
+//                }
+//                selctParams.setColor_backdrop(6);
+//                break;
+//            case R.id.iv_backdrop_white:
+//                if (7==selctParams.getColor_font()){
+//                    return;
+//                }
+//                selctParams.setColor_backdrop(7);
+//                break;
+//            //字体颜色
+//            case R.id.iv_font_black:
+//                if (0==selctParams.getColor_backdrop()){
+//                    return;
+//                }
+//                selctParams.setColor_font(0);
+//                break;
+//            case R.id.iv_font_red:
+//                if (1==selctParams.getColor_backdrop()){
+//                    return;
+//                }
+//                selctParams.setColor_font(1);
+//                break;
+//            case R.id.iv_font_yellow:
+//                if (2==selctParams.getColor_backdrop()){
+//                    return;
+//                }
+//                selctParams.setColor_font(2);
+//                break;
+//            case R.id.iv_font_green:
+//                if (3==selctParams.getColor_backdrop()){
+//                    return;
+//                }
+//                selctParams.setColor_font(3);
+//                break;
+//            case R.id.iv_font_cyan:
+//                if (4==selctParams.getColor_backdrop()){
+//                    return;
+//                }
+//                selctParams.setColor_font(4);
+//                break;
+//            case R.id.iv_font_blove:
+//                if (5==selctParams.getColor_backdrop()){
+//                    return;
+//                }
+//                selctParams.setColor_font(5);
+//                break;
+//            case R.id.iv_font_purple:
+//                if (6==selctParams.getColor_backdrop()){
+//                    return;
+//                }
+//                selctParams.setColor_font(6);
+//                break;
+//            case R.id.iv_font_white:
+//                if (7==selctParams.getColor_backdrop()){
+//                    return;
+//                }
+//                selctParams.setColor_font(7);
+//                break;
 //        }
-    }
+////        Log.i("click",view.getId()+"");
+//        setText();
+//        colorCallback.OnColorSelected(selctParams);
+//    }
     private void setText() {
         //设置预览颜色
         tv_preview.setBackgroundColor(parseColor(selctParams.getColor_backdrop()));
@@ -351,7 +504,7 @@ public class ColorSelectFragment extends Fragment implements View.OnClickListene
                 color = context.getResources().getColor(R.color.yellow);
                 break;
             case 3:
-                color = context.getResources().getColor(R.color.dark_green);
+                color = context.getResources().getColor(R.color.green);
                 break;
             case 4:
                 color = context.getResources().getColor(R.color.cyan);

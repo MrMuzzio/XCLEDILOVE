@@ -30,8 +30,6 @@ public class UmsResultBean {
      * 颜色
      */
     public static String COLOR = "color";
-
-
     /***
      * 速度
      */
@@ -45,6 +43,18 @@ public class UmsResultBean {
      * 字符数据
      */
     public static String BEANLIST = "beanList";
+    /**
+     * 画板数据 图层一： 背景颜色
+     * */
+    public static String LAYERBG = "layerBg";
+    /**
+     * 画板数据 图层二： 字符点整数据
+     * */
+    public static String LAYERCHARBYTE = "layerCharByte";
+    /**
+     * 画板数据 图层一： diy点阵数据
+     * */
+    public static String LAYERDIYBYTE = "layerDiyByte";
     public int id;
 
     public int numberIndex;
@@ -60,4 +70,7 @@ public class UmsResultBean {
     public int bright;
 
     public List<TextBean> beanList;
+    public int layerBg;
+    public int [][] layerCharByte;
+    public int [][] layerDiyByte;
 }

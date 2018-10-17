@@ -1,13 +1,15 @@
 <resources>
     <string name="app_name">LEDILove</string>
+    <!--<string name="app_name">RANZER SUNTune</string>-->
     <string name="set">Setting</string>
     <string name="size">size</string>
     <string name="font">Font</string>
+    <string name="special">Effects</string>
     <string name="bytes">Char</string>
     <string name="pageEffectAndModeSetting">Page Effect And Mode Setting</string>
     <string name="left">Left</string>
     <string name="right">Right</string>
-    <string name="hold">Hold</string>
+    <string name="hold">Static</string>
     <string name="snow">Snow</string>
     <string name="up">Up</string>
     <string name="down">Down</string>
@@ -15,15 +17,41 @@
     <string name="marquee">Marquee</string>
     <string name="comfirmAndSend">Comfirm and Send</string>
     <string name="speed">Speed</string>
+    <string name="parameter_set">Set device parameter</string>
+    <string name="battery_query">Query the battery</string>
     <string name="speed_set">Set speed</string>
+    <string name="brightness_set">Set Brightness</string>
+    <string name="device_rename">Rename Device</string>
+    <string name="device_rename_hint">Please enter a new name</string>
     <string name="sendSpeed">Send Speed</string>
     <string name="sendBrightness">Send Brightness</string>
     <string name="brightness">Brightness</string>
-    <string name="brightness_set">Set Brightness</string>
     <string name="sendlist">Send List</string>
     <string name="send">Send</string>
     <string name="connectstate">Unconnected</string>
-
+    <string name="notification_playing">Playing in sync</string>
+    <string name="alignment">Alignment</string>
+    <string name="share_app_introduce">An APP that focuses on LED display control</string>
+    <string name="msg_number">Msg Number</string>
+    <string name="music_built">Built music</string>
+    <string name="music_local">Local music</string>
+    <!--spinner-->
+    <string name="wordType_normal">Normal</string>
+    <string name="wordType_italic">Italic</string>
+    <string name="wordType_bold">Bold</string>
+    <!--type face-->
+    <string name="typeFace_arial">Arial</string>
+    <string name="typeFace_roman">New Roman</string>
+    <string name="typeFace_verdana">Verdana</string>
+    <string name="typeFace_song">Song</string>
+    <string name="typeFace_YaHei">YaHei</string>
+    <!--share-->
+    <string name="friend">WeChat friend</string>
+    <string name="moments">WeChat Moments</string>
+    <string name="qq_friend">QQ Friend</string>
+    <string name="qq_zone">QQ Zone</string>
+    <string name="share">Share :</string>
+    <string name="to">to:</string>
 
     <!--hint-->
     <string name="ok">ok</string>
@@ -50,8 +78,16 @@
     <string name="dialog_negative">cancel</string>
     <string name="dialog_sending">be sending</string>
     <string name="out_of_max">out of maximum length, has been automatically intercepted!</string>
-
-
+    <string name="ble_disconnect_confirm">The parameters you select are not consistent with the current connection device.
+        If switched, the current connection will be disconnected!\n Please confirm whether to continue?</string>
+    <!-- Toast -->
+    <string name="toast_exit_app">Press again to exit the application</string>
+    <string name="toast_enter_preview">Enter the live preview mode</string>
+    <string name="toast_exit_preview">Exit the live preview mode!</string>
+    <string name="save_directory">Saved to:</string>
+    <string name="error_device">Illegal bluetooth</string>
+    <string name="current_battery">Current device power is :</string>
+    <string name="connect_device">Please connect the device and try again！</string>
     <!-- 下拉刷新listView -->
     <string name="pull_to_refresh_pull_label">Pull to refresh</string>
     <string name="string_update_time">Last update：%s</string>
@@ -69,8 +105,14 @@
     <string name="devices">Device List</string>
     <string name="failedOperation">Operation failure!</string>
     <string name="connecting">connecting</string>
+    <string name="connecting_auto">Automatic connection</string>
     <string name="refreshheadupdate">Last updated on:just</string>
-
+    <string name="quick_hint">Tip: multiple messages can be selected to be sent simultaneously</string>
+    <!-- Screen size -->
+    <string name="screen_size_12">12xN</string>
+    <string name="screen_size_16">16xN</string>
+    <string name="screen_size_3232">32x32</string>
+    <string name="screen_size_4048">40x48</string>
     <!--viewpager-->
     <string name="pre">Color</string>
     <string name="after">Font</string>
@@ -81,21 +123,63 @@
     <string name="color_font">Font_color</string>
     <string name="color_back">BGColor</string>
     <string name="color_model">Color_Mode</string>
+    <string name="gallery_inlay">Built-in image</string>
+    <string name="gallery_custom">Custom image</string>
+    <string name="gallery_gif">Gif</string>
     <!--画板-->
     <string name="undo">Last Step</string>
-    <string name="reset">Reset</string>
+    <string name="reset">Clear</string>
     <string name="save">Save</string>
+    <string name="save_as">Save as</string>
+    <string name="storage_method">Storage method</string>
     <string name="dimensions">Dimensions：</string>
+    <string name="fixation_color">Color</string>
+    <string name="text_hit">Edit text</string>
+    <string name="no_data">Have no data</string>
+    <!--rename code-->
+    <string name="code_enter_at">Enter AT mode successfully</string>
+    <string name="code_try_rename">Trying to rename the bluetooth……</string>
+    <string name="code_ble_name">Bluetooth name： </string>
+    <string name="code_change_to"> change to： </string>
+    <string name="code_rename_succeed">The name has been changed successfully, and the bluetooth module will take effect after restarting！</string>
+    <string name="code_ble_restarting">Attempting to restart the bluetooth module……</string>
+    <string name="code_disconnect_ble">Successful operation, bluetooth will be disconnected！</string>
+    <string name="code_close_ble">To refresh the changed device, restart your phone bluetooth！</string>
+    <string name="code_exist_at">Exit AT mode</string>
+    <string name="code_error">Error code</string>
     <!--帮助-->
+    <string name="dfu_selected_file">Selected File</string>
+    <string name="dfu_file_name">Selected File</string>
+    <string name="dfu_file_size">Selected File</string>
+    <string name="dfu_upload">Selected File</string>
+    <string name="sub_1">Click to share </string>
+    <string name="sub_2"> or </string>
+    <string name="sub_3"> download</string>
+    <string name="qr_code"> QR Code </string>
+    <string name="url_download"> downurls </string>
+    <string name="sharedescroption">Tip: after entering, click "access the original web page" to open and download with the browser!</string>
     <string name="help">Help</string>
     <string name="about">About APP</string>
     <string name="gif">Animation</string>
+    <string name="gallery">Gallery</string>
     <string name="palte">Painted Palette</string>
+    <string name="set_data_time">Set Data And Time Color</string>
+    <string name="device_dfu">Device version upgrade</string>
+    <string name="data_time">Show Data And Time</string>
+    <string name="light_control">Control Light</string>
     <string name="palte_simplename">Palette</string>
+    <string name="diy">DIY</string>
     <string name="other">Other</string>
     <string name="PhotoGallery">Photo Gallery</string>
     <string name="music">Sync music</string>
+    <string name="music_simplename">Music</string>
+    <string name="text">Text</string>
+    <string name="quick_edit">Quick Send</string>
     <string name="back">Back</string>
+    <string name="home">Home</string>
+    <string name="control_close">Close</string>
+    <string name="control_open">Open</string>
+    <string name="control_flash">Flash</string>
     <string name="operating_manual">
        APP operate instruction:\n
 1.Download the APP operating software\n
@@ -128,9 +212,10 @@ With product communication, you can edit and add custom information,
 Support information left, right, shift, down, snowflake,
         running horse lamp and other animation modes, support text movement speed,
         brightness, switch Settings. Support Chinese, English and other languages.</string>
-    <string name="shar_app">Share APP, qr code download.</string>
+    <string name="shar_app">Share </string>
 
-    <string name="app_download">http://www.xn--led-f00fr20c.com/download/index</string>
+    <string name="app_download">http://www.xn--led-f00fr20c.com:8081/</string>
+
     <string name="app_update">Discover the new version and update it.</string>
     <string name="app_new">It\'s the latest version.</string>
 

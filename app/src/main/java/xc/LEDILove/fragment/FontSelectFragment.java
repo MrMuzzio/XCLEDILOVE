@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import xc.LEDILove.R;
 import xc.LEDILove.activity.MEditActivity;
+import xc.LEDILove.bluetooth.StaticDatas;
 import xc.LEDILove.view.HorizontalListView;
 
 /**
@@ -34,6 +35,7 @@ public class FontSelectFragment extends Fragment implements View.OnClickListener
     private Spinner spinnerWordSize;
     //正 斜 粗
     private Spinner spinnerWordType;
+    private Spinner sp_special;
     //字符计数
     private TextView tvTxtNumber;
     private HorizontalListView hl_unicode_image;
@@ -70,11 +72,22 @@ public class FontSelectFragment extends Fragment implements View.OnClickListener
     private OnFragmentInteractionListener mListener;
     private String charlegth = "";
 
+    public void refresh() {
+        Log.e(TAG, "refresh: LEDHight>>>"+StaticDatas.LEDHight );
+        if (spinnerWordSize!=null){
+            if (StaticDatas.LEDHight==12){
+                spinnerWordSize.setSelection(0);
+            }else if (StaticDatas.LEDHight==16){
+                spinnerWordSize.setSelection(1);
+            }
+        }
+    }
 
 
     public interface FontCallback{
         void onWordSizeChange(String size);
         void onWordTypeChange(String type);
+        void onFontEffectChange(String effect);
         void onViewCreate();
         void onImageSelected(String str);
     }
@@ -120,25 +133,32 @@ public class FontSelectFragment extends Fragment implements View.OnClickListener
                              Bundle savedInstanceState) {
         Log.e(TAG,"onCreateView");
         // Inflate the layout for this fragment
-        view =  inflater.inflate(R.layout.fragment_font_select, container, false);
+        view =  inflater.inflate(R.layout.fragment_font_select, null);
         initView(view);
         fontCallback.onViewCreate();
         return view;
     }
     private String[] wordSize;
     private String[] wordType;
+    private String[] wordspecial;
     private Context context;
+
     private void initView(View view) {
         spinnerWordSize = (Spinner) view.findViewById(R.id.spinnerWordSize);
         spinnerWordType = (Spinner) view.findViewById(R.id.spinnerWordType);
+        sp_special = (Spinner) view.findViewById(R.id.sp_special);
         tvTxtNumber = (TextView) view.findViewById(R.id.tvTxtNumber);
         wordSize = getResources().getStringArray(R.array.wordSize);
         ArrayAdapter<String> wordSizeAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, wordSize);
         spinnerWordSize.setAdapter(wordSizeAdapter);
 
-        wordType = getResources().getStringArray(R.array.wordType);
+        wordType = getResources().getStringArray(R.array.Typeface);
+//        wordType = getResources().getStringArray(R.array.wordType);
         ArrayAdapter<String> wordTypeAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, wordType);
         spinnerWordType.setAdapter(wordTypeAdapter);
+        wordspecial = getResources().getStringArray(R.array.wordspecial);
+        ArrayAdapter<String> wordspecialAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, wordspecial);
+        sp_special.setAdapter(wordspecialAdapter);
 
         //正斜粗
 //        selectedParams.wordType = wordType[0];
@@ -153,7 +173,19 @@ public class FontSelectFragment extends Fragment implements View.OnClickListener
 
             }
         });
+//正斜粗
+//        selectedParams.wordType = wordType[0];
+        sp_special.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                fontCallback.onFontEffectChange(position+"");
+            }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 //        selectedParams.wordSize = 12;
         //字体大小
         spinnerWordSize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -168,12 +200,15 @@ public class FontSelectFragment extends Fragment implements View.OnClickListener
             }
         });
         unicode_strs = context.getResources().getStringArray(R.array.unicode_images);
-//        hl_unicode_image =(HorizontalListView) view.findViewById(R.id.hl_unicode_image);
-//        hlAdapter = new HLAdapter();
-//        hl_unicode_image.setAdapter(hlAdapter);
         tv_unicode_1 = (TextView) view.findViewById(R.id.tv_unicode_1);
         tv_unicode_1.setText(unicode_strs[0]);
-        tv_unicode_1.setOnClickListener(this);
+//        tv_unicode_1.setOnClickListener(this);
+        tv_unicode_1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "onClick: " );
+            }
+        });
         tv_unicode_2 = (TextView) view.findViewById(R.id.tv_unicode_2);
         tv_unicode_2.setText(unicode_strs[1]);
         tv_unicode_2.setOnClickListener(this);

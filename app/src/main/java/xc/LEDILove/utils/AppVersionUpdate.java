@@ -12,7 +12,7 @@ import org.json.JSONObject;
 
 public class AppVersionUpdate {
 
-    public  int parseJson(String jsonData) {
+    public  int parseJsonForCode(String jsonData) {
         int code = -1;
         try {
             JSONObject json = new JSONObject(jsonData);
@@ -20,13 +20,38 @@ public class AppVersionUpdate {
             if (status.equals("successs")){
                 String name = json.getString("app");
                 int  versioncode = json.getInt("code");
-                String versionName = json.getString("version");
                 code = versioncode;
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return code;
+    }
+    public  String parseJsonForName(String jsonData) {
+         String result ="";
+        try {
+            JSONObject json = new JSONObject(jsonData);
+            String status = json.getString("status");
+            if (status.equals("successs")){
+                result = json.getString("version");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+    public  String parseJsonForIntroudce(String jsonData) {
+        String result ="";
+        try {
+            JSONObject json = new JSONObject(jsonData);
+            String status = json.getString("status");
+            if (status.equals("successs")){
+                result = json.getString("introduce");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     /**
@@ -59,4 +84,5 @@ public class AppVersionUpdate {
         }
         return verName;
     }
+
 }

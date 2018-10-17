@@ -7,26 +7,33 @@
 
     <color name="lightgray">#D3D3D3</color><!--亮灰色 -->
     <color name="txt_red">#FE1515</color>
-    <color name="black">#000000</color>
+
     <color name="transparent">#00000000</color>
     <color name="head_bg">#64c4f6</color>
+    <color name="head_bg_new">#484848</color>
+    <color name="head_bg_new_trans">#e0484848</color>
+    <!--<color name="head_bg_new">#64c4f6</color>-->
+    <color name="head_bg_low">#2b2b2b</color>
+    <color name="head_bg_low_translate">#a02b2b2b</color>
     <color name="dividingline_color">#aeaeae</color>
+    <color name="text_color_yellow">#f4b10b</color>
 
     <color name="title_color">#aaaaaa</color>
 
     <color name="txt_bg">#0064c4f6</color>
-   <!--1红2黄3绿4青5兰6紫7白-->
+   <!--0黑1红2黄3绿4青5兰6紫7白-->
+    <color name="black">#000000</color>
     <color name="red">#ff0000</color>
     <color name="yellow">#FFFF00</color>
-    <color name="green">#3CB371</color>
+    <color name="green">#01FF01</color>
     <color name="cyan">#00FFFF</color>
     <color name="blue">#0000ff</color>
-    <color name="purple">#800080</color>
-    <color name="white">#FFFFFF</color><!--白色 -->
+    <color name="purple">#FF00FD</color>
+    <color name="white">#FFFFFF</color>
+
     <color name="dark_green">#3CB371</color>
     <color name="blove">#0000ff</color>
-
-    <color name="pull_to_refresh_bg_color">#f6f6f6</color>
+    <color name="pull_to_refresh_bg_color">#e6f6f6</color>
     <color name="timeline_home_bg_color">#f6f6f6</color>
     <color name="pull_to_refresh_tips_color">#101010</color>
     <color name="pull_to_refresh_time_color">#706F6F</color>

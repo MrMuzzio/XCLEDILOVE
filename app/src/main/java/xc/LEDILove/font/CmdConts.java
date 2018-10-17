@@ -15,6 +15,8 @@ public class CmdConts {
 
     //可读回显参数
     public static final String READ_LED = "BT03100";
+    //可读回显参数
+    public static final String QUERY_BATTERY = "BT03170<E>";
 
     /**
      * 运行列表（多条信息循环运行）
@@ -27,4 +29,10 @@ public class CmdConts {
 
     //亮度 1-8
     public static final String WRITE_LIGHT = "BT03150";
+    //开机查询命令
+    public static final String QUERY_ALL = "BT03160";
+    //设置时间
+    public static final String SET_TIME_COLOR = "BT03180";
+    //灯光控制
+    public static final String SET_LIGHT_CONTROL = "BT03190";
 }

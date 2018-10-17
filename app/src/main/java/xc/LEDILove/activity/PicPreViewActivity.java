@@ -23,23 +23,35 @@ import com.daimajia.androidanimations.library.YoYo;
 import com.daimajia.androidviewhover.BlurLayout;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import xc.LEDILove.R;
+import xc.LEDILove.bluetooth.StaticDatas;
+import xc.LEDILove.utils.TimonLibary;
 
 public class PicPreViewActivity extends BaseActivity {
     private final String TAG = PicPreViewActivity.class.getSimpleName();
     private GridView gv_preview;
-    private File[] files;
+    private GridView gv_preview_add;
+    private TextView tv_no_data;
     private int width;
     private int imageWidth;
     private GridViewAdapter gridViewAdapter;
+    private GridViewAdapterAdd gridViewAdapterAdd;
     private LinearLayout ll_back;
     private TextView tv_head_left;
     private TextView scancount_txt;
+    private String filepath;
+    private String filepath_bit;
+    private File[] files;
+    private File[] files_add;
+    private int require_type = 0;//0 画板请求（只需要加载自定义的图片文件）  1 快速发送请求（需要加载当前尺寸所有图片文件）
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        setActivityResult("");
+//        filePaths.clear();
+//        setActivityResult("");
     }
     @Override
     public void onBackPressed() {
@@ -47,9 +59,14 @@ public class PicPreViewActivity extends BaseActivity {
         scrollToFinishActivity();//左滑退出activity
     }
     private void setActivityResult(String msg) {
+        Log.e(TAG, "setActivityResult: >>>"+msg );
         Intent intent = new Intent();
         intent.putExtra("file",msg);
-        setResult(1001,intent);
+        if (require_type==0){
+            setResult(1001,intent);
+        }else {
+            setResult(1002,intent);
+        }
         finish();
     }
 
@@ -58,6 +75,8 @@ public class PicPreViewActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pic_pre_view);
         gv_preview =(GridView) findViewById(R.id.gv_preview);
+        gv_preview_add =(GridView) findViewById(R.id.gv_preview_add);
+        tv_no_data = (TextView) findViewById(R.id.tv_no_data);
         ll_back = (LinearLayout) findViewById(R.id.ll_back);
         ll_back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,14 +85,34 @@ public class PicPreViewActivity extends BaseActivity {
             }
         });
         tv_head_left = (TextView)findViewById(R.id.tv_head_left);
-        tv_head_left.setText(getString(R.string.palte_simplename));
         scancount_txt = (TextView)findViewById(R.id.scancount_txt);
-        scancount_txt.setText(getString(R.string.PhotoGallery));
+        scancount_txt.setText(getString(R.string.gallery));
+        require_type = getIntent().getIntExtra("TYPE",0);
+        Log.e(TAG, "onCreate: require_type>>>"+require_type );
         getScreenWidth();
+        getFilePath();
         getPicFile();
-        if (files!=null&&files.length>0){
-             gridViewAdapter = new GridViewAdapter();
-            gv_preview.setAdapter(gridViewAdapter);
+        if (require_type==0){
+            tv_head_left.setText(getString(R.string.PhotoGallery));
+            if (files!=null&&files.length>0){
+                gridViewAdapter = new GridViewAdapter();
+                gv_preview.setAdapter(gridViewAdapter);
+                tv_no_data.setVisibility(View.GONE);
+                gv_preview_add.setVisibility(View.GONE);
+            }
+        }else if (require_type==1){
+            if (files!=null&&files.length>0){
+                gridViewAdapter = new GridViewAdapter();
+                gv_preview.setAdapter(gridViewAdapter);
+                tv_no_data.setVisibility(View.GONE);
+                gv_preview_add.setVisibility(View.GONE);
+            }
+            gv_preview_add.setVisibility(View.VISIBLE);
+            tv_head_left.setText(getString(R.string.back));
+            if (files_add!=null&&files_add.length>0){
+                gridViewAdapterAdd = new GridViewAdapterAdd();
+                gv_preview_add.setAdapter(gridViewAdapterAdd);
+            }
         }
         gv_preview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -83,21 +122,59 @@ public class PicPreViewActivity extends BaseActivity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (gridViewAdapter!=null){
+            getFilePath();
+            getPicFile();
+            gridViewAdapter.notifyDataSetChanged();
+        }
+    }
+
     private void getScreenWidth() {
         DisplayMetrics metrics = getResources().getDisplayMetrics();
-       float density =  metrics.density;
-       width = metrics.widthPixels;
-        imageWidth = (width-dp2px(PicPreViewActivity.this,5*2+2))/2;
+        float density =  metrics.density;
+        width = metrics.widthPixels;
+//        imageWidth = (width-dp2px(PicPreViewActivity.this,5*2+2))/4;
+        imageWidth = (metrics.widthPixels- TimonLibary.dp2px(this,2))/3;
     }
 
     private void getPicFile() {
-        File f= new File(Environment.getExternalStorageDirectory()+"/LEDILOVE/pic/");
+//        File f= new File(Environment.getExternalStorageDirectory()+"/LEDILOVE/bit/");
+        File f= new File(filepath);
         if (!f.exists()) {//判断路径是否存在
             return ;
         }
         files = f.listFiles();
+        if (require_type==1){
+            File file = new File(filepath_bit);
+            if (!file.exists()){
+                return;
+            }
+            files_add = file.listFiles();
+        }
+//        if (filePaths!=null){
+//            filePaths.clear();
+//        }
+//        for (int i =0;i<files.length;i++){
+//            filePaths.add(files[i].getAbsolutePath());
+//        }
+//        if (require_type==1){
+//            File f_bit= new File(filepath_bit);
+//            if (!f_bit.exists()) {//判断路径是否存在
+//                return ;
+//            }
+//            files = f_bit.listFiles();
+//            for (int j =0;j<files.length;j++){
+//                filePaths.add(files[j].getAbsolutePath());
+//            }
+//        }
     }
-
+    private void getFilePath(){
+        filepath =Environment.getExternalStorageDirectory()+"/LEDILOVE/pic/"+ StaticDatas.LEDHight+""+StaticDatas.LEDWidth+"/";
+        filepath_bit =Environment.getExternalStorageDirectory()+"/LEDILOVE/bit/"+ StaticDatas.LEDHight+""+StaticDatas.LEDWidth+"/";
+    }
     class GridViewAdapter extends BaseAdapter{
 
         @Override
@@ -126,65 +203,108 @@ public class PicPreViewActivity extends BaseActivity {
                 view = View.inflate(PicPreViewActivity.this,R.layout.item_grildeview,null);
                 viewHolder = new viewHolder();
                 viewHolder.iv_pic = (ImageView) view.findViewById(R.id.iv_pic);
-                viewHolder.blur_layout = (BlurLayout) view.findViewById(R.id.blur_layout);
+                viewHolder.iv_grid_function = (ImageView) view.findViewById(R.id.iv_grid_function);
                 view.setTag(viewHolder);
             }
             viewHolder.iv_pic.setMinimumWidth(imageWidth);
-            viewHolder.iv_pic.setMinimumHeight(imageWidth);
+            if (StaticDatas.LEDHight==40){
+                viewHolder.iv_pic.setMinimumHeight((int) (imageWidth*0.83));
+            }else {
+                viewHolder.iv_pic.setMinimumHeight(imageWidth);
+            }
             viewHolder.iv_pic.setImageURI(Uri.fromFile(files[i]));
-            View hover = LayoutInflater.from(PicPreViewActivity.this).inflate(R.layout.hover_sample, null);
-            hover.findViewById(R.id.edit).setOnClickListener(new View.OnClickListener() {
+            viewHolder.iv_grid_function.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
-                    YoYo.with(Techniques.Tada)
-                            .duration(450)
-                            .playOn(v);
+                public void onClick(View view) {
+//                    files[i].delete();
+                   files[i].delete();
+                    refresh(0);
+                }
+            });
+            viewHolder.iv_pic.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
                     setActivityResult(files[i].getAbsolutePath());
                 }
             });
-            hover.findViewById(R.id.share).setOnClickListener(new View.OnClickListener() {
+            return view;
+        }
+    }
+    class GridViewAdapterAdd extends BaseAdapter{
+
+        @Override
+        public int getCount() {
+            return files_add.length;
+        }
+
+        @Override
+        public Object getItem(int i) {
+            return files_add[i];
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return i;
+        }
+
+        @Override
+        public View getView(final int i, View convertView, ViewGroup viewGroup) {
+            View view;
+            viewHolder viewHolder;
+            if (convertView!=null){
+                view=convertView;
+                viewHolder= (PicPreViewActivity.viewHolder) view.getTag();
+            }else {
+                view = View.inflate(PicPreViewActivity.this,R.layout.item_grildeview_add,null);
+                viewHolder = new viewHolder();
+                viewHolder.iv_pic = (ImageView) view.findViewById(R.id.iv_pic);
+                viewHolder.iv_grid_function = (ImageView) view.findViewById(R.id.iv_grid_function);
+                view.setTag(viewHolder);
+            }
+            viewHolder.iv_pic.setMinimumWidth(imageWidth);
+            if (StaticDatas.LEDHight==40){
+                viewHolder.iv_pic.setMinimumHeight((int) (imageWidth*0.83));
+            }else {
+                viewHolder.iv_pic.setMinimumHeight(imageWidth);
+            }
+            viewHolder.iv_pic.setImageURI(Uri.fromFile(files_add[i]));
+            viewHolder.iv_grid_function.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
-                    YoYo.with(Techniques.Swing)
-                            .duration(450)
-                            .playOn(v);
+                public void onClick(View view) {
+//                    files[i].delete();
+                   files_add[i].delete();
+                    refresh(1);
                 }
             });
-            hover.findViewById(R.id.delete).setOnClickListener(new View.OnClickListener() {
+            viewHolder.iv_pic.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
-                    YoYo.with(Techniques.Swing)
-                            .duration(450)
-                            .playOn(v);
-                    files[i].delete();
-
-                    refresh();
+                public void onClick(View view) {
+                    setActivityResult(files_add[i].getAbsolutePath());
                 }
             });
-            viewHolder.blur_layout.setHoverView(hover);
-            viewHolder.blur_layout.setBlurDuration(550);
-            viewHolder.blur_layout.addChildAppearAnimator(hover, R.id.edit, Techniques.FlipInX, 450, 0);
-            viewHolder.blur_layout.addChildAppearAnimator(hover, R.id.share, Techniques.FlipInX, 450, 250);
-            viewHolder.blur_layout.addChildAppearAnimator(hover, R.id.delete, Techniques.FlipInX, 450, 500);
-
-            viewHolder.blur_layout.addChildDisappearAnimator(hover, R.id.edit, Techniques.FlipOutX, 450, 500);
-            viewHolder.blur_layout.addChildDisappearAnimator(hover, R.id.share, Techniques.FlipOutX, 450, 250);
-            viewHolder.blur_layout.addChildDisappearAnimator(hover, R.id.delete, Techniques.FlipOutX, 450, 0);
-
-            viewHolder.blur_layout.addChildAppearAnimator(hover, R.id.description, Techniques.FadeInUp);
-            viewHolder.blur_layout.addChildDisappearAnimator(hover, R.id.description, Techniques.FadeOutDown);
             return view;
         }
     }
 
-    private void refresh() {
+    private void refresh(int type) {
+//        getFilePath();
         getPicFile();
-        gridViewAdapter.notifyDataSetChanged();
+        switch (type){
+            case 0:
+                gridViewAdapter.notifyDataSetChanged();
+                break;
+            case 1:
+                gridViewAdapterAdd.notifyDataSetChanged();
+                break;
+        }
+
     }
 
     class viewHolder{
         com.daimajia.androidviewhover.BlurLayout blur_layout;
         ImageView iv_pic;
+        ImageView iv_grid_function;
+
     }
     /**
      * dp转换成px

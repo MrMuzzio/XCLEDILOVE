@@ -4,12 +4,55 @@
     <string-array name="wordSize">
         <item>12</item>
         <item>16</item>
+        <!--<item>11</item>-->
+    </string-array>
+    <string-array name="asciiWordSize">
+        <item>5</item>
+        <item>7</item>
+        <item>10</item>
+        <item>12</item>
+        <item>16</item>
+        <item>24</item>
+        <item>32</item>
     </string-array>
 
+    <string-array name="ScreenSize">
+        <item>12xN</item>
+        <item>16xN</item>
+        <item>32x32</item>
+        <item>40x48</item>
+    </string-array>
     <string-array name="wordType">
-        <item>Normall</item>
+        <item>Normal</item>
         <item>Italic</item>
         <item>Bold</item>
+    </string-array>
+    <string-array name="Typeface_full">
+        <item>Arial</item>
+        <item>New Roman</item>
+        <item>Verdana</item>
+        <item>Song</item>
+        <item>YaHei</item>
+        <item>Carcass</item>
+    </string-array>
+    <string-array name="Typeface">
+        <item>Arial</item>
+        <item>New Roman</item>
+        <item>Verdana</item>
+        <item>Song</item>
+        <item>YaHei</item>
+    </string-array>
+    <string-array name="wordspecial">
+        <item>null</item>
+        <item>Lens image</item>
+        <item>Rotate 90°</item>
+        <item>Rotate 180°</item>
+        <item>Rotate 270°</item>
+    </string-array>
+
+    <string-array name="alignments">
+        <item>upleft</item>
+        <item>center</item>
     </string-array>
 
     <string-array name="speed">
@@ -62,11 +105,11 @@
     </string-array>
 
     <string-array name="other_message">
-        <!--<item>Get the power of the device</item>-->
-        <item>Cool Animation</item>
-        <item>Sync music</item>
-        <item>Painted Palette</item>
-        <item>Check for updates</item>
+        <!--<item>Set Data And Time Color</item>-->
+        <!--<item>Control</item>-->
+        <item>Rename Device</item>
+        <item>Send List</item>
+        <item>Check For Updates</item>
         <item>About APP</item>
         <item>Help</item>
     </string-array>

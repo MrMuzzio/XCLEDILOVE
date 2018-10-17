@@ -6,67 +6,84 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="#64c4f6">
+        android:layout_height="50dp"
+        android:background="@color/head_bg_new">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            >
+            android:layout_height="match_parent">
+
             <LinearLayout
+                android:id="@+id/ll_connect_state"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:id="@+id/ll_connect_state">
+                android:layout_height="match_parent">
 
                 <ImageView
-                    android:layout_gravity="center"
                     android:id="@+id/iv_connect_state"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:src="@mipmap/ic_buletooth" />
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="4dp"
+                    android:src="@mipmap/ic_bluetooth_white_48dp" />
+
                 <TextView
                     android:id="@+id/tv_device_name"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_centerVertical="true"
                     android:gravity="center"
+                    android:text="@string/connectstate"
                     android:textColor="@color/white"
-                    android:text="@string/connectstate"/>
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <Switch
                 android:id="@+id/switchTrack"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
                 android:textOff="  "
                 android:textOn="  "
-                android:layout_centerInParent="true"
                 android:thumb="@drawable/thumb"
                 android:track="@drawable/track" />
+
             <ImageView
                 android:id="@+id/iv_more"
-                android:src="@mipmap/ic_setting_48px"
-                android:layout_alignParentRight="true"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="@string/set"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:layout_marginRight="10dp"
+                android:layout_marginRight="6dp"
                 android:gravity="center"
+                android:src="@mipmap/ic_settings_white_48dp"
+                android:text="@string/set"
                 android:textColor="@color/white" />
+
             <TextView
-                android:visibility="gone"
                 android:id="@+id/tv_set"
-                android:layout_alignParentRight="true"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="@string/set"
+                android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:layout_marginRight="15dp"
                 android:gravity="center"
-                android:textColor="@color/white" />
+                android:text="@string/set"
+                android:textColor="@color/white"
+                android:visibility="gone" />
 
+            <TextView
+                android:id="@+id/tv_battery_detail_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:layout_toLeftOf="@id/iv_more"
+                android:background="@mipmap/ic_battery_90_white_48dp"
+                android:gravity="center"
+                android:text="89%"
+                android:textColor="@color/white"
+                android:visibility="gone" />
         </RelativeLayout>
 
     </LinearLayout>

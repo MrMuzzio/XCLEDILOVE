@@ -4,7 +4,7 @@
     <style name="MyAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="colorPrimaryDark">#64c4f6</item>
+        <item name="colorPrimaryDark">@color/head_bg_new</item>
         <item name="android:windowIsTranslucent">true</item>
     </style>
 

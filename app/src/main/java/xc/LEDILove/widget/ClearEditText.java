@@ -39,17 +39,19 @@ public class ClearEditText extends android.support.v7.widget.AppCompatEditText i
 	@Override
 	public boolean onTextContextMenuItem(int id) {
 		ClipboardManager clip2 = (ClipboardManager)getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-		switch (id) {
-			case android.R.id.cut:
-				Log.e("cut",clip2.getText().toString());
-				cutAndPastCallback.onCut(clip2.getText().toString());
-				break;
-			case android.R.id.copy:
-				break;
-			case android.R.id.paste:
-				Log.e("paste",clip2.getText().toString());
-				cutAndPastCallback.onPast(clip2.getText().toString());
-				break;
+		if (clip2!=null){
+			switch (id) {
+				case android.R.id.cut:
+					Log.e("cut",clip2.getText().toString());
+					cutAndPastCallback.onCut(clip2.getText().toString());
+					break;
+				case android.R.id.copy:
+					break;
+				case android.R.id.paste:
+					Log.e("paste",clip2.getText().toString());
+					cutAndPastCallback.onPast(clip2.getText().toString());
+					break;
+			}
 		}
 		return super.onTextContextMenuItem(id);
 	}

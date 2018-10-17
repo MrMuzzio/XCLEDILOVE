@@ -116,4 +116,36 @@ public class Helpful {
 		
 		return true;
 	}
+	//截取boolean 数组
+	public static boolean[][] subBooleanArray(boolean[][] booleans,int start,int end){
+		boolean[][] result= new boolean[booleans.length][end-start];
+		for (int i =0;i<result[0].length;i++){
+			for (int j=0;j<result.length;j++){
+				if ((start+i)<booleans[0].length){
+					result[j][i] = booleans[j][start+i];
+				}
+			}
+		}
+		return result;
+	}
+	//拼接boolean 数组 b拼到a 后面
+	public static boolean[][] catBooleanArray(boolean[][] a,boolean[][] b){
+//		if (a.length!=b.length){
+//			return  null;
+//		}
+		boolean[][] result= new boolean[a.length][a[0].length+b[0].length];
+		for (int i =0;i<result[0].length;i++){
+			for (int j=0;j<result.length;j++){
+				if (i<a[0].length){
+					result[j][i] = a[j][i];
+				}else {
+					if ((i-a[0].length)<b[0].length){
+						result[j][i]=b[j][i-a[0].length];
+					}
+				}
+			}
+		}
+		return result;
+	}
+
 }

@@ -7,58 +7,67 @@
 
     <!-- TODO: Update blank fragment layout -->
     <LinearLayout
+        android:id="@+id/ll_main_diy_popupwindow_color"
         android:layout_width="match_parent"
-        android:id="@+id/ll_preview"
-        android:layout_marginLeft="0dp"
-        android:orientation="horizontal"
-        android:layout_height="0dp"
-        android:minHeight="15dp"
-        android:layout_weight="1">
-        <TextView
-            android:gravity="center_vertical"
-            android:layout_width="0dp"
-            android:layout_weight="2"
-            android:layout_height="30dp"
-            android:textSize="12sp"
-            android:text="@string/preview"/>
-        <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="10dp"
-            android:gravity="center_vertical"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="2dp"
-            android:layout_weight="8">
-            <Button
-                android:id="@+id/btn_auto_shift"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-
-                android:textSize="14sp"
-                android:background="@drawable/selector_auto_manual_button"
-                android:text="@string/shift_auto"
-                android:textAllCaps="false"
-                />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:id="@+id/ll_preview"
+            android:layout_marginLeft="0dp"
+            android:orientation="horizontal"
+            android:layout_height="0dp"
+            android:minHeight="15dp"
+            android:layout_weight="1">
             <TextView
-                android:gravity="center_vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:gravity="center|left"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:textColor="@color/black"
+                android:layout_height="30dp"
                 android:textSize="12sp"
-                android:layout_toLeftOf="@id/btn_auto_shift"
-                android:paddingRight="5dp"
-                android:text="@string/color_model"/>
-            <TextView
-                android:id="@+id/tv_preview"
-                android:layout_width="wrap_content"
-                android:layout_height="25dp"
-                android:background="@color/black"
-                android:text="LED"
-                android:gravity="center"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp"
-                android:textColor="@color/red" />
-        </RelativeLayout>
+                android:text="@string/preview"/>
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="5dp"
+                android:gravity="center_vertical"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp"
+                android:layout_weight="4">
+                <Button
+                    android:id="@+id/btn_auto_shift"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:gravity="right|center_vertical"
+                    android:textSize="12sp"
+                    android:background="@drawable/selector_auto_manual_button"
+                    android:text="@string/shift_auto"
+                    android:textAllCaps="false"
+                    />
+                <TextView
+                    android:gravity="center_vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textSize="12sp"
+                    android:textColor="@color/black"
+                    android:layout_toLeftOf="@id/btn_auto_shift"
+                    android:paddingRight="5dp"
+                    android:text="@string/color_model"/>
+                <TextView
+                    android:id="@+id/tv_preview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:background="@color/black"
+                    android:text="LED"
+                    android:gravity="center"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    android:layout_marginBottom="2dp"
+                    android:layout_marginTop="2dp"
+                    android:textColor="@color/red" />
+            </RelativeLayout>
 
             <RadioGroup
                 android:visibility="gone"
@@ -80,156 +89,210 @@
                     android:text="@string/color_manual"
                     android:layout_height="match_parent" />
             </RadioGroup>
-    </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
+            android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"
-        android:layout_marginLeft="0dp"
-        android:layout_marginRight="0dp"
-        android:orientation="horizontal">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="30dp"
+                android:layout_gravity="left"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:textColor="@color/black"
+                android:text="@string/color_font"
+                android:textSize="13sp" />
 
+            <RadioGroup
+                android:id="@+id/rg_edit_dialog_font_color"
+                android:layout_width="0dp"
+                android:layout_height="30dp"
+                android:layout_marginLeft="5dp"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="4"
+                android:orientation="horizontal">
 
-        <TextView
-            android:gravity="center_vertical"
-            android:layout_width="0dp"
-            android:layout_height="30dp"
-            android:textSize="12sp"
-            android:textColor="@color/red"
-            android:layout_weight="2"
-            android:text="@string/color_font"/>
-        <ImageView
-            android:layout_marginLeft="10dp"
-            android:id="@+id/iv_font_black"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+                <RadioButton
+                    android:id="@+id/gb_edit_dialog_font_black"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:drawableStart="@drawable/selector_pattle_color_black" />
 
-            android:layout_height="30dp"
-            android:background="@color/black" />
-        <ImageView
-            android:id="@+id/iv_font_red"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="30dp"
-            android:background="@color/red" />
+                <RadioButton
+                    android:id="@+id/gb_edit_dialog_font_red"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:button="@null"
 
-        <ImageView
-            android:id="@+id/iv_font_yellow"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="30dp"
-            android:background="@color/yellow" />
+                    android:drawableStart="@drawable/selector_pattle_color_red" />
 
-        <ImageView
-            android:id="@+id/iv_font_green"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="30dp"
-            android:background="@color/dark_green" />
+                <RadioButton
+                    android:id="@+id/gb_edit_dialog_font_yellow"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:drawableStart="@drawable/selector_pattle_color_yellow" />
 
-        <ImageView
-            android:id="@+id/iv_font_cyan"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="30dp"
-            android:background="@color/cyan" />
+                <RadioButton
+                    android:id="@+id/gb_edit_dialog_font_green"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:drawableStart="@drawable/selector_pattle_color_green" />
 
-        <ImageView
-            android:id="@+id/iv_font_blove"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="30dp"
-            android:background="@color/blove" />
+                <RadioButton
+                    android:id="@+id/gb_edit_dialog_font_cyan"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:drawableStart="@drawable/selector_pattle_color_cyan" />
 
-        <ImageView
-            android:id="@+id/iv_font_purple"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="30dp"
-            android:background="@color/purple" />
+                <RadioButton
+                    android:id="@+id/gb_edit_dialog_font_blue"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:drawableStart="@drawable/selector_pattle_color_blue" />
 
-        <ImageView
-            android:id="@+id/iv_font_white"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="30dp"
-            android:background="@color/white" />
+                <RadioButton
+                    android:id="@+id/gb_edit_dialog_font_purple"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:drawableStart="@drawable/selector_pattle_color_purple" />
 
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"
-        android:layout_marginLeft="0dp"
-        android:layout_marginRight="0dp"
-        android:orientation="horizontal"
-        android:id="@+id/ll_background_color">
+                <RadioButton
+                    android:id="@+id/gb_edit_dialog_font_white"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:drawableStart="@drawable/selector_pattle_color_white" />
 
+            </RadioGroup>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
+            android:orientation="horizontal">
 
-        <TextView
-            android:gravity="center_vertical"
-            android:layout_width="0dp"
-            android:layout_weight="2"
-            android:layout_height="30dp"
-            android:textSize="12sp"
-            android:textColor="@color/red"
-            android:text="@string/color_back"/>
-        <ImageView
-            android:layout_marginLeft="10dp"
-            android:id="@+id/iv_backdrop_black"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="30dp"
-            android:background="@color/black" />
-        <ImageView
-            android:id="@+id/iv_backdrop_red"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="30dp"
-            android:background="@color/red" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="30dp"
+                android:layout_gravity="left"
+                android:layout_weight="1"
+                android:textColor="@color/black"
+                android:gravity="center_vertical"
+                android:text="@string/color_back"
+                android:textSize="13sp" />
 
-        <ImageView
-            android:id="@+id/iv_backdrop_yellow"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="30dp"
-            android:background="@color/yellow" />
+            <RadioGroup
+                android:id="@+id/rg_edit_dialog_bg_color"
+                android:layout_width="0dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="5dp"
+                android:layout_weight="4"
+                android:orientation="horizontal">
 
-        <ImageView
-            android:id="@+id/iv_backdrop_green"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="30dp"
-            android:background="@color/dark_green" />
+                <RadioButton
+                    android:id="@+id/rb_edit_dialog_bg_black"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:drawableStart="@drawable/selector_pattle_color_black" />
 
-        <ImageView
-            android:id="@+id/iv_backdrop_cyan"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="30dp"
-            android:background="@color/cyan" />
+                <RadioButton
+                    android:id="@+id/rb_edit_dialog_bg_red"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:button="@null"
 
-        <ImageView
-            android:id="@+id/iv_backdrop_blove"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="30dp"
-            android:background="@color/blove" />
+                    android:drawableStart="@drawable/selector_pattle_color_red" />
 
-        <ImageView
-            android:id="@+id/iv_backdrop_purple"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="30dp"
-            android:background="@color/purple" />
+                <RadioButton
+                    android:id="@+id/rb_edit_dialog_bg_yellow"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:drawableStart="@drawable/selector_pattle_color_yellow" />
 
-        <ImageView
-            android:id="@+id/iv_backdrop_white"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="30dp"
-            android:background="@color/white" />
+                <RadioButton
+                    android:id="@+id/rb_edit_dialog_bg_green"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:drawableStart="@drawable/selector_pattle_color_green" />
 
+                <RadioButton
+                    android:id="@+id/rb_edit_dialog_bg_cyan"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:drawableStart="@drawable/selector_pattle_color_cyan" />
+
+                <RadioButton
+                    android:id="@+id/rb_edit_dialog_bg_blue"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:drawableStart="@drawable/selector_pattle_color_blue" />
+
+                <RadioButton
+                    android:id="@+id/rb_edit_dialog_bg_purple"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:drawableStart="@drawable/selector_pattle_color_purple" />
+
+                <RadioButton
+                    android:id="@+id/rb_edit_dialog_bg_white"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:drawableStart="@drawable/selector_pattle_color_white" />
+
+            </RadioGroup>
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

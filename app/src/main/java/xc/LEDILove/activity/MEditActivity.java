@@ -98,8 +98,9 @@ import xc.LEDILove.utils.LangUtils;
 import xc.LEDILove.utils.SPUtils;
 import xc.LEDILove.utils.TimonLibary;
 import xc.LEDILove.widget.ClearEditText;
+import xc.LEDILove.widget.HintDialog;
 import xc.LEDILove.widget.LedView;
-
+import xc.LEDILove.widget.LoadingDialog;
 
 
 /***
@@ -160,7 +161,8 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
 
     //region 变量
     // 连接线程
-    private ProgressDialog pd;
+    private LoadingDialog pd;
+    private HintDialog hintDialog;
     //发送的数据大小
     private int hasSendData = 0;
     //发送的序号头00 01  02
@@ -328,11 +330,19 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
             }
             refreshViewPager();
         }
+        if (serviceBinder!=null&&serviceBinder.getConnectedStatus()){
+            if (mStaticDatas.LEDHight==12){
+                setWordSize(12+"");
+            }else {
+                setWordSize(16+"");
+            }
+        }
     }
     /**
      * 刷新ViewPager
      * */
     private void refreshViewPager() {
+
         fragments.clear();
         fragments.add(fontSelectFragment);
         if (isSupportMarFullColor){
@@ -345,25 +355,43 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
         rg_font_color_select.check(R.id.rb_font);
         setEditTextFilter(selectedParams.wordSize);
         setTextSpan(clearEditText.getText().toString());
-        ledView.setMatrixTextWithColor(isSupportMarFullColor,selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color,textBeanList);
+        selectedParams.wordSize = mStaticDatas.LEDHight;
+        Log.e(TAG, "refreshViewPager: wordsize>>>"+selectedParams.wordSize );
+        ledView.setMatrixTextWithColor(isSupportMarFullColor,wordEffectType,selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color,textBeanList);
         colorSelctParams.setColor_backdrop(defaultBGColor);
         colorSelctParams.setColor_font(defaultFontColor);
+        if (!isSupportMarFullColor){
 
+            textBeanList= getDefultTextBeanList(clearEditText.getText().toString());
+        }
+        setTextSpan(clearEditText.getText().toString());
     }
 
     private boolean isStartFirst = true;
     private boolean isNeedShowDialog = true;
-    private void connectLastDevice() {
+    private synchronized void connectLastDevice() {
         if (serviceBinder.getConnectedStatus()){
             return;
         }
         if (!needAutoConnected){
             return;
         }
-        connected_MAC = (String) SPUtils.get(this,"MAC","");
-        connected_name = (String) SPUtils.get(this,"NAME","");
-        if (connected_MAC!=null&&connected_name!=null&!connected_MAC.equals("")){
+        String mac = (String) SPUtils.get(this,SPUtils.DEVICE,"MAC","");
+        String name  = (String) SPUtils.get(this,SPUtils.DEVICE,"NAME","");
+        Log.e(TAG, "connectLastDevice: >"+mac+" "+ name );
+        if (mac.equals("")){
+            return;
+        }
+        if (name.equals("")){
+            return;
+        }
+        connected_MAC = mac;
+        connected_name = name;
+//        connected_MAC = (String) SPUtils.get(this,"MAC","");
+//        connected_name = (String) SPUtils.get(this,"NAME","");
+        if (connected_MAC!=null&&connected_name!=null&&!connected_MAC.equals("")&&!connected_name.equals("")){
 //            serviceBinder.connected(connected_MAC,connected_name);
+
             isNeedShowDialog = false;
             connectDevice();
         }
@@ -409,13 +437,7 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
         mcall.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(),"fail",Toast.LENGTH_SHORT);
-                    }
-                });
-                Log.i("onFailure", e.getMessage().toString());
+
             }
 
             @Override
@@ -425,7 +447,7 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
                     Log.i("onResponse", "cache---" + str);
                 } else {
                     String jsonData = response.body().string();
-                    int code =  versionUpdate.parseJson(jsonData);
+                    int code =  versionUpdate.parseJsonForCode(jsonData);
                     if (code==-1){
                         return;
                     }
@@ -433,10 +455,11 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
                     Log.i("onResponse", "network---" + str);
                     //服务器版本大于已安装版本
                     if (code>versionUpdate.getVersionCode(getApplicationContext())){
+                        vername = versionUpdate.parseJsonForName(jsonData);
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                showResultDialog(getString(R.string.app_update),true);
+                                showResultDialog(getString(R.string.app_update)+"\n"+"version:"+vername,true);
                             }
                         });
                     }else {
@@ -455,7 +478,8 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     if (isUpdate){
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.app_download)));
+//                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.app_download)));
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.app_download)+vername+".apk"));
                         startActivity(intent);
                         Log.e("result","更新");
                     }else {
@@ -521,20 +545,23 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
     @Override
     protected void onRestart() {
         super.onRestart();
-        Log.e(TAG, "onResume: ");
+
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        refreshViewByColorModel();
-        Log.e(TAG, "onResume: ");
+        if (serviceBinder!=null&&serviceBinder.getConnectedStatus()){
+            refreshViewByColorModel();
+        }
+        Log.e(TAG, "onRestart: ");
         if (serviceBinder!=null&&serviceListener!=null){
             serviceBinder.setServiceListener(serviceListener);
             if(serviceBinder.getConnectedStatus()){
 //                isConnectIntime = true;
                 switch_state_iscontrolauto=true;
+                connected_name =serviceBinder.getConnectedMacName();
 //                    mConnected = true;
                 MEHandler.post(new Runnable() {
 
@@ -544,7 +571,7 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
 //                        switch_state_iscontrolauto = true;
                         aSwitch.setChecked(true);
                         aSwitch.setVisibility(View.VISIBLE);
-                        connected_name =serviceBinder.getConnectedMacName();
+
                         Log.e(TAG,"connected_name>>>>"+connected_name);
                         tv_device_name.setText(getTenChar(connected_name));
                     }
@@ -555,7 +582,6 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
                     @Override
                     public void run() {
 //                    CommonUtils.toast(getResources().getString(R.string.connectionCasBeenDisconnected));
-//                        mConnected = false;
                         aSwitch.setVisibility(View.GONE);
                         hasSendData=0;
                         sendcmd=null;
@@ -584,29 +610,38 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
 
     @Override
     protected void onPause() {
-        serviceBinder.removeServiceListener();
-        MEHandler.removeMessages(CONNECT_AUTO);
+        if (serviceBinder!=null){
+            serviceBinder.removeServiceListener();
+            MEHandler.removeMessages(CONNECT_AUTO);
+        }
         super.onPause();
     }
-
+    private long time_backPress=0;
     @Override
     protected void onStop() {
         super.onStop();
     }
 //    @Override
-//    public void onBackPressed() {
-////        if (isInMain){
-////            Intent intent= new Intent(Intent.ACTION_MAIN);
-////            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-////            intent.addCategory(Intent.CATEGORY_HOME);
-////            startActivity(intent);
-////        }else {
-////            llContent.setVisibility(View.GONE);
-////            scrollView.setVisibility(View.VISIBLE);
-////            include.setVisibility(View.VISIBLE);
-////            isInMain = true;
-////        }
-//    }
+    public void onBackPressed() {
+//        if (isInMain){
+//            Intent intent= new Intent(Intent.ACTION_MAIN);
+//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            intent.addCategory(Intent.CATEGORY_HOME);
+//            startActivity(intent);
+//        }else {
+//            llContent.setVisibility(View.GONE);
+//            scrollView.setVisibility(View.VISIBLE);
+//            include.setVisibility(View.VISIBLE);
+//            isInMain = true;
+//        }
+        long inedx = System.currentTimeMillis();
+        if (inedx-time_backPress<2000){
+            finish();
+        }else {
+            Toast.makeText(this,getString(R.string.toast_exit_app),Toast.LENGTH_SHORT).show();
+            time_backPress=inedx;
+        }
+    }
 
     @Override
     protected void onDestroy() {
@@ -620,8 +655,9 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
         super.onDestroy();
     }
     private void saveDevice(){
-        SPUtils.put(this,"MAC",connected_MAC);
-        SPUtils.put(this,"NAME",connected_name);
+        Log.e(TAG, "saveDevice: ");
+        SPUtils.put(this,SPUtils.DEVICE,"MAC",connected_MAC);
+        SPUtils.put(this,SPUtils.DEVICE,"NAME",connected_name);
     }
     private boolean only_connect = true;
     private boolean select_return_first = false;
@@ -631,11 +667,12 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         sendCmdType = CommandHelper.dataType_data;
-        needAutoConnected =true;
+
         if (requestCode ==1004&&resultCode == RESULT_OK) {
             if (data.getExtras().getString("MAC").equals("")){
 
             }else {
+                needAutoConnected =false;
                 isNeedShowDialog = true;
                 connected_MAC = data.getExtras().getString("MAC");
                 connected_name = data.getExtras().getString("NAME");
@@ -643,6 +680,10 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
 
             }
         }else {
+            connected_MAC="";
+            connected_name="";
+            saveDevice();
+            needAutoConnected =true;
             select_return_first = true;
             MEHandler.sendEmptyMessageDelayed(CONNECT_AUTO,5000);
         }
@@ -771,35 +812,22 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
 
     /***
      * 显示对话框
-     * @param erroMsg
+     * @param message
      */
-    private void showYCDialog(final String erroMsg) {
-        if (!isFinishing()) {
-            runOnUiThread(new Runnable() {
+    private void showYCDialog(final String message) {
+        if (hintDialog==null){
+            hintDialog = new HintDialog(MEditActivity.this, new HintDialog.OnSureListener() {
                 @Override
-                public void run() {
-                    new AlertDialog.Builder(MEditActivity.this)
-                            .setTitle(getString(R.string.hint))
-                            .setMessage(erroMsg)
-                            .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-
-                                }
-                            })
-                            //提示按钮
-//                            .setNegativeButton(getResources().getString(R.string.help), new DialogInterface.OnClickListener() {
-//                                @Override
-//                                public void onClick(DialogInterface dialogInterface, int i) {
-//                                    Intent mIntent = new Intent();
-//                                    mIntent.setClass(MEditActivity.this,HelpActivity.class);
-//                                    startActivity(mIntent);
-//                                }
-//                            })
-                            .create().show();
+                public void onSure() {
+                    hintDialog.dismiss();
                 }
             });
-
+            hintDialog.setCancelable(true);
+            hintDialog.show();
+            hintDialog.setMessage(message);
+        }else {
+            hintDialog.setMessage(message);
+            hintDialog.show();
         }
     }
 
@@ -816,6 +844,8 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
     private int defaultFontColor = 1;
     private int defaultBGColor =0;
     private boolean needAutoConnected = true;
+    private boolean isLensImage = false;
+    private int wordEffectType = 0;
     /***
      * 初始化
      */
@@ -866,17 +896,9 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
         fontCallback = new FontSelectFragment.FontCallback() {
             @Override
             public void onWordSizeChange(String size) {
+                setWordSize(size);
                 Log.e(TAG, "onWordSizeChange:"+size );
-                selectedParams.wordSize = Integer.parseInt(size);
-                if (!TextUtils.isEmpty(selectedParams.str)) {
-                    //重新设置EditText 字符控制
-                    setEditTextFilter(selectedParams.wordSize);
-                    if (fontSelectFragment!=null){
-                        fontSelectFragment.setCharCount(textBeanList.size() + "/"+MAX_COUNT);
-                        Log.e(TAG, "onTextChanged: "+MAX_COUNT);
-                    }
-                    ledView.setMatrixText(selectedParams.str, selectedParams.wordSize, selectedParams.wordType,textBeanList);
-                }
+
             }
 
             @Override
@@ -886,6 +908,30 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
 
                     ledView.setMatrixText(selectedParams.str, selectedParams.wordSize, selectedParams.wordType,textBeanList);
                 }
+            }
+
+            @Override
+            public void onFontEffectChange(String effect) {
+                wordEffectType = Integer.parseInt(effect);
+//                switch (Integer.parseInt(effect)){
+//                    case 0:
+//                        break;
+//                    case 1:
+//                        break;
+//                    case 2:
+//                        break;
+//                    case 3:
+//                        break;
+//                    case 4:
+//                        break;
+//                }
+//                if (Integer.parseInt(effect)==1){
+//                    isLensImage = true;
+//                    //刷新页面
+//                }else {
+//                    isLensImage=false;
+//                }
+                handler.postDelayed(delayRun, 100);
             }
 
             @Override
@@ -985,7 +1031,6 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
         recyclerViewBrightness = (RecyclerView) findViewById(R.id.recyclerview_brightness);
         recyclerViewBrightness.setLayoutManager(new GridLayoutManager(this, 4));
         recyclerViewBrightness.setItemAnimator(new DefaultItemAnimator());
-
         //序号
         numberRecyclerAdapter = new BrightAndModelRecyclerAdapter(this, new BrightAndModelRecyclerAdapter.MyCollectionRecordListener() {
             @Override
@@ -998,9 +1043,15 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
                     selectedParams.color = umsResultBean.color;
                     selectedParams.model = umsResultBean.type;
                     textBeanList = umsResultBean.beanList;
-                    if (isAutoColor){
-                        setTextAutoColor(umsResultBean.body);
+                    if (isSupportMarFullColor){
+
+                        if (isAutoColor){
+                            setTextAutoColor(umsResultBean.body);
+                        }else {
+                            setTextSpan(umsResultBean.body);
+                        }
                     }else {
+                        textBeanList = getDefultTextBeanList(umsResultBean.body);
                         setTextSpan(umsResultBean.body);
                     }
                     modelRecyclerAdapter.setSelected(Integer.parseInt(umsResultBean.type) - 1);
@@ -1184,6 +1235,20 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
 
     }
 
+    private void setWordSize(String size) {
+        selectedParams.wordSize = Integer.parseInt(size);
+        if (!TextUtils.isEmpty(selectedParams.str)) {
+            //重新设置EditText 字符控制
+            setEditTextFilter(selectedParams.wordSize);
+            if (fontSelectFragment!=null){
+                fontSelectFragment.setCharCount(textBeanList.size() + "/"+MAX_COUNT);
+                Log.e(TAG, "onTextChanged: "+MAX_COUNT);
+            }
+            Log.e(TAG, "setWordSize: wordsize>>>"+selectedParams.wordSize );
+            ledView.setMatrixText(selectedParams.str, selectedParams.wordSize, selectedParams.wordType,textBeanList);
+        }
+    }
+
     private void pressSend() {
         isNeedSendData = true;
         sendCmdType = CommandHelper.dataType_data;
@@ -1272,10 +1337,22 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
             /**
              * clearEditText 输入框数据初始化
              * */
-            if (textBeanList==null){
-                textBeanList = getDefultTextBeanList(umsResultBeanList.get(0).body);
-                setTextSpan(umsResultBeanList.get(0).body);
+//            if (textBeanList==null){
+//                textBeanList = getDefultTextBeanList(umsResultBeanList.get(0).body);
+//                setTextSpan(umsResultBeanList.get(0).body);
+//            }else {
+//                setTextSpan(umsResultBeanList.get(0).body);
+//            }
+//            00
+            if (isSupportMarFullColor){
+
+                if (isAutoColor){
+                    setTextAutoColor(umsResultBeanList.get(0).body);
+                }else {
+                    setTextSpan(umsResultBeanList.get(0).body);
+                }
             }else {
+                textBeanList = getDefultTextBeanList(umsResultBeanList.get(0).body);
                 setTextSpan(umsResultBeanList.get(0).body);
             }
             /**
@@ -1305,42 +1382,6 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
             umsResultBeanList = umsResultHelper.getUmsReulstList();
         }
 
-    }
-    private void measureGrayPointGap(){
-        // meaure->layout->draw(必须在onCreate执行结束之后才开始绘制),
-        // 所以不能直接在onCreate中获取位置相关信息
-        // 监听layout执行结束事件, 结束之后再去获取位置信息,计算圆点间距
-        // 获取视图树,hierarchyviewer.bat
-        mIvGuideRedPoint.getViewTreeObserver().addOnGlobalLayoutListener(
-                new ViewTreeObserver.OnGlobalLayoutListener() {
-
-                    // layout方法执行结束之后,回调此方法
-                    @Override
-                    public void onGlobalLayout() {
-                        mPointWidth = linLay_guide_pointContainer
-                                .getChildAt(1)
-                                .getLeft() -
-                                linLay_guide_pointContainer
-                                        .getChildAt(0)
-                                        .getLeft();
-                    }
-                });
-    }
-    private void addGrayPoint(int count){
-        //初始化灰色小圆点
-        for (int i=0; i<count; i++){
-            ImageView point = new ImageView(this);
-            point.setBackgroundResource(R.drawable.shape_point_gray);
-            LinearLayout.LayoutParams params =
-                    new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.WRAP_CONTENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT);
-            if (i > 0){
-                params.leftMargin = 100;//设置左边距
-            }
-            point.setLayoutParams(params);
-            linLay_guide_pointContainer.addView(point);
-        }
     }
     private List<TextBean> getDefultTextBeanList(String body) {
         char [] chars = body.toCharArray();
@@ -1400,7 +1441,7 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
         public void run() {
             //
             Log.e("delayRun: ", textBeanList.size()+"");
-            ledView.setMatrixTextWithColor(isSupportMarFullColor,selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color,textBeanList);
+            ledView.setMatrixTextWithColor(isSupportMarFullColor,wordEffectType,selectedParams.str, selectedParams.wordSize, selectedParams.wordType, selectedParams.color,textBeanList);
         }
     };
     /***
@@ -1571,19 +1612,13 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
                 fontSelectFragment.setCharCount(charSequence.length() + "/"+MAX_COUNT);
             }
             char[] chars = charSequence.toString().toCharArray();
-//            if (charSequence.length()>0){
-//                iv_edit_delete.setVisibility(View.VISIBLE);
-//            }
             if (!isSet&&!running){
                 Log.e(TAG, "onTextChanged: running"+charSequence);
                 running=true;
-//                    textBeanList.clear();
                 //没选
                 if (!textSelected()){
-//                    textBeanList.clear();
                     selection = clearEditText.getSelectionEnd();
                     if (isAutoColor){
-//                        setTextAutoColor(charSequence.toString());
                         getTextBeanListAutoColor(charSequence.toString());
                     }else {
                         if (!isPaste){
@@ -1592,22 +1627,15 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
                                     bean.setCharacter(chars[start+i]);
                                     bean.setBackdrop(colorSelctParams.getColor_backdrop());
                                     bean.setFont(colorSelctParams.getColor_font());
-                                    if (selection<charSequence.length()&&selection>0){
-//                                        if (chars.length==charCount&&textBeanList.size()>0){
-//                                            textBeanList.remove(selection-1);
-//                                        }
+                                    if (selection<charSequence.length()&&selection>0&&clearEditText.getSelectionEnd()-1<textBeanList.size()){
                                         textBeanList.add(clearEditText.getSelectionEnd()-1,bean);
                                         bean=null;
                                     }else {
-//                                        if (chars.length==charCount&&textBeanList.size()>0){
-//                                            textBeanList.remove(selection-1);
-//                                        }
                                         textBeanList.add(bean);
                                         bean=null;
                                     }
                                 }
 //                            }
-//                            setTextSpan(charSequence.toString());
                         }else {
                             isPaste = false;
                         }
@@ -1617,12 +1645,6 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
                         Log.e(TAG, "onTextChanged:字体色 "+textBeanList.get(i).getFont());
                         Log.e(TAG, "onTextChanged:背景色 "+textBeanList.get(i).getBackdrop());
                     }
-
-//                    if (selection<charSequence.length()){
-//                        clearEditText.setSelection(selection);
-//                    }else if (selection==charSequence.length()){
-//                        clearEditText.setSelection(clearEditText.getText().length());
-//                    }
                     clearEditText.requestFocus();
                     clearEditText.setCursorVisible(true);
                 }
@@ -1662,11 +1684,6 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
         return spannableStringBuilder;
     }
     private void setTextSpan(String text) {
-//        if (text.length()>MAX_COUNT||textBeanList.size()>MAX_COUNT){
-//            textBeanList.subList(0,MAX_COUNT);
-//            clearEditText.setSelection(MAX_COUNT);
-//            Toast.makeText(getApplication(),getResources().getString(R.string.out_of_max),Toast.LENGTH_SHORT).show();
-//        }
         Log.e("textBeanList",textBeanList.size()+"");
         if (spannableStringBuilder!=null){
             spannableStringBuilder.clear();
@@ -1694,13 +1711,9 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
         isSet=true;
         if (isSupportMarFullColor){
             clearEditText.setText(spannableStringBuilder);
-//            clearEditText.getText().clear();
-//            clearEditText.getText().append(spannableStringBuilder);
-//            clearEditText.getEditableText().append("0");
         }else {
             clearEditText.setText(text);
         }
-//        etMsg.setSelection(text.length());
     }
     private int parseColor(int position) {
         int color = -1;
@@ -1787,10 +1800,10 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
                 case CONNECT_AUTO:
                     Log.e(TAG, "handleMessage: CONNECT_AUTO" );
                     MEHandler.removeMessages(CONNECT_AUTO);
-//                    connectLastDevice();
-//                    if (!serviceBinder.getConnectedStatus()){
-//                        MEHandler.sendEmptyMessageDelayed(CONNECT_AUTO,5000);
-//                    }
+                    connectLastDevice();
+                    if (!serviceBinder.getConnectedStatus()){
+                        MEHandler.sendEmptyMessageDelayed(CONNECT_AUTO,5000);
+                    }
                     break;
                 case REFRESH_VP:
                     refreshViewByColorModel();
@@ -1843,33 +1856,20 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
 
     private void showDialog(String message){
         if (pd==null){
-            pd = new ProgressDialog(MEditActivity.this);
-            pd.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancel), new DialogInterface.OnClickListener() {
+            pd = new LoadingDialog(MEditActivity.this, new LoadingDialog.OnLoadingListener() {
                 @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
+                public void onCancel() {
+                    pd.dismiss();
                     Toast.makeText(getApplicationContext(),getString(R.string.cancelOperation),Toast.LENGTH_SHORT).show();
                     MEHandler.removeMessages(CMD_TIMEOUT_RECEIVE);
+                    serviceBinder.clearConnectTimeOut();
                     serviceBinder.disConnected();
                 }
             });
-//            pd = ProgressDialog.show(MEditActivity.this, "", message,
-//                    true, false);
             pd.setCancelable(true);
-//            pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
-//                @Override
-//                public void onCancel(DialogInterface dialogInterface) {
-//                    ble_admin.disConnect();
-//                }
-//            });
-            pd.setMessage(message);
             pd.setCanceledOnTouchOutside(false);
             pd.show();
-//            pd.setButton("cancel", new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialogInterface, int i) {
-//                    ble_admin.disConnect();
-//                }
-//            });
+            pd.setMessage(message);
         }else {
             pd.setMessage(message);
             pd.show();
@@ -1885,6 +1885,7 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
                     MEHandler.post(new Runnable() {
                         @Override
                         public void run() {
+                            MEHandler.sendEmptyMessage(DISMISS_DIALOG);
                             MEHandler.sendEmptyMessage(CONNECTED_FAIL);
 //                        CommonUtils.toast("open notify failed ");
                             serviceBinder.disConnected();
@@ -1892,7 +1893,9 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
                     });
                     break;
                 case BleConnectService.ServiceListener.connected_succeed:
+                    needAutoConnected = true;
                     isConnectIntime = true;
+                    connected_name =serviceBinder.getConnectedMacName();
 //                    mConnected = true;
                     MEHandler.sendEmptyMessage(DISMISS_DIALOG);
                     MEHandler.post(new Runnable() {
@@ -1905,6 +1908,7 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
                             aSwitch.setVisibility(View.VISIBLE);
                             Toast.makeText(getApplicationContext(), getResources().getString(R.string.connecttingSuccessful),
                                     Toast.LENGTH_SHORT).show();
+                            Log.e(TAG, "run:connected_name>>>>>> "+connected_name);
                             tv_device_name.setText(getTenChar(connected_name));
 
                         }
@@ -2011,7 +2015,7 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
                         isConnectIntime = false;
                         tv_device_name.setText(getResources().getString(R.string.connectstate));
                         connected_MAC="";
-                        connected_name = "";
+                         connected_name = "";
                         if (pd!=null){
                             pd.dismiss();
                         }
@@ -2220,15 +2224,6 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
     }
 
     private void connectDevice(){
-//        Runnable runnable = new Runnable() {
-//            @Override
-//            public void run() {
-//                if ((!serviceBinder.getConnectedStatus())&&(!connected_MAC.equals(""))){//未连接
-//
-//                }
-//            }
-//        };
-//        poolExecutor.execute(runnable);
         serviceBinder.connected(connected_MAC,connected_name);
     }
     public   void sendDataToDevice(){
@@ -2242,6 +2237,7 @@ public class MEditActivity extends BaseActivity implements View.OnClickListener,
                     Log.e("信息类型", sendCmdType + "");
                     if (sendCmdType==CommandHelper.dataType_data){
                         sendTxtData();
+                        Log.e(TAG, "run: data>>>"+Helpful.MYBytearrayToString(sendcmd));
                     }else if (sendCmdType == CommandHelper.dataType_light){
                         sendcmd = ((CmdConts.WRITE_LIGHT + tvLightNum.getText() + "<E>").getBytes());
                     }else if (sendCmdType == CommandHelper.dataType_mesList){

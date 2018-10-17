@@ -54,6 +54,8 @@ public class LedView extends AppCompatTextView {
     private List<Integer> wordWildLists = new ArrayList<>();//字符宽度
     private List<TextBean> beanList;//字符属性
     private boolean isSupportMarFullColor = false;
+    private boolean isLensImage = false;
+    private int wordEffectType = 0;
     @SuppressLint("HandlerLeak")
     private  android.os.Handler handler = new android.os.Handler() {
         @Override
@@ -61,15 +63,57 @@ public class LedView extends AppCompatTextView {
             super.handleMessage(msg);
             if (msg.what==1){
                 wordWildLists =  utils.getWordWilds();
+                makeWordEffect();
 //                beanList = utils.getTextBeanList();
+                Log.e("hander", "handleMessage: >>>"+msg.what);
                 postInvalidate();
             }
         }
     };
 
-        public String getContent() {
-            return text;
+    private void makeWordEffect() {
+        switch (wordEffectType){
+            case 0://无效果
+                break;
+            case 1://镜像
+//                if (isLensImage){
+//                }
+                matrix = utils.mirrorData(matrix);
+                beanList= getImageBeanList(beanList);
+                wordWildLists = getImageWordWild(wordWildLists);
+                break;
+            case 2://旋转90
+                matrix =utils.rotate90(matrix);
+                beanList= getImageBeanList(beanList);
+                wordWildLists=utils.getWordWilds();
+                break;
+            case 3://旋转180
+                matrix = utils.rotate180(matrix);
+                beanList= getImageBeanList(beanList);
+                wordWildLists = getImageWordWild(wordWildLists);
+                break;
+            case 4://旋转270
+                matrix =utils.rotate270(matrix);
+                wordWildLists=utils.getWordWilds();
+                break;
         }
+    }
+
+    private List<Integer> getImageWordWild(List<Integer> wordWildLists) {
+        List<Integer> list = new ArrayList<>();
+        for (int i =1;i<=wordWildLists.size();i++){
+            int wild = wordWildLists.get(wordWildLists.size()-i);
+            if (i==1){
+                wild = wild-1;
+            }
+            list.add(wild);
+        }
+        return list;
+    }
+
+    public String getContent() {
+        return text;
+    }
 
     private String text;
     /*
@@ -139,17 +183,30 @@ public class LedView extends AppCompatTextView {
                 utils.setPix(pix);
             }
             matrix = utils.getWordsInfo(txt,beanList);
+//            if (isLensImage){
+//                matrix = utils.mirrorData(matrix);
+//                beanList= getImageBeanList(beanList);
+//            }
             completeCallback.onComplete(true);
             if(colorVaules != 0) {
-                    selectorPaintColor = colorVaules;
-                    selectPaint.setColor(selectorPaintColor);
-                }
+                selectorPaintColor = colorVaules;
+                selectPaint.setColor(selectorPaintColor);
+            }
             handler.sendEmptyMessage(1);
 
 //            postInvalidate();
             return null;
         }
     };
+
+    private List<TextBean> getImageBeanList(List<TextBean> beanList) {
+        List<TextBean> list = new ArrayList<>();
+        for (int i =1;i<=beanList.size();i++){
+            list.add(beanList.get(beanList.size()-i));
+        }
+        return list;
+    }
+
     private completeCallback completeCallback;
     private  FutureTask<boolean[][]> task ;
     private Future<?> future ;
@@ -158,7 +215,7 @@ public class LedView extends AppCompatTextView {
     private String zlcs;
     private int colorVaules;
     public interface completeCallback{
-          void onComplete(boolean isComplete);
+        void onComplete(boolean isComplete);
     };
     public void setCompleteCallback(completeCallback callback){
         completeCallback = callback;
@@ -226,8 +283,10 @@ public class LedView extends AppCompatTextView {
      * @param zlcs  正 斜 粗
      * @param colorValue 选中颜色
      */
-    public void setMatrixTextWithColor(  final boolean isSupportMarFullColor, final String txt,   final int pix,   final String zlcs,  final int colorValue,final List<TextBean> beanList) {
+    public void setMatrixTextWithColor(  final boolean isSupportMarFullColor,final int wordEffectType, final String txt,   final int pix,   final String zlcs,  final int colorValue,final List<TextBean> beanList) {
         this.isSupportMarFullColor = isSupportMarFullColor;
+        this.isLensImage = isLensImage;
+        this.wordEffectType = wordEffectType;
         this. beanList= beanList;
         this.txt = txt;
         this.pix = pix;
@@ -283,7 +342,47 @@ public class LedView extends AppCompatTextView {
          * */
         return result;
     }
+    public void getDarwText() {
+        wordWildLists =  utils.getWordWilds();
+//        if (isLensImage){
+//            wordWildLists = getImageWordWild(wordWildLists);
+//        }
+        if (matrix != null && matrix.length > 0) {
+            latticeColors = new int[matrix.length][matrix[0].length];
+            getColumnColor();
+            radius = (getHeight() - (dots + 1) * spacing) / (2 * dots);
+            int col_back = 0;
+            int col_font = 1;
+//            Log.e("drawText: ", columnDataBeans.size() + "");
+//            for (int i = 0; i < columnDataBeans.size(); i++) {
+//            }
+            for (int column = 0; column < matrix[0].length; column++) {
 
+                if (column < columnDataBeans.size() && isSupportMarFullColor) {
+                    col_back = (columnDataBeans.get(column).getColor_back());
+                    col_font = (columnDataBeans.get(column).getColor_font());
+                    selectPaint.setColor(parseColor(col_font));
+                    normalPaint.setColor(parseColor(col_back));
+                } else {
+                    selectPaint.setColor(selectorPaintColor);
+                    normalPaint.setColor(normallPaintColor);
+                }
+                for (int row = 0; row < matrix.length; row++) {
+                    int length = matrix.length;//12
+                    int length1 = matrix[0].length;//24
+                    if (row < matrix.length && column < matrix[0].length) {
+                        if (row < matrix.length && column < matrix[0].length && matrix[row][column]) {
+//
+                            latticeColors[row][column] = col_font;//记录每个点的颜色值
+                        } else {
+                            latticeColors[row][column] = col_back;//记录每个点的颜色值
+                        }
+                    }
+                }
+//                row++;
+            }
+        }
+    }
     public int getLEDWidget(boolean isSupportMarFullColor) {
         if (isSupportMarFullColor){
             return utils.getLEDWidget();
@@ -330,7 +429,7 @@ public class LedView extends AppCompatTextView {
         return result;
     }
 
-    private void drawText(Canvas canvas) {
+    private synchronized void drawText(Canvas canvas) {
         if (matrix != null && matrix.length > 0) {
             latticeColors = new int[matrix.length][matrix[0].length];
             getColumnColor();
@@ -341,12 +440,15 @@ public class LedView extends AppCompatTextView {
 //            int column = 0;
             int col_back = 0;
             int col_font = 1;
-            Log.e("drawText: ", columnDataBeans.size()+"");
-            for (int i=0;i<columnDataBeans.size();i++){
-//                Log.e( "onTextChanged:字符 ",columnDataBeans.get(i).getCharacter());
-//                Log.e("字体色>>>",columnDataBeans.get(i).getColor_font()+"");
-//                Log.e("背景色>>>",columnDataBeans.get(i).getColor_back()+"");
+            if (columnDataBeans==null){
+                return;
             }
+            Log.e("drawText: ", columnDataBeans.size()+"");
+//            for (int i=0;i<columnDataBeans.size();i++){
+////                Log.e( "onTextChanged:字符 ",columnDataBeans.get(i).getCharacter());
+////                Log.e("字体色>>>",columnDataBeans.get(i).getColor_font()+"");
+////                Log.e("背景色>>>",columnDataBeans.get(i).getColor_back()+"");
+//            }
             for (int column = 0;getXPosition(column) < getWidth();column++) {
 //            for (int column = 0;column < matrix.length;column++) {
 //                Log.e("LEDView", "drawText: "+column);
@@ -361,17 +463,17 @@ public class LedView extends AppCompatTextView {
                     normalPaint.setColor(normallPaintColor);
                 }
                 for (int row = 0;getYPosition(row) < getHeight();row++){
-                        int length = matrix.length;//12
-                        int length1 = matrix[0].length;//24
+                    int length = matrix.length;//12
+                    int length1 = matrix[0].length;//24
                     if (row < matrix.length && column < matrix[0].length  ) {
                         if (row < matrix.length && column < matrix[0].length && matrix[row][column]) {
 //
-                        canvas.drawCircle(getXPosition(column), getYPosition(row), radius, selectPaint);
-                        latticeColors[row][column] = col_font;//记录每个点的颜色值
-                    } else {
-                        canvas.drawCircle(getXPosition(column), getYPosition(row), radius, normalPaint);
+                            canvas.drawCircle(getXPosition(column), getYPosition(row), radius, selectPaint);
+                            latticeColors[row][column] = col_font;//记录每个点的颜色值
+                        } else {
+                            canvas.drawCircle(getXPosition(column), getYPosition(row), radius, normalPaint);
                             latticeColors[row][column] = col_back;//记录每个点的颜色值
-                    }
+                        }
                     }
                 }
 //                row++;
@@ -393,6 +495,12 @@ public class LedView extends AppCompatTextView {
         }
     }
     private int datalengh = 0;
+    public int[][] getRgbPointData(){
+        return latticeColors;
+    }
+    public List<Integer> getWordWildLists(){
+        return wordWildLists;
+    }
     private byte[] getRGBData(){
         int y=latticeColors[0].length;
         int x = latticeColors.length;
@@ -497,6 +605,9 @@ public class LedView extends AppCompatTextView {
     }
     private List<ColumnDataBean> columnDataBeans;
     private synchronized void getColumnColor() {
+        if (wordWildLists.size()<1){
+            return;
+        }
         if (columnDataBeans!=null){
             columnDataBeans.clear();
         }else {

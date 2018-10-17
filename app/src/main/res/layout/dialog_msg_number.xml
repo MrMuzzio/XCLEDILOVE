@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <RadioGroup
+        android:id="@+id/rg_msg_number_selected"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:background="#a064c4f6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <RadioButton
+            android:id="@+id/rb_msg_number_null"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/btn_msg_number"
+            android:button="@null"
+            android:gravity="center"
+            android:text="--"
+            android:layout_height="wrap_content" />
+        <RadioButton
+            android:id="@+id/rb_msg_number_1"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:button="@null"
+            android:background="@drawable/btn_msg_number"
+            android:gravity="center"
+            android:text="1"
+            android:layout_height="wrap_content" />
+        <RadioButton
+            android:id="@+id/rb_msg_number_2"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:button="@null"
+            android:gravity="center"
+            android:background="@drawable/btn_msg_number"
+            android:text="2"
+            android:layout_height="wrap_content" />
+        <RadioButton
+            android:id="@+id/rb_msg_number_3"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:button="@null"
+            android:background="@drawable/btn_msg_number"
+            android:gravity="center"
+            android:text="3"
+            android:layout_height="wrap_content" />
+        <RadioButton
+            android:id="@+id/rb_msg_number_4"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/btn_msg_number"
+            android:button="@null"
+            android:gravity="center"
+            android:text="4"
+            android:layout_height="wrap_content" />
+        <RadioButton
+            android:id="@+id/rb_msg_number_5"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/btn_msg_number"
+            android:button="@null"
+            android:gravity="center"
+            android:text="5"
+            android:layout_height="wrap_content" />
+        <RadioButton
+            android:id="@+id/rb_msg_number_6"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/btn_msg_number"
+            android:button="@null"
+            android:gravity="center"
+            android:text="6"
+            android:layout_height="wrap_content" />
+        <RadioButton
+            android:id="@+id/rb_msg_number_7"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/btn_msg_number"
+            android:button="@null"
+            android:gravity="center"
+            android:text="7"
+            android:layout_height="wrap_content" />
+        <RadioButton
+            android:id="@+id/rb_msg_number_8"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/btn_msg_number"
+            android:button="@null"
+            android:gravity="center"
+            android:text="8"
+            android:layout_height="wrap_content" />
+    </RadioGroup>
+</LinearLayout>

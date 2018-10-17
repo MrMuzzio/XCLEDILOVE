@@ -19,7 +19,9 @@ public class SPUtils {
     /**
      * 保存在手机里面的文件名
      */
-    public static final String FILE_NAME = "share_data";
+    public static final String DEVICE = "device_data";
+    public static final String VALUES = "values_data";
+    public static final String DATETIME = "color_data_time";
 
     /**
      * 保存数据的方法，我们需要拿到保存数据的具体类型，然后根据类型调用不同的保存方法
@@ -29,9 +31,9 @@ public class SPUtils {
      * @param key
      * @param object
      */
-    public static void put(Context context, String key, Object object) {
+    public static void put(Context context,String tableName, String key, Object object) {
 
-        SharedPreferences sp = context.getSharedPreferences(FILE_NAME,
+        SharedPreferences sp = context.getSharedPreferences(tableName,
                 Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
 
@@ -61,8 +63,8 @@ public class SPUtils {
      * @param defaultObject
      * @return
      */
-    public static Object get(Context context, String key, Object defaultObject) {
-        SharedPreferences sp = context.getSharedPreferences(FILE_NAME,
+    public static Object get(Context context,String tableName ,String key, Object defaultObject) {
+        SharedPreferences sp = context.getSharedPreferences(tableName,
                 Context.MODE_PRIVATE);
 
         if (defaultObject instanceof String) {
@@ -90,8 +92,8 @@ public class SPUtils {
      * @param context
      * @param key
      */
-    public static void remove(Context context, String key) {
-        SharedPreferences sp = context.getSharedPreferences(FILE_NAME,
+    public static void remove(Context context,String tableName, String key) {
+        SharedPreferences sp = context.getSharedPreferences(tableName,
                 Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
         editor.remove(key);
@@ -103,8 +105,8 @@ public class SPUtils {
      *
      * @param context
      */
-    public static void clear(Context context) {
-        SharedPreferences sp = context.getSharedPreferences(FILE_NAME,
+    public static void clear(Context context,String tableName) {
+        SharedPreferences sp = context.getSharedPreferences(tableName,
                 Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
         editor.clear();
@@ -118,8 +120,8 @@ public class SPUtils {
      * @param key
      * @return
      */
-    public static boolean contains(Context context, String key) {
-        SharedPreferences sp = context.getSharedPreferences(FILE_NAME,
+    public static boolean contains(Context context,String tableName, String key) {
+        SharedPreferences sp = context.getSharedPreferences(tableName,
                 Context.MODE_PRIVATE);
         return sp.contains(key);
     }
@@ -131,8 +133,8 @@ public class SPUtils {
      * @param context
      * @return
      */
-    private static Map<String, ?> getAll(Context context) {
-        SharedPreferences sp = context.getSharedPreferences(FILE_NAME,
+    private static Map<String, ?> getAll(Context context,String tableName) {
+        SharedPreferences sp = context.getSharedPreferences(tableName,
                 Context.MODE_PRIVATE);
         return sp.getAll();
     }

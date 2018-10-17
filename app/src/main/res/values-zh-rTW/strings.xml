@@ -1,0 +1,256 @@
+<resources>
+    <!--<string name="app_name">RANZER SUNTune</string>-->
+    <string name="app_name">LEDILove</string>
+    <string name="set">設置</string>
+    <string name="size">大小</string>
+    <string name="font">字體</string>
+    <string name="bytes">字符</string>
+    <string name="special">特效</string>
+    <string name="pageEffectAndModeSetting">頁面特效及模式選擇</string>
+    <string name="left">左移</string>
+    <string name="right">右移</string>
+    <string name="hold">固定</string>
+    <string name="snow">雪花</string>
+    <string name="up">上移</string>
+    <string name="down">下移</string>
+    <string name="flash">閃爍</string>
+    <string name="marquee">跑馬燈</string>
+    <string name="comfirmAndSend">確定并發送</string>
+    <string name="speed">速度</string>
+    <string name="parameter_set">設置設備參數</string>
+    <string name="battery_query">查詢電量</string>
+    <string name="speed_set">設置速度</string>
+    <string name="sendSpeed">發送速度</string>
+    <string name="sendBrightness">發送亮度</string>
+    <string name="brightness">亮度</string>
+    <string name="brightness_set">設置亮度</string>
+    <string name="device_rename">設置設備名稱</string>
+    <string name="device_rename_hint">請輸入新名稱</string>
+    <string name="sendlist">發送列表</string>
+    <string name="send">發送</string>
+    <string name="dialog_reset">即將重置連接，請確認。</string>
+    <string name="dialog_positive">重置</string>
+    <string name="dialog_negative">取消</string>
+    <string name="dialog_sending">發送中……</string>
+    <string name="out_of_max">字符超過最大長度，已自動截取！</string>
+    <string name="connectstate">無連接</string>
+    <string name="notification_playing">正在同步播放</string>
+    <string name="alignment">對齊方式</string>
+    <string name="share_app_introduce">一個專注LED顯示屏控制的APP</string>
+    <string name="msg_number">信息號</string>
+    <!-- Toast -->
+    <string name="toast_exit_app">再按一次退出程序</string>
+    <string name="toast_enter_preview">進入實時預覽模式</string>
+    <string name="toast_exit_preview">退出實時預覽模式</string>
+    <string name="wordType_normal">正體</string>
+    <string name="wordType_italic">斜體</string>
+    <string name="wordType_bold">粗體</string>
+    <string name="error_device">非法藍牙</string>
+    <string name="current_battery">當前設備電量為：</string>
+    <string name="connect_device">請連接設備后重試！</string>
+    <!-- Screen size -->
+    <string name="screen_size_12">12xN</string>
+    <string name="screen_size_16">16xN</string>
+    <string name="screen_size_3232">32x32</string>
+    <string name="screen_size_4048">40x48</string>
+    <!--type face-->
+    <string name="typeFace_arial">Arial</string>
+    <string name="typeFace_roman">New Roman</string>
+    <string name="typeFace_verdana">Verdana</string>
+    <string name="typeFace_song">宋體</string>
+    <string name="typeFace_YaHei">雅黑</string>
+
+    <string name="music_built">內置音樂</string>
+    <string name="music_local">本地音樂</string>
+    <string name="save_directory">已保存至：</string>
+    <!--share-->
+    <string name="friend">微信好友</string>
+    <string name="moments">微信朋友圈</string>
+    <string name="qq_friend">QQ好友</string>
+    <string name="qq_zone">QQ空間</string>
+    <string name="share">分享</string>
+    <string name="to">到：</string>
+    <string name="sharedescroption">提示：進入后點擊“訪問原網頁”用瀏覽器打開并下載！</string>
+    <!--hint-->
+    <string name="sub_1">點擊分享</string>
+    <string name="sub_2">或</string>
+    <string name="sub_3">下載</string>
+    <string name="qr_code"> 二維碼 </string>
+    <string name="url_download"> 下載地址 </string>
+    <string name="ok">確定</string>
+    <string name="cancel">取消</string>
+    <string name="successfulOperation">操作成功!</string>
+    <string name="cancelOperation">操作已取消!</string>
+    <string name="hint">提示</string>
+    <string name="pleaseEnterText">請輸入需要發送的信息</string>
+    <string name="pleasepoweron">請先發送開機命令</string>
+    <string name="please_wait">任務繁忙,請稍等……</string>
+    <string name="connecttingSuccessful">連接成功!</string>
+    <string name="sendsuccess">發送成功</string>
+    <string name="sendfailed">發送失敗</string>
+    <string name="bteOntTurnOn">藍牙沒有打開</string>
+    <string name="connectionTimedOut">連接超時</string>
+    <string name="failed2Obtainservice">打開服務失敗</string>
+    <string name="connectedfail">連接失敗</string>
+    <string name="Notificationfailed2open">通知打開失敗</string>
+    <string name="connectionCasBeenDisconnected">連接已斷開</string>
+    <string name="sendOperationTimeout">發送操作超時</string>
+    <string name="ble_disconnect_confirm">你選擇的參數與當前連接的設備不一致，如果切換將斷開當前連接！\n請確認是否繼續？</string>
+
+    <string name="pull_to_refresh_pull_label">向下拖動刷新</string>
+    <string name="string_update_time">最後更新：%s</string>
+    <string name="string_refreshing">掃描藍牙中…</string>
+    <string name="scan_over">掃描結束</string>
+    <string name="release_to_refresh_pull_label">鬆開立即刷新</string>
+    <string name="loading_error">點擊加載</string>
+    <string name="loading_wait">正在獲取更多…</string>
+    <string name="click_for_loading_more">點擊加載更多</string>
+    <string name="all_has_show">已顯示全部內容</string>
+
+    <string name="list_click">點擊屏幕,重新加載</string>
+    <string name="list_empty">暫無數據</string>
+
+    <string name="devices">設備列表</string>
+    <string name="failedOperation">操作失敗!</string>
+    <string name="connecting">正在連接</string>
+    <string name="connecting_auto">自動連接中</string>
+    <string name="refreshheadupdate">最後更新於：剛剛</string>
+    <string name="quick_hint">提示：可選擇多條信息同時發送</string>
+    <!--viewpager-->
+    <string name="pre">顏色</string>
+    <string name="after">字體</string>
+    <string name="color_auto">自動顏色</string>
+    <string name="color_manual">自定義</string>
+    <!--fragment-->
+    <string name="preview">預覽色</string>
+    <string name="color_font">字體色</string>
+    <string name="color_back">背景色</string>
+    <string name="color_model">顏色模式</string>
+    <string name="gallery_inlay">內置圖片</string>
+    <string name="gallery_custom">自定義圖片</string>
+    <string name="gallery_gif">動畫</string>
+    <!--画板-->
+    <string name="undo">上一步</string>
+    <string name="reset">清除</string>
+    <string name="save">保存</string>
+    <string name="save_as">另存為</string>
+    <string name="storage_method">保存方式</string>
+    <string name="dimensions">規格：</string>
+    <string name="fixation_color">顏色選擇</string>
+    <string name="text_hit">輸入文字</string>
+    <string name="no_data">暫無數據</string>
+    <!--藍牙重命名-->
+    <string name="code_enter_at">進入指令模式成功！</string>
+    <string name="code_try_rename">嘗試重命名藍牙……</string>
+    <string name="code_ble_name">藍牙名： </string>
+    <string name="code_change_to"> 更改為： </string>
+    <string name="code_rename_succeed">修改名稱成功，藍牙模塊重啟后生效！</string>
+    <string name="code_ble_restarting">正在嘗試重啟藍牙模塊……</string>
+    <string name="code_disconnect_ble">操作成功，即將斷開連接！</string>
+    <string name="code_close_ble">為了刷新更改后的設備，將重啟你的手機藍牙！</string>
+    <string name="code_exist_at">退出指令模式</string>
+    <string name="code_error">錯誤代碼</string>
+    <!--帮助-->
+    <string name="dfu_selected_file">選擇文件</string>
+    <string name="dfu_file_name">文件名</string>
+    <string name="dfu_file_size">文件大小</string>
+    <string name="dfu_upload">上傳</string>
+    <string name="help">幫助</string>
+    <string name="about">關於APP</string>
+    <string name="music">音樂同步</string>
+    <string name="music_simplename">音樂</string>
+    <string name="text">文本</string>
+    <string name="quick_edit">快速發送</string>
+    <string name="gif">動畫</string>
+    <string name="gallery">圖庫</string>
+    <string name="palte">手繪畫板</string>
+    <string name="set_data_time">設置日期/時間顏色</string>
+    <string name="device_dfu">設備版本升級</string>
+    <string name="data_time">顯示日期/時間</string>
+    <string name="light_control">燈光控制</string>
+    <string name="other">其他</string>
+    <string name="back">返回</string>
+    <string name="home">主頁</string>
+    <string name="control_close">關閉</string>
+    <string name="control_open">打開</string>
+    <string name="control_flash">閃爍</string>
+    <string name="PhotoGallery">圖庫</string>
+    <string name="palte_simplename">畫板</string>
+    <string name="diy">自定義</string>
+    <string name="operating_manual">
+        APP操作說明：\n
+
+1.下載APP操作軟件：\n
+
+掃描二維碼，選擇對應系統下載\n
+
+安裝成功APP後，成功顯示名為’LEDILove’\n
+
+2.編輯資訊及發送\n
+
+第一.打開LED顯示幕，手機藍牙功能和APP軟件.\n
+
+第二.點擊APP藍牙訊號搜索功能，選擇相應的藍牙訊號並點擊連接。\n
+
+第三.在APP操作介面編輯方塊輸入所需顯示的內容、選擇相應的字型大小、字體、圖標、字體色、
+
+背景色、資訊號（1-8）及移動模式。\n
+
+第四，點擊右上角的設定按鈕，可設定資訊速度，亮度及發送清單.\n
+
+最後，編輯完成後點擊‘確定並發送’按鈕\n
+
+3.LED荧幕成功顯示資訊。\n
+    </string>
+    <string name="helpMessage">
+        問題：\n
+
+藍牙連接超時/發送操作超時/發送失敗\n
+
+解決方法：\n
+
+1.請確認連接的設備是否與本APP匹配（參照設備說明書）\n
+
+2.請保證被操作設備線上狀態（可通訊）\n
+
+3.空曠地帶保持距離在10步之內（RSSI值大於-90）\n
+
+4.儘量避開障礙物\n
+
+如以上都無問題，請重啓設備和手機藍牙重試！</string>
+
+
+
+    <string name="ver_head">當前版本：V</string>
+    <string name="aboutMessage">
+LED顯示幕控制軟件，一款基於低功耗藍牙4.0科技的LED顯示幕產品控制端，
+通過與產品通訊，可以編輯添加自定義資訊，
+支持資訊左移、右移、上移、下移、雪花、跑馬燈等多種動畫模式，支持文字移動速度、亮度、開關機設定。支援中文、英文等多國語言。</string>
+    <string name="shar_app">分享</string>
+
+    <string name="app_download">http://www.xn--led-f00fr20c.com:8081/LEDILOVE_</string>
+    <string name="app_update">發現新版本，是否更新</string>
+    <string name="app_new">已是最新版本</string>
+
+    <string name="refresh_tip">下拉可重繪設備清單</string>
+    <string name="shift_auto">自動/自定義</string>
+    <string name="model_color">顏色模式</string>
+
+    <!--網絡-->
+    <string name="netWorkTimeOout">獲取資訊超時，請檢查網絡！</string>
+    <string name="netWorkConntect">正在獲取版本資訊……</string>
+
+    <!--音樂-->
+    <string name="play_model_repeat">清單迴圈</string>
+    <string name="play_model_shuffle">隨機播放</string>
+    <string name="play_model_repeat_one">單曲迴圈</string>
+
+    <string name="sync_enable">已開啟同步</string>
+    <string name="sync_disenable">已關閉同步</string>
+    <string name="playing_music">正在播放：</string>
+    <string name="playing_music_next">下一首：</string>
+
+    <string name="unknown_music">未知</string>
+    <string name="unconnect_device">未連接設備！</string>
+
+</resources>

@@ -19,14 +19,14 @@
             android:layout_weight="0.5"
             android:gravity="center|left"
             android:orientation="horizontal"
-            android:paddingLeft="15dp">
+            >
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/size"
-                android:textColor="@color/txt_red"
-                android:textSize="16sp" />
+                android:textColor="@color/text_color_yellow"
+                android:textSize="14sp" />
 
             <Spinner
                 android:id="@+id/spinnerWordSize"
@@ -40,20 +40,20 @@
             android:layout_width="0dp"
             android:layout_height="30dp"
             android:layout_weight="0.5"
-            android:gravity="center|right"
-            android:paddingRight="15dp"
+            android:gravity="center|left"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/font"
-                android:textColor="@color/txt_red"
-                android:textSize="16sp" />
+                android:textColor="@color/text_color_yellow"
+                android:textSize="14sp" />
 
             <Spinner
                 android:id="@+id/spinnerWordType"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:gravity="clip_horizontal"
                 android:layout_marginLeft="5dp"
@@ -69,18 +69,18 @@
 
         <LinearLayout
             android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="30dp"
-            android:layout_weight="0.4"
             android:gravity="center|left"
             android:orientation="horizontal"
-            android:paddingLeft="15dp">
+            >
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/bytes"
-                android:textColor="@color/txt_red"
-                android:textSize="16sp" />
+                android:textColor="@color/text_color_yellow"
+                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/tvTxtNumber"
@@ -89,7 +89,7 @@
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="5dp"
                 android:text="0/250"
-                android:textColor="@color/white"
+                android:textColor="@color/black"
                 android:textSize="14sp" />
 
         </LinearLayout>
@@ -97,12 +97,27 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="30dp"
-            android:layout_weight="0.6"
+            android:layout_weight="1"
             android:gravity="center|left"
             android:orientation="horizontal">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/special"
+                android:textColor="@color/text_color_yellow"
+                android:textSize="14sp" />
 
+            <Spinner
+                android:id="@+id/sp_special"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="clip_horizontal"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="0dp"/>
         </LinearLayout>
+
 
     </LinearLayout>
     <HorizontalScrollView
@@ -122,6 +137,7 @@
                 android:layout_height="80dp"
                 android:paddingRight="5dp"
                 android:paddingLeft="5dp"
+                android:paddingTop="2dp"
                 android:textColor="@color/black"
                 android:id="@+id/tv_unicode_1"/>
             <TextView
@@ -132,6 +148,7 @@
                 android:layout_height="80dp"
                 android:paddingRight="5dp"
                 android:paddingLeft="5dp"
+                android:paddingTop="2dp"
                 android:textColor="@color/black"
                 android:id="@+id/tv_unicode_2"/>
             <TextView
@@ -141,6 +158,7 @@
                 android:paddingRight="5dp"
                 android:paddingLeft="5dp"
                 android:layout_height="80dp"
+                android:paddingTop="2dp"
                 android:textColor="@color/black"
                 android:id="@+id/tv_unicode_3"/>
             <TextView
@@ -150,6 +168,7 @@
                 android:background="@drawable/selector_main_btn"
                 android:paddingRight="5dp"
                 android:paddingLeft="5dp"
+                android:paddingTop="2dp"
                 android:textColor="@color/black"
                 android:id="@+id/tv_unicode_4"/>
             <TextView
@@ -159,6 +178,7 @@
                 android:background="@drawable/selector_main_btn"
                 android:paddingRight="5dp"
                 android:paddingLeft="5dp"
+                android:paddingTop="2dp"
                 android:textColor="@color/black"
                 android:id="@+id/tv_unicode_5"/>
             <TextView
@@ -167,6 +187,7 @@
                 android:layout_height="80dp"
                 android:background="@drawable/selector_main_btn"
                 android:paddingRight="5dp"
+                android:paddingTop="2dp"
                 android:paddingLeft="5dp"
                 android:textColor="@color/black"
                 android:id="@+id/tv_unicode_6"/>
@@ -177,6 +198,7 @@
                 android:background="@drawable/selector_main_btn"
                 android:paddingRight="5dp"
                 android:paddingLeft="5dp"
+                android:paddingTop="2dp"
                 android:textColor="@color/black"
                 android:id="@+id/tv_unicode_7"/>
             <TextView
@@ -186,6 +208,7 @@
                 android:background="@drawable/selector_main_btn"
                 android:paddingRight="5dp"
                 android:paddingLeft="5dp"
+                android:paddingTop="2dp"
                 android:textColor="@color/black"
                 android:id="@+id/tv_unicode_8"/>
             <TextView
@@ -194,6 +217,7 @@
                 android:layout_height="80dp"
                 android:background="@drawable/selector_main_btn"
                 android:paddingRight="5dp"
+                android:paddingTop="2dp"
                 android:paddingLeft="5dp"
                 android:textColor="@color/black"
                 android:id="@+id/tv_unicode_9"/>
@@ -203,6 +227,7 @@
                 android:layout_height="80dp"
                 android:background="@drawable/selector_main_btn"
                 android:paddingRight="5dp"
+                android:paddingTop="2dp"
                 android:paddingLeft="5dp"
                 android:textColor="@color/black"
                 android:id="@+id/tv_unicode_10"/>
@@ -213,6 +238,7 @@
                 android:background="@drawable/selector_main_btn"
                 android:paddingRight="5dp"
                 android:paddingLeft="5dp"
+                android:paddingTop="2dp"
                 android:textColor="@color/black"
                 android:id="@+id/tv_unicode_11"/>
             <TextView
@@ -222,6 +248,7 @@
                 android:background="@drawable/selector_main_btn"
                 android:paddingRight="5dp"
                 android:paddingLeft="5dp"
+                android:paddingTop="2dp"
                 android:textColor="@color/black"
                 android:id="@+id/tv_unicode_12"/>
             <TextView
@@ -231,6 +258,7 @@
                 android:background="@drawable/selector_main_btn"
                 android:paddingRight="5dp"
                 android:paddingLeft="5dp"
+                android:paddingTop="2dp"
                 android:textColor="@color/black"
                 android:id="@+id/tv_unicode_13"/>
             <TextView
@@ -240,6 +268,7 @@
                 android:background="@drawable/selector_main_btn"
                 android:paddingRight="5dp"
                 android:paddingLeft="5dp"
+                android:paddingTop="2dp"
                 android:textColor="@color/black"
                 android:id="@+id/tv_unicode_14"/>
             <TextView
@@ -249,6 +278,7 @@
                 android:background="@drawable/selector_main_btn"
                 android:paddingRight="5dp"
                 android:paddingLeft="5dp"
+                android:paddingTop="2dp"
                 android:textColor="@color/black"
                 android:id="@+id/tv_unicode_15"/>
             <TextView
@@ -257,6 +287,7 @@
                 android:layout_height="80dp"
                 android:background="@drawable/selector_main_btn"
                 android:paddingRight="5dp"
+                android:paddingTop="2dp"
                 android:paddingLeft="5dp"
                 android:textColor="@color/black"
                 android:id="@+id/tv_unicode_16"/>
@@ -267,6 +298,7 @@
                 android:background="@drawable/selector_main_btn"
                 android:paddingRight="5dp"
                 android:paddingLeft="5dp"
+                android:paddingTop="2dp"
                 android:textColor="@color/black"
                 android:id="@+id/tv_unicode_17"/>
             <TextView
@@ -275,6 +307,7 @@
                 android:layout_height="80dp"
                 android:background="@drawable/selector_main_btn"
                 android:paddingRight="5dp"
+                android:paddingTop="2dp"
                 android:paddingLeft="5dp"
                 android:textColor="@color/black"
                 android:id="@+id/tv_unicode_18"/>
@@ -284,6 +317,7 @@
                 android:layout_height="80dp"
                 android:background="@drawable/selector_main_btn"
                 android:paddingRight="5dp"
+                android:paddingTop="2dp"
                 android:paddingLeft="5dp"
                 android:textColor="@color/black"
                 android:id="@+id/tv_unicode_19"/>
@@ -291,6 +325,7 @@
                 android:layout_width="wrap_content"
                 android:textSize="28sp"
                 android:layout_height="80dp"
+                android:paddingTop="2dp"
                 android:background="@drawable/selector_main_btn"
                 android:paddingRight="5dp"
                 android:paddingLeft="5dp"
